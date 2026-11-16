@@ -1,0 +1,17 @@
+{
+  "name": "family-work-on-the-unit",
+  "version": "0.1.0",
+  "private": true,
+  "description": "A companion for residents and attending physicians doing family work on adult inpatient psychiatry units.",
+  "type": "module",
+  "license": "SEE LICENSE IN LICENSE",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "build": "node src/build.mjs",
+    "build:public": "node src/build.mjs --channel public",
+    "test": "node --test",
+    "check": "npm test && node src/build.mjs",
+    "queue": "node tools/queue.mjs",
+    "attest": "node tools/attest.mjs"
+  }
+}

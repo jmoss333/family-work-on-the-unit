@@ -1,0 +1,30 @@
+{
+  "schema": 1,
+  "note": "Names this site must not print: the unit its workflow comes from, that unit's institution and affiliates, and the products it uses. Stored as hashes so this file names nobody. Add with: node tools/protect-term.mjs add -   Check with: node tools/protect-term.mjs scan",
+  "algorithm": "sha256 of the term in lower case, letters and digits only, words joined by single spaces",
+  "limits": "A hash of a short name can be confirmed by someone who already suspects the name. The list keeps names from being written down; it is not secrecy.",
+  "maxWords": 4,
+  "hashes": [
+    "1237df6e6d685911b1abd60baf51090495724f82b03dfc8c067e544e52c50e20",
+    "32a765e7d0d45bed72a0e2cb5ce1a97d025d00c010a0f9b5575f5b1f49b1ebb6",
+    "347fe50105b900e34e0309a1f0ee900fdc86305f4634ac2e4b2001f4149cf4d0",
+    "3e6011d3a01a014077a2a7b096b48a53cd362ad6312c2e94c6c435fa016836f9",
+    "3ea125d0bff386e6754b3782b300016fc79a9cf8f8669c0a5c3db64467ddb681",
+    "49a70bd1e731c8cd1f77a9b75803bad6453ea9c6bc1cbc5e32a1dd19aa5d31db",
+    "560132a3a1ba53d299a83b53b3f6a5cd599b8b1cefd1d0d6ac80d02433239ac1",
+    "600fc757584ba3819337d7fa73f4ee3d263864efe259b3bfdf50456c645b56aa",
+    "728c1de59ab1739370622911548768a33e5bb8890696c84e02968ff2c07c0705",
+    "8a0995aecf4d900810279638eff481e4e4bb69f2d0ec2a642dbdf2a0d0397323",
+    "cb4ef9adfc49eeda9c1e6823ebd43fe9a4bae6a1ddf62bd1e94e31b431d927ea",
+    "d528922e9c007497cd062185a01363c12fa21478b08f580f8da89ae109b08f15",
+    "dd8f063fa111eca1392e441a4ee80681986c67e5371103ce04db70af4b23c9c4",
+    "e06005330e95172876d23d6e1c6c64df1d1fd35f279a75f55153b1375d16f122",
+    "e625fd34e7c456dc5e30040f95bfbb0b482299d54bff3756a2cc705ec3214ea7",
+    "ee7ead7c97c393d549d1a7af85d917d7f1cf59020c8af5c049c1af0d7febcbff"
+  ],
+  "starts": [
+    "62f2df82eae9f9b96d42bcda9ed2db7c58a27a6a37ff7d78446f33043c5a0775",
+    "adba6c0ec8a8d89efb03de642427a09302fa4f7474989ecf33fd545a30d2ff5b",
+    "ee7ead7c97c393d549d1a7af85d917d7f1cf59020c8af5c049c1af0d7febcbff"
+  ]
+}

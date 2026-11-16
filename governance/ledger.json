@@ -1,0 +1,202 @@
+{
+  "start/how-to-use": {
+    "status": "pending",
+    "risk": {
+      "kind": "general",
+      "level": "low"
+    },
+    "reason": "Orientation page written by Claude for the review build (2026-11-15); a third use, the unit workflow, was added 2026-11-16. Awaiting faculty review.",
+    "at": "2026-11-16",
+    "by": "Pending faculty review"
+  },
+  "start/one-spine": {
+    "status": "pending",
+    "risk": {
+      "kind": "clinical",
+      "level": "moderate"
+    },
+    "reason": "Framing page written by Claude (2026-11-15): two kinds of conversation and a crosswalk. A five-part mapping from the November teaching was added 2026-11-16. The framing is a faculty decision.",
+    "at": "2026-11-16",
+    "by": "Pending faculty review"
+  },
+  "before/prepare-a-meeting": {
+    "status": "pending",
+    "risk": {
+      "kind": "clinical",
+      "level": "moderate"
+    },
+    "reason": "Move card drafted with ChatGPT in the Astra design brief (2026-11-15), lifted verbatim; awaiting faculty review.",
+    "at": "2026-11-15",
+    "by": "Pending faculty review"
+  },
+  "room/hear-what-each-person-means": {
+    "status": "pending",
+    "risk": {
+      "kind": "clinical",
+      "level": "moderate"
+    },
+    "reason": "Move card drafted with ChatGPT in the Astra design brief (2026-11-15), lifted verbatim; awaiting faculty review.",
+    "at": "2026-11-15",
+    "by": "Pending faculty review"
+  },
+  "room/identify-an-interaction-pattern": {
+    "status": "pending",
+    "risk": {
+      "kind": "clinical",
+      "level": "moderate"
+    },
+    "reason": "Move card drafted with ChatGPT in the Astra design brief (2026-11-15), lifted verbatim; awaiting faculty review.",
+    "at": "2026-11-15",
+    "by": "Pending faculty review"
+  },
+  "room/shift-one-exchange": {
+    "status": "pending",
+    "risk": {
+      "kind": "clinical",
+      "level": "moderate"
+    },
+    "reason": "Move card drafted with ChatGPT in the Astra design brief (2026-11-15), lifted verbatim; awaiting faculty review.",
+    "at": "2026-11-15",
+    "by": "Pending faculty review"
+  },
+  "room/make-a-plan-both-people-can-own": {
+    "status": "pending",
+    "risk": {
+      "kind": "clinical",
+      "level": "moderate"
+    },
+    "reason": "Move card drafted with ChatGPT in the Astra design brief (2026-11-15), lifted verbatim; awaiting faculty review.",
+    "at": "2026-11-15",
+    "by": "Pending faculty review"
+  },
+  "room/close-with-follow-through": {
+    "status": "pending",
+    "risk": {
+      "kind": "clinical",
+      "level": "moderate"
+    },
+    "reason": "Move card drafted with ChatGPT in the Astra design brief (2026-11-15), lifted verbatim; awaiting faculty review.",
+    "at": "2026-11-15",
+    "by": "Pending faculty review"
+  },
+  "formats/time-format-stance": {
+    "status": "pending",
+    "risk": {
+      "kind": "clinical",
+      "level": "moderate"
+    },
+    "reason": "Rewritten by Claude (2026-11-16) from Dr. Moss's November 2026 resident reference and slides, replacing the 2026-11-15 draft. The sleep-figure sentence is carried from his July handbook. Awaiting review.",
+    "at": "2026-11-16",
+    "by": "Pending faculty review"
+  },
+  "formats/family-meeting-playbook-90": {
+    "status": "pending",
+    "risk": {
+      "kind": "clinical",
+      "level": "moderate"
+    },
+    "reason": "Byte-identical to text attested in the Psychiatry Clerkship Library on 2026-09-26; awaiting faculty confirmation for this site and audience.",
+    "at": "2026-11-15",
+    "by": "Pending faculty review"
+  },
+  "formats/modalities": {
+    "status": "pending",
+    "risk": {
+      "kind": "clinical",
+      "level": "moderate"
+    },
+    "reason": "Byte-identical to text attested in the Psychiatry Clerkship Library on 2026-09-26; awaiting faculty confirmation for this site and audience.",
+    "at": "2026-11-15",
+    "by": "Pending faculty review"
+  },
+  "formats/pocket-card": {
+    "status": "pending",
+    "risk": {
+      "kind": "clinical",
+      "level": "high"
+    },
+    "reason": "Copied byte for byte from an unshipped source file in the Psychiatry Clerkship Library. Never attested anywhere; includes a safety screen and stop rules. Awaiting faculty review.",
+    "at": "2026-11-15",
+    "by": "Pending faculty review"
+  },
+  "studio/when-a-friend-answers-first": {
+    "status": "pending",
+    "risk": {
+      "kind": "clinical",
+      "level": "high"
+    },
+    "reason": "Fictional rehearsal from the Astra prototype plus six branches added by Claude (declined meeting; privacy slip). Rehearses a coercion disclosure; every branch needs faculty and lived-experience review.",
+    "at": "2026-11-15",
+    "by": "Pending faculty review"
+  },
+  "studio/check-a-draft": {
+    "status": "pending",
+    "risk": {
+      "kind": "general",
+      "level": "moderate"
+    },
+    "reason": "Written by Claude (2026-11-15) around the fixed review exercise in the Astra design brief; the three quoted lines are the brief’s. Awaiting faculty review.",
+    "at": "2026-11-15",
+    "by": "Pending faculty review"
+  },
+  "teach/observer-card": {
+    "status": "pending",
+    "risk": {
+      "kind": "general",
+      "level": "moderate"
+    },
+    "reason": "Assembled from sentences in the Astra design brief and prototype (2026-11-15); awaiting faculty review.",
+    "at": "2026-11-15",
+    "by": "Pending faculty review"
+  },
+  "system/unit-workflow": {
+    "status": "pending",
+    "risk": {
+      "kind": "local-policy",
+      "level": "high"
+    },
+    "reason": "De-identified by Claude (2026-11-16) from the author's unit procedure v2.0. It describes a real unit: needs the author's read for identifiers and permission to publish, as well as clinical review.",
+    "at": "2026-11-16",
+    "by": "Pending faculty review"
+  },
+  "system/set-it-up": {
+    "status": "pending",
+    "risk": {
+      "kind": "local-policy",
+      "level": "moderate"
+    },
+    "reason": "Assembled by Claude (2026-11-16) from the author's November 2026 slides and July 2026 attending handbook, product names removed. Describes a real unit's practice; awaiting faculty review and release.",
+    "at": "2026-11-16",
+    "by": "Pending faculty review"
+  },
+  "evidence/register": {
+    "status": "pending",
+    "risk": {
+      "kind": "clinical",
+      "level": "moderate"
+    },
+    "reason": "Citations and figures machine-checked against PubMed on 2026-11-15. The interpretive summaries (Astra brief and Claude) have not had faculty review.",
+    "at": "2026-11-15",
+    "by": "Pending faculty review"
+  },
+  "boundaries/choice-and-confidentiality": {
+    "status": "pending",
+    "risk": {
+      "kind": "legal",
+      "level": "high"
+    },
+    "reason": "Privacy and disclosure guidance drafted with ChatGPT (Astra brief, 2026-11-15). Cited sources were confirmed to exist; the legal reading needs faculty and institutional privacy review.",
+    "at": "2026-11-15",
+    "by": "Pending faculty review"
+  },
+  "about/how-this-site-is-made": {
+    "status": "pending",
+    "risk": {
+      "kind": "general",
+      "level": "low"
+    },
+    "reason": "Process and licence statement written by Claude for the review build (2026-11-15; two sentences on the unit workflow added 2026-11-16). The licence choice is a faculty decision.",
+    "at": "2026-11-15",
+    "by": "Pending faculty review"
+  }
+}

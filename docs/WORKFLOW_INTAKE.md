@@ -1,0 +1,63 @@
+# The unit workflow: where each sentence came from
+
+Written 2026-11-16 for the faculty reviewer. It covers the three pages built that day from the author's own materials:
+
+| Page | Built from |
+|---|---|
+| The unit workflow (`workflows/unit-family-meeting.workflow.json`) | The author's one-page unit procedure for family meetings, version 2.0, November 2026 |
+| Set it up on your unit (`content/pages/system-set-it-up.md`) | Two slides and their speaker notes from the author's November 2026 resident teaching; the author's July 2026 handbook for attending psychiatrists |
+| Time, format and stance (`content/pages/formats-time-format-stance.md`) | The author's November 2026 one-page resident reference; one slide and its notes from the same teaching |
+
+None of the source documents is in this repository. They name the unit, its institution and the products it uses.
+
+## How the text was carried over
+
+The source documents were read as text from the author's document store on 2026-11-16 and copied by an AI assistant (Claude). Every field was then re-read against the source, clause by clause.
+
+That is weaker than the check the move cards had. The cards were lifted by a script and compared by a script. Here there was no file to run a script on, so the comparison was a reading. If the procedure is saved as text beside the other intake files, the same byte-level comparison can be run.
+
+## What was changed in the workflow
+
+The procedure's wording is kept. These are all the departures.
+
+| Change | In the procedure | On the page |
+|---|---|---|
+| Removed | The title line naming the unit; the line naming the institution, the owner, the version and the review date | The page title; "Workflow version 2.0"; a one-sentence statement of where it comes from |
+| Removed | The closing list of sources: slide numbers and sections of an internal manual | Nothing |
+| Replaced | The name of the ambient documentation product (step 7) | "An ambient documentation tool" |
+| Replaced | The names of two AI products (guardrail 3) | "an AI tool" |
+| Replaced | The name of the health-record product (step 7, where it is written) | "discharge-summary draft" |
+| Expanded | "SW" (steps 3 and 6, and the first exception) | "social work" |
+| Expanded | "5-min phone update", "30-min structured", "60–90-min alliance repair (optional)" as the names of the formats | "5-minute phone update", "30-minute structured meeting", "60–90-minute alliance repair (optional)". Step 3 keeps the short forms |
+| Rendered | A dash under "Where it is written" (steps 5 and 6) | A dash, read to a screen reader as "Nothing is written at this step" |
+| Restructured | One table, and four blocks of running text | Eight step cards, three format cards, two lists and a table |
+
+## What was added
+
+Each addition is listed in the workflow file under `additions`, and the page marks it "Added in adaptation" while it is in review.
+
+| Added | Why | Basis |
+|---|---|---|
+| "The sleep figure is a local pacing convention, not an evidence-derived threshold: the number is there so the team makes the same call twice." | The gate "sleep is restored (5–6 h)" reads as a clinical threshold | The July handbook says this of a similar sleep rule with different cut points. Applying it to the November figure is the assistant's step, not the author's |
+| "These measures are proposed. This page reports no results." | So that a reader does not take the workflow as evaluated | The procedure calls the measures "proposed" |
+| "Checks: Step N" beside each measure | Ties each measure to the step whose completion it counts | The assistant's reading of the "Done when" column |
+| "See also" links under six steps | Connects the workflow to the cards and pages of this site | None needed |
+
+## What was left out, on purpose
+
+- **One figure about the unit** that appears on a teaching slide. It is not measured: the procedure says to set a baseline before setting targets. A page about a real unit carries no figure from that unit.
+- **An account of how the workflow was introduced.** In what order the steps were adopted, and against what resistance, is not in any source. It is the author's to write (`docs/DECISIONS.md`, D13).
+
+## How the other two pages were assembled
+
+**Set it up on your unit.** The table of six constraints is the slide's, row for row. One row is a composite: the slide names three products; the page says "the drafting tools" and takes the rest of the sentence from the speaker notes. The list under "Settle these locally first" is from the July handbook: its two items "deliberately left to your unit", its "reality constraints", and its rule that the record is a narrative note with no new fields. The handbook states the interpreter lead time as a fact; the page gives it as this unit's figure, because it will differ elsewhere. "What this does not claim" is restricted to what the evidence register supports. The resident reference's broader sentence, that no study shows one inpatient meeting shortens a stay, was not used, and neither were its two citations that are not in the register (Chien 2024; Butzlaff and Hooley 1998). Neither has been checked.
+
+**Time, format and stance.** The three formats, the gates, the decision rule, the list of reasons for no joint meeting, the five parts and the four PACE lines are the resident reference's. "Format and purpose are separate decisions" and the three sentences after it are from the speaker notes. "When a family can meet more than once, high expressed emotion becomes the target of the later meetings" is from the author's earlier description of his practice. The sleep-figure sentence is the addition described above.
+
+## What "de-identified" means here
+
+The pages do not name the unit, the institution, its affiliates or the products in use, and a test fails if any of those names appears in any file or built page (`governance/protected-terms.json`, kept as hashes). They contain no patient, no staff member and no figure from the unit.
+
+They are not anonymous: the site carries its author's name. Whether to publish on those terms is the author's decision, and the attestation command asks for it separately from the clinical review (`docs/DECISIONS.md`, ADR-002 and D11).
+
+The reviewer's working notes on these pages are kept with the private intake files, not in this repository.

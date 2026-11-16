@@ -1,0 +1,14 @@
+# Build output. Netlify builds it; a local copy is for reading.
+dist/
+dist-public/
+node_modules/
+.DS_Store
+*.log
+# The private intake documents and the working review of the design brief never belong in
+# this repository. They live beside it, on the owner's machine and in his project notes.
+docs/ASTRA_BRIEF_REVIEW.md
+*.docx
+*.pptx
+*.pdf
+*.xlsx
+Rowan_Sal_Rehearsal.html

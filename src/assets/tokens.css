@@ -1,0 +1,518 @@
+/* tokens.css — the design system this site is built with.
+ *
+ * SOURCE: ReConnect Design Tokens v2.3 ("Dixon mockup parity", updated 2026-05-22) and
+ * ReConnect Shared Components v2.2, read from the owner's design system on 2026-11-15.
+ * Values and component rules below are copied from that system, not chosen here. To change
+ * a colour, change it in the design system and re-copy; do not edit a value in this file.
+ * tests/design-tokens.test.mjs pins the palette so a silent edit fails the build.
+ *
+ * TWO DELIBERATE OMISSIONS
+ *   1. The system's `@import` of Inter from Google Fonts is left out. This site makes no
+ *      third-party request of any kind, so the stack falls through to the reader's own
+ *      Inter if installed, then to the system font.
+ *   2. Only the tokens and components this site uses are carried over (no modal, stepper,
+ *      skeleton, insurance badges or RSS layer colours).
+ *
+ * Dark mode follows the reader's OS setting. There is no manual toggle, because a toggle
+ * would have to remember the choice and this site stores nothing.
+ */
+
+:root {
+  color-scheme: light;
+
+  /* ─── Brand ─── */
+  --rc-primary:         #b0674e;
+  --rc-primary-dark:    #96523b;
+  --rc-primary-light:   #f3ebe5;
+  --rc-primary-bg:      rgba(176, 103, 78, 0.07);
+
+  --rc-accent:          #3a7d6e;
+  --rc-accent-dark:     #2c6356;
+  --rc-accent-light:    #edf4f2;
+  --rc-accent-bg:       rgba(58, 125, 110, 0.07);
+
+  /* ─── Semantic ─── */
+  --rc-success:         #357160;
+  --rc-success-soft:    #437e6e;
+  --rc-success-strong:  #2d5e50;
+  --rc-success-light:   #ecf4f1;
+
+  --rc-warning:         #8b7040;
+  --rc-warning-soft:    #b58f52;
+  --rc-warning-strong:  #725b35;
+  --rc-warning-light:   #f7f0e2;
+
+  --rc-danger:          #a34132;
+  --rc-danger-strong:   #8f372a;
+  --rc-danger-light:    #fbefec;
+
+  --rc-info:            #4d6f95;
+  --rc-info-strong:     #3e5d80;
+  --rc-info-light:      #eef3f7;
+
+  /* ─── Surfaces ─── */
+  --rc-bg:              #f6f3ee;
+  --rc-bg-alt:          #fbf8f3;
+  --rc-surface:         #ffffff;
+  --rc-surface-alt:     #fbf8f3;
+  --rc-surface-hover:   #f3ede6;
+  --rc-surface-quiet:   #f1ece6;
+  --rc-surface-raised:  #fffdf9;
+
+  /* ─── Borders ─── */
+  --rc-border:          #ddd3c6;
+  --rc-border-light:    #ebe5da;
+  --rc-border-strong:   #c8baa7;
+
+  /* ─── Text ─── */
+  --rc-text:            #3b332c;
+  --rc-text-mid:        #64574b;
+  --rc-text-light:      #87786a;
+  --rc-text-inverse:    #ffffff;
+  --rc-link:            var(--rc-accent-dark);
+  --rc-link-hover:      #1f463f;
+
+  /* ─── Typography ─── */
+  --rc-font:            'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --rc-font-mono:       'SF Mono', Monaco, Consolas, 'Courier New', monospace;
+  --rc-font-display:    Georgia, "Times New Roman", serif;
+  --rc-font-body:       'Inter', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --rc-line-height:     1.65;
+  --rc-line-height-heading: 1.22;
+  --rc-line-height-tight: 1.2;
+  --rc-line-height-normal: 1.6;
+  --rc-letter-tight:    -0.02em;
+  --rc-type-h1:         2rem;
+  --rc-type-h2:         1.5rem;
+  --rc-type-h3:         1.25rem;
+  --rc-type-h4:         1.125rem;
+  --rc-type-body:       1rem;
+  --rc-type-small:      0.875rem;
+  --rc-type-caption:    0.75rem;
+  --rc-font-size-h1:    2.5rem;
+  --rc-measure:         68ch;
+  --rc-measure-comfort: 62ch;
+  --rc-paragraph-gap:   1rem;
+  --rc-font-weight-normal:   400;
+  --rc-font-weight-semibold: 600;
+  --rc-font-weight-bold:     700;
+
+  /* ─── Spacing & Shape ─── */
+  --rc-space-2xs:       4px;
+  --rc-space-xs:        8px;
+  --rc-space-sm:        12px;
+  --rc-space-md:        16px;
+  --rc-space-lg:        24px;
+  --rc-space-xl:        40px;
+  --rc-space-2xl:       56px;
+  --rc-space-section:   40px;
+  --rc-space-component: 20px;
+  --rc-space-element:   12px;
+  --rc-radius:          12px;
+  --rc-radius-sm:       8px;
+  --rc-radius-lg:       16px;
+  --rc-radius-pill:     999px;
+  --rc-grid-gap-desktop: 20px;
+
+  /* ─── Elevation ─── */
+  --rc-shadow-sm:       0 1px 2px rgba(59, 51, 44, 0.05),
+                        0 8px 24px rgba(59, 51, 44, 0.04);
+  --rc-shadow-md:       0 2px 6px rgba(59, 51, 44, 0.07),
+                        0 14px 32px rgba(59, 51, 44, 0.06);
+  --rc-shadow-card:     0 1px 2px rgba(59, 51, 44, 0.05),
+                        0 8px 24px rgba(59, 51, 44, 0.04);
+  --rc-shadow-soft:     0 1px 3px rgba(59, 51, 44, 0.06);
+
+  /* ─── Motion ─── */
+  --rc-motion-fast:     120ms;
+  --rc-motion-base:     180ms;
+  --rc-ease-out:        cubic-bezier(0.2, 0.8, 0.2, 1);
+  --rc-ease:            var(--rc-motion-base) var(--rc-ease-out);
+  --rc-ease-fast:       var(--rc-motion-fast) var(--rc-ease-out);
+
+  /* ─── Focus & State ─── */
+  --rc-focus-ring:      #4d6f95;
+  --rc-focus-ring-soft: rgba(77, 111, 149, 0.18);
+  --rc-state-hover:     rgba(59, 51, 44, 0.04);
+  --rc-state-active:    rgba(59, 51, 44, 0.08);
+  --rc-state-selected:  var(--rc-accent-light);
+  --rc-state-disabled:  0.52;
+
+  /* ─── Layout ─── */
+  --rc-z-skip:          10000;
+  --rc-layout-page-max: 1400px;
+  --rc-layout-panel-max: 1100px;
+  --rc-layout-reading-max: 760px;
+
+  /* ─── Dark palette: source constants (inert in light mode) ─── */
+  --rc-bg-dark:             #1a1816;
+  --rc-bg-alt-dark:         #211d1a;
+  --rc-surface-dark:        #2a2520;
+  --rc-surface-alt-dark:    #332e28;
+  --rc-surface-hover-dark:  #3d3630;
+  --rc-surface-quiet-dark:  #211d1a;
+  --rc-surface-raised-dark: #38322b;
+  --rc-border-dark:         #3d3630;
+  --rc-border-light-dark:   #2f2a25;
+  --rc-border-strong-dark:  #4f463d;
+  --rc-text-dark:           #e8e2da;
+  --rc-text-mid-dark:       #b3a596;
+  --rc-text-light-dark:     #8a7c6e;
+  --rc-primary-dark-mode:   #d4896e;
+  --rc-accent-dark-mode:    #5aad9a;
+  --rc-shadow-card-dark:    0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+
+    --rc-primary:         var(--rc-primary-dark-mode);
+    --rc-primary-dark:    #dd9277;
+    --rc-primary-light:   rgba(212, 137, 110, 0.12);
+    --rc-primary-bg:      rgba(212, 137, 110, 0.08);
+
+    --rc-accent:          var(--rc-accent-dark-mode);
+    --rc-accent-dark:     #6cbcaa;
+    --rc-accent-light:    rgba(90, 173, 154, 0.12);
+    --rc-accent-bg:       rgba(90, 173, 154, 0.08);
+
+    --rc-success:         #5aad8e;
+    --rc-success-soft:    #6ebf9e;
+    --rc-success-strong:  #4a9a7e;
+    --rc-success-light:   rgba(90, 173, 142, 0.12);
+
+    --rc-warning:         #c4a45c;
+    --rc-warning-soft:    #d4b86e;
+    --rc-warning-strong:  #b08e48;
+    --rc-warning-light:   rgba(196, 164, 92, 0.12);
+
+    --rc-danger:          #d46858;
+    --rc-danger-strong:   #c45545;
+    --rc-danger-light:    rgba(212, 104, 88, 0.12);
+
+    --rc-info:            #7a9ec4;
+    --rc-info-strong:     #6690b8;
+    --rc-info-light:      rgba(122, 158, 196, 0.12);
+
+    --rc-bg:              var(--rc-bg-dark);
+    --rc-bg-alt:          var(--rc-bg-alt-dark);
+    --rc-surface:         var(--rc-surface-dark);
+    --rc-surface-alt:     var(--rc-surface-alt-dark);
+    --rc-surface-hover:   var(--rc-surface-hover-dark);
+    --rc-surface-quiet:   var(--rc-surface-quiet-dark);
+    --rc-surface-raised:  var(--rc-surface-raised-dark);
+
+    --rc-border:          var(--rc-border-dark);
+    --rc-border-light:    var(--rc-border-light-dark);
+    --rc-border-strong:   var(--rc-border-strong-dark);
+
+    --rc-shadow-card:     var(--rc-shadow-card-dark);
+    --rc-shadow-soft:     0 1px 3px rgba(0, 0, 0, 0.20);
+
+    --rc-text:            var(--rc-text-dark);
+    --rc-text-mid:        var(--rc-text-mid-dark);
+    --rc-text-light:      var(--rc-text-light-dark);
+    --rc-text-inverse:    var(--rc-bg-dark);
+    --rc-link:            var(--rc-accent);
+    --rc-link-hover:      #6cc0ad;
+
+    --rc-shadow-sm:       0 1px 2px rgba(0, 0, 0, 0.25),
+                          0 8px 24px rgba(0, 0, 0, 0.20);
+    --rc-shadow-md:       0 2px 6px rgba(0, 0, 0, 0.30),
+                          0 14px 32px rgba(0, 0, 0, 0.22);
+
+    --rc-focus-ring:      #7a9ec4;
+    --rc-focus-ring-soft: rgba(122, 158, 196, 0.25);
+    --rc-state-hover:     rgba(232, 226, 218, 0.06);
+    --rc-state-active:    rgba(232, 226, 218, 0.10);
+    --rc-state-selected:  var(--rc-accent-light);
+  }
+}
+
+/* ─── Base ─── */
+*, *::before, *::after { box-sizing: border-box; }
+
+html { font-size: 16px; }
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: var(--rc-font);
+  background: var(--rc-bg);
+  color: var(--rc-text);
+  line-height: var(--rc-line-height);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+button, input, select, textarea { font: inherit; }
+
+::selection { background: rgba(77, 111, 149, 0.18); color: var(--rc-text); }
+
+a {
+  color: var(--rc-link);
+  text-decoration: none;
+  text-underline-offset: 0.14em;
+}
+a:hover { color: var(--rc-link-hover); text-decoration: underline; }
+
+hr { border: 0; border-top: 1px solid var(--rc-border-light); }
+
+code, pre { font-family: var(--rc-font-mono); }
+
+/* ─── Accessibility baseline (ReConnect Accessibility Baseline v1.1) ─── */
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: auto;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  z-index: var(--rc-z-skip, 10000);
+}
+.skip-link:focus {
+  position: fixed;
+  top: 0.75rem;
+  left: 0.75rem;
+  width: auto;
+  height: auto;
+  padding: 0.8rem 1rem;
+  background: var(--rc-accent-dark, #1e5248);
+  color: var(--rc-text-inverse, #fff);
+  font-size: 1rem;
+  font-weight: 600;
+  text-decoration: none;
+  z-index: var(--rc-z-skip, 10000);
+  outline: 3px solid var(--rc-focus-ring, #4d6f95);
+  border-radius: var(--rc-radius-sm, 8px);
+  box-shadow: 0 0 0 6px var(--rc-focus-ring-soft, rgba(77, 111, 149, 0.18));
+}
+
+*:focus-visible {
+  outline: 3px solid var(--rc-focus-ring, #4d6f95) !important;
+  outline-offset: 3px !important;
+}
+
+.sr-only {
+  clip: rect(0, 0, 0, 0);
+  clip-path: inset(50%);
+  height: 1px;
+  width: 1px;
+  overflow: hidden;
+  position: absolute;
+  white-space: nowrap;
+  border: 0;
+  padding: 0;
+  margin: -1px;
+}
+
+button, [role="button"] { min-height: 44px; min-width: 44px; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+@media (forced-colors: active) {
+  *:focus-visible { outline: 3px solid Highlight !important; box-shadow: none !important; }
+}
+
+/* ─── Components (ReConnect Shared Components v2.2) ─── */
+.rc-eyebrow {
+  margin: 0;
+  font-size: var(--rc-type-caption);
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--rc-text-light);
+}
+
+.rc-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 44px;
+  min-width: 44px;
+  padding: 0.78rem 1rem;
+  border-radius: var(--rc-radius-sm);
+  border: 1px solid transparent;
+  background: var(--rc-surface);
+  color: var(--rc-text);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  text-decoration: none;
+  transition:
+    background-color var(--rc-ease-fast),
+    color var(--rc-ease-fast),
+    border-color var(--rc-ease-fast),
+    box-shadow var(--rc-ease-fast),
+    transform var(--rc-ease-fast);
+}
+.rc-btn:hover { text-decoration: none; }
+.rc-btn:active { transform: translateY(1px); }
+
+.rc-btn--primary {
+  background: var(--rc-primary);
+  border-color: var(--rc-primary);
+  color: var(--rc-text-inverse);
+  box-shadow: 0 1px 2px rgba(145, 84, 61, 0.18);
+}
+.rc-btn--primary:hover { background: var(--rc-primary-dark); border-color: var(--rc-primary-dark); }
+
+.rc-btn--secondary {
+  background: var(--rc-surface);
+  border-color: rgba(49, 105, 95, 0.24);
+  color: var(--rc-accent-dark);
+}
+.rc-btn--secondary:hover {
+  background: var(--rc-accent-light);
+  border-color: var(--rc-accent);
+  color: var(--rc-accent-dark);
+}
+
+.rc-btn--ghost {
+  background: transparent;
+  border-color: var(--rc-border);
+  color: var(--rc-text);
+}
+.rc-btn--ghost:hover { background: var(--rc-surface-alt); border-color: var(--rc-border-strong); }
+
+.rc-btn--calm {
+  background: var(--rc-accent-light);
+  border-color: transparent;
+  color: var(--rc-accent-dark);
+}
+.rc-btn--calm:hover { background: rgba(49, 105, 95, 0.14); color: var(--rc-accent-dark); }
+
+.rc-card {
+  background: var(--rc-surface);
+  border: 1px solid var(--rc-border-light);
+  border-radius: var(--rc-radius);
+  box-shadow: var(--rc-shadow-sm);
+}
+.rc-card--padded { padding: var(--rc-space-component); }
+.rc-card--tinted {
+  background:
+    linear-gradient(180deg, rgba(49, 105, 95, 0.05) 0, rgba(49, 105, 95, 0.015) 42%, var(--rc-surface) 100%);
+  border-top: 3px solid var(--rc-accent);
+}
+.rc-card--warm {
+  background:
+    linear-gradient(180deg, rgba(168, 101, 75, 0.06) 0, rgba(168, 101, 75, 0.02) 38%, var(--rc-surface) 100%);
+  border-top: 3px solid var(--rc-primary);
+}
+
+.rc-panel {
+  background: var(--rc-surface);
+  border: 1px solid var(--rc-border-light);
+  border-radius: calc(var(--rc-radius) + 2px);
+  box-shadow: var(--rc-shadow-sm);
+}
+
+.rc-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  min-height: 24px;
+  padding: 0.24rem 0.55rem;
+  border-radius: var(--rc-radius-pill);
+  border: 1px solid transparent;
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+.rc-badge--success { background: var(--rc-success-light); color: var(--rc-success-strong); }
+.rc-badge--warning { background: var(--rc-warning-light); color: var(--rc-warning-strong); }
+.rc-badge--info { background: var(--rc-info-light); color: var(--rc-info-strong); }
+.rc-badge--neutral {
+  background: var(--rc-surface-alt);
+  color: var(--rc-text-mid);
+  border-color: var(--rc-border-light);
+}
+
+.rc-alert {
+  display: grid;
+  gap: 0.45rem;
+  padding: 1rem 1rem 1rem 1.05rem;
+  border: 1px solid var(--rc-border-light);
+  border-top: 3px solid var(--rc-accent);
+  border-radius: var(--rc-radius);
+  background: var(--rc-surface-alt);
+  color: var(--rc-text);
+  box-shadow: var(--rc-shadow-sm);
+}
+.rc-alert strong { font-weight: 700; }
+.rc-alert--info { border-top-color: var(--rc-info-strong); background: var(--rc-info-light); color: var(--rc-info-strong); }
+.rc-alert--success { border-top-color: var(--rc-success-strong); background: var(--rc-success-light); color: var(--rc-success-strong); }
+.rc-alert--warning { border-top-color: var(--rc-warning-strong); background: var(--rc-warning-light); color: var(--rc-warning-strong); }
+.rc-alert--danger { border-top-color: var(--rc-danger-strong); background: var(--rc-danger-light); color: var(--rc-danger-strong); }
+
+.rc-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+.rc-table thead { border-bottom: 2px solid var(--rc-border); }
+.rc-table th {
+  text-align: left;
+  padding: 0.75rem 1rem;
+  font-weight: 600;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--rc-text-mid);
+  background: var(--rc-bg);
+  white-space: nowrap;
+}
+.rc-table td {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--rc-border-light);
+  vertical-align: top;
+}
+.rc-table tbody tr:hover { background: var(--rc-surface-hover); }
+.rc-table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--rc-border-light);
+  border-radius: var(--rc-radius);
+  background: var(--rc-surface);
+}
+
+.rc-search {
+  display: block;
+  width: 100%;
+  padding: 12px 16px;
+  font-family: var(--rc-font);
+  font-size: var(--rc-type-body);
+  color: var(--rc-text);
+  background: var(--rc-surface);
+  border: 1px solid var(--rc-border);
+  border-radius: var(--rc-radius-sm);
+  transition: border-color var(--rc-motion-fast), box-shadow var(--rc-motion-fast);
+}
+.rc-search::placeholder { color: var(--rc-text-light); }
+.rc-search:focus {
+  outline: none;
+  border-color: var(--rc-accent);
+  box-shadow: 0 0 0 3px var(--rc-focus-ring-soft);
+}
+
+.rc-container {
+  width: 100%;
+  max-width: var(--rc-layout-page-max);
+  margin: 0 auto;
+  padding: var(--rc-space-lg);
+}
+.rc-container--reading { max-width: var(--rc-layout-reading-max); }
+.rc-container--panel { max-width: var(--rc-layout-panel-max); }

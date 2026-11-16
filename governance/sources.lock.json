@@ -1,0 +1,99 @@
+{
+  "schema": 1,
+  "note": "Pins for every file copied from another repository. `blob` is `git hash-object --no-filters <localPath>`. Where the upstream ledger attested the file, `attestation.contentHash` is that ledger's hash and `topicMetaBlob` is the one other input it covered, so the upstream digest can be re-derived here without the upstream repository: printf '%s %s\\ntopic_meta %s\\n' <path> <blob> <topicMetaBlob> | git hash-object --stdin",
+  "upstreams": {
+    "psychiatry-clerkship": {
+      "ledgerPath": "13_Faculty_Resources/reviewed.json",
+      "linkMap": {
+        "family_playbook.md": {
+          "page": "formats/family-meeting-playbook-90"
+        },
+        "family_modalities.md": {
+          "page": "formats/modalities"
+        },
+        "exp_family.md": {
+          "title": "Family & Discharge",
+          "upstreamPath": "14_Tracks/MS3/Student_Ready_Pack/04_expansion_modules/family_discharge_student_module.md"
+        }
+      },
+      "files": {
+        "family_playbook.md": {
+          "path": "06_Family_and_Relational/family_meeting_playbook_90min.md",
+          "localPath": "content/upstream/psychiatry-clerkship/06_Family_and_Relational/family_meeting_playbook_90min.md",
+          "blob": "d1b6c7d46eae43ea777ae1b784145fb5dfd2faef",
+          "attestation": {
+            "status": "reviewed",
+            "at": "2026-09-26",
+            "by": "Joshua Moss, MD",
+            "risk": {
+              "kind": "clinical",
+              "level": "moderate"
+            },
+            "contentHash": "65217e2da2cc2ba9083761f40a97440995856eb1",
+            "topicMetaBlob": "6ec0df3ac6db19aa177ccd0a729eab5be29796fd"
+          }
+        },
+        "family_modalities.md": {
+          "path": "06_Family_and_Relational/family_therapy_modalities_inpatient.md",
+          "localPath": "content/upstream/psychiatry-clerkship/06_Family_and_Relational/family_therapy_modalities_inpatient.md",
+          "blob": "b2e004b2db3ad5b8b81c4c2ff41f0f004007a2a1",
+          "attestation": {
+            "status": "reviewed",
+            "at": "2026-09-26",
+            "by": "Joshua Moss, MD",
+            "risk": {
+              "kind": "clinical",
+              "level": "moderate"
+            },
+            "contentHash": "98b06ef5b42ce1eaed4cf55d41f5bff839d8432b",
+            "topicMetaBlob": "a61791c0c28a978d3e84d67a905e420d75b6e340"
+          }
+        },
+        "_source/04_Family_Meeting_Pocket_Card.md": {
+          "path": "06_Family_and_Relational/_source/04_Family_Meeting_Pocket_Card.md",
+          "localPath": "content/upstream/psychiatry-clerkship/06_Family_and_Relational/_source/04_Family_Meeting_Pocket_Card.md",
+          "blob": "7a7df05e6ef86800735398c9ba3828e2925d9365",
+          "attestation": null,
+          "note": "An unshipped source file upstream: no site serves it and the upstream ledger has no row for it."
+        }
+      }
+    }
+  },
+  "intake": {
+    "astra-brief": {
+      "file": "Family_Work_on_the_Unit_Design_Brief.docx",
+      "sha256": "dfade9a790fd0fee6ce2b7b942afce503295bad5e4043e225f22737598be0efa",
+      "received": "2026-11-15",
+      "committed": false,
+      "why": "The brief links private stores (ChatGPT library, Notion, Google Docs) and inventories unreleased material, so it stays out of the repository. tools/intake_from_brief.py reproduces every lifted passage from it."
+    },
+    "astra-prototype": {
+      "file": "Rowan_Sal_Rehearsal.html",
+      "sha256": "c62c1646549774c94484275de031f6f8a8d9e63ba965b383355aac695897edb4",
+      "received": "2026-11-15",
+      "committed": false,
+      "why": "Superseded by cases/rowan-sal.case.json; tools/intake_case_from_prototype.mjs reproduces the conversion."
+    },
+    "unit-procedure": {
+      "file": "The author's one-page unit procedure for family meetings, version 2.0 (November 2026)",
+      "received": "2026-11-16",
+      "committed": false,
+      "why": "It names the unit, its institution and the products in use. workflows/unit-family-meeting.workflow.json is the de-identified adaptation; docs/WORKFLOW_INTAKE.md lists every change.",
+      "check": "Read as text and copied by an AI assistant, then re-read against the source field by field. Not compared by script: the document is not in the intake folder."
+    },
+    "author-teaching-2026-11": {
+      "file": "The author's November 2026 resident teaching: the one-page resident reference, and three slides with their speaker notes",
+      "received": "2026-11-16",
+      "committed": false,
+      "why": "The slides and the reference name the institution and its products. Used for content/pages/formats-time-format-stance.md and content/pages/system-set-it-up.md.",
+      "check": "As above: copied and re-read, not compared by script."
+    },
+    "author-handbook-2026-07": {
+      "file": "The author's July 2026 handbook for attending psychiatrists",
+      "received": "2026-11-16",
+      "committed": false,
+      "why": "An internal document that names the health system. Used for the list of local decisions on content/pages/system-set-it-up.md and for one sentence about the sleep figure.",
+      "check": "As above: copied and re-read, not compared by script."
+    }
+  }
+}

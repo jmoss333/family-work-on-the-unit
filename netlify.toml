@@ -1,0 +1,52 @@
+"$schema" = "https://open-api.netlify.com/netlify.schema.json"
+
+# Netlify configuration for Family Work on the Unit.
+#
+# TWO CHANNELS, ONE RULE
+#   production (the main branch)      SITE_CHANNEL=public   attested pages only
+#   deploy previews, branch deploys   SITE_CHANNEL=review   everything, each page marked
+#
+# The public channel is fail-closed: src/build.mjs ships a page there only when a faculty
+# attestation is bound to its exact text. With nothing attested, production is the empty
+# shell plus the governance page. Unreviewed clinical text cannot reach the production URL
+# through a misconfiguration here, because the filter lives in the build, not in this file.
+#
+# The tests run before every build. A failing test fails the deploy, and Netlify keeps
+# serving the previous one.
+#
+# WHO CAN SEE A REVIEW DEPLOY is not set in this file. Netlify has no file, API or CLI
+# setting for it: use Project configuration > General > Visitor access > Project visibility
+# in the dashboard. docs/DEPLOY.md has the steps.
+
+[build]
+  command = "node --test && node src/build.mjs"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "22"
+  SITE_CHANNEL = "public"
+
+[context.deploy-preview.environment]
+  SITE_CHANNEL = "review"
+
+[context.branch-deploy.environment]
+  SITE_CHANNEL = "review"
+
+# Headers are global on Netlify: they apply to production and to every preview alike.
+#
+# Content-Security-Policy: the site loads its own two stylesheets and two scripts and
+# nothing else. No inline script or style, no third-party host, no form target, no
+# connection of any kind after the page loads. tests/csp.test.mjs checks that the built
+# pages obey this policy, so the header and the HTML cannot drift apart.
+#
+# X-Robots-Tag: remove this line at public launch, in the same change that sets
+# "indexable": true in site.config.json. tests/csp.test.mjs fails if the two disagree.
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Content-Security-Policy = "default-src 'none'; style-src 'self'; script-src 'self'; img-src 'self'; font-src 'self'; connect-src 'none'; form-action 'none'; base-uri 'none'; frame-ancestors 'none'"
+    X-Content-Type-Options = "nosniff"
+    X-Frame-Options = "DENY"
+    Referrer-Policy = "no-referrer"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=()"
+    X-Robots-Tag = "noindex, nofollow"

@@ -1,0 +1,59 @@
+Family Work on the Unit — teaching content licence
+
+PROPOSED. This notice takes effect when the owner confirms it (docs/DECISIONS.md, D4).
+Until then, treat the teaching content as all rights reserved.
+
+Copyright (c) 2026 Joshua Moss, MD
+
+The teaching content of this repository is licensed under the Creative Commons
+Attribution-NonCommercial-ShareAlike 4.0 International licence (CC BY-NC-SA 4.0).
+
+  Deed (summary):  https://creativecommons.org/licenses/by-nc-sa/4.0/
+  Legal code:      https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode
+
+The legal code at that address is the licence. This file is the notice that applies it;
+it does not change or add to the licence terms.
+
+
+WHAT IS CONTENT AND WHAT IS CODE
+
+The line is drawn by the kind of material, not by the folder it sits in, exactly as in the
+Psychiatry Clerkship Library.
+
+Teaching content (CC BY-NC-SA 4.0, this file) is the text written to teach: the pages under
+content/, the rehearsal dialogue in cases/, the summaries in evidence/register.json, and the
+built pages that carry them.
+
+Code (the MIT License, in LICENSE) is the build, the tests, the tools, the stylesheets and
+scripts under src/, and the documentation of how they work.
+
+
+IMPORTED PAGES
+
+The files under content/upstream/psychiatry-clerkship/ are unmodified copies from the
+Psychiatry Clerkship Library by Joshua Moss, MD
+(https://github.com/jmoss333/psychiatry-clerkship), licensed under CC BY-NC-SA 4.0. Each
+built page carries that attribution line.
+
+
+NOT COVERED BY THIS LICENCE (OR BY THE MIT LICENSE)
+
+- Cited papers, guidelines and statutes. They are cited and linked, not copied.
+- The design system in src/assets/tokens.css, which belongs to its owner.
+- vendor/marked/, which keeps its own MIT licence.
+- Trademarks and the names of institutions, hospitals, units, products and services.
+
+
+HOW TO ATTRIBUTE
+
+  "<Title of the page>" from Family Work on the Unit by Joshua Moss, MD, licensed under
+  CC BY-NC-SA 4.0 (https://creativecommons.org/licenses/by-nc-sa/4.0/).
+
+For an adaptation, say what you changed and release it under the same licence. Attribution
+must not suggest that the author, or any institution, endorses you or your use.
+
+
+A NOTE ON USE
+
+The content is educational material written for supervised clinicians. It is not clinical
+guidance for any particular patient and does not replace local policy or protocol.

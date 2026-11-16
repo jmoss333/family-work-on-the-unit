@@ -1,0 +1,94 @@
+{
+  "title": "Family Work on the Unit",
+  "tagline": "A companion for residents and attending physicians doing family work on adult inpatient psychiatry units.",
+  "audienceLine": "For residents and attending physicians · adult inpatient psychiatry",
+  "author": "Joshua Moss, MD",
+  "language": "en",
+  "indexable": false,
+  "acceptUpstreamAttestation": false,
+  "licenceConfirmed": false,
+  "upstream": {
+    "psychiatry-clerkship": {
+      "name": "Psychiatry Clerkship Library",
+      "repo": "https://github.com/jmoss333/psychiatry-clerkship",
+      "commit": "127e7e3c8cb71d7e57b23d397ed74676e2f83c87",
+      "licence": "CC BY-NC-SA 4.0"
+    }
+  },
+  "doors": [
+    {
+      "label": "Prepare for a meeting",
+      "hint": "A three-minute lookup: six moves, one card each.",
+      "target": "guide"
+    },
+    {
+      "label": "Practice an exchange",
+      "hint": "A ten-minute rehearsal with a supervisor or a colleague.",
+      "target": "page:studio/when-a-friend-answers-first"
+    }
+  ],
+  "sections": [
+    {
+      "id": "start",
+      "title": "Start here",
+      "blurb": "What this is, and how the pieces fit."
+    },
+    {
+      "id": "before",
+      "title": "Before the meeting",
+      "blurb": "Whom the patient wants in the room, and what may be said."
+    },
+    {
+      "id": "room",
+      "title": "In the room",
+      "blurb": "Five moves, one observable skill each."
+    },
+    {
+      "id": "formats",
+      "title": "Formats and modalities",
+      "blurb": "How long, which arc, which tool for which family."
+    },
+    {
+      "id": "studio",
+      "title": "Practice studio",
+      "blurb": "Say the next line aloud, compare, and try the same moment again."
+    },
+    {
+      "id": "teach",
+      "title": "Teach and observe",
+      "blurb": "For supervisors and anyone watching a rehearsal."
+    },
+    {
+      "id": "system",
+      "title": "Build the system",
+      "blurb": "How a unit makes family work routine: who does what, when, and where it is written."
+    },
+    {
+      "id": "evidence",
+      "title": "Evidence",
+      "blurb": "What each study supports and what it cannot tell you."
+    },
+    {
+      "id": "boundaries",
+      "title": "Choice, confidentiality and safety",
+      "blurb": "Involvement is negotiable."
+    },
+    {
+      "id": "about",
+      "title": "About and governance",
+      "blurb": "Who reviewed what, and how this site is made."
+    }
+  ],
+  "relatedSurfaces": [
+    {
+      "title": "Psychiatry Clerkship Library",
+      "url": "https://github.com/jmoss333/psychiatry-clerkship",
+      "note": "Source of the playbook, the modalities guide and the pocket card."
+    },
+    {
+      "title": "The 10-minute collateral call",
+      "url": "https://github.com/jmoss333/psychiatry-clerkship/blob/127e7e3c8cb71d7e57b23d397ed74676e2f83c87/06_Family_and_Relational/collateral_micro_workflow.md",
+      "note": "A Clerkship Library page written for students; step 2 of the unit workflow builds on the same call."
+    }
+  ]
+}

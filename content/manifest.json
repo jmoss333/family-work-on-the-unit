@@ -1,0 +1,322 @@
+{
+  "schema": 1,
+  "note": "The single list of what this site ships. A page that is not listed here does not exist. `sources` are the files a faculty attestation covers; `origin` records who drafted the text and from what.",
+  "origins": {
+    "astra-brief": "Drafted with ChatGPT in the Astra design brief (2026-11-15); lifted verbatim by tools/intake_from_brief.py.",
+    "astra-prototype": "Dialogue from the Astra prototype (2026-11-15), converted by tools/intake_case_from_prototype.mjs, plus six branches added in the review build.",
+    "upstream": "Copied byte for byte from the Psychiatry Clerkship Library at the pinned commit.",
+    "stated-practice": "Drafted by Claude (2026-11-15) from Dr. Moss's own description of his practice. The wording is not yet his.",
+    "new-draft": "Written by Claude for the review build (2026-11-15).",
+    "unit-procedure": "De-identified by Claude (2026-11-16) from the author's own one-page unit procedure, version 2.0 (November 2026). The unit, its institution and the products it uses are not named; docs/WORKFLOW_INTAKE.md lists every other change.",
+    "author-materials": "Assembled by Claude (2026-11-16) from Dr. Moss's own teaching materials: his November 2026 resident reference and slides, and his July 2026 handbook for attending psychiatrists. The sentences are his unless docs/WORKFLOW_INTAKE.md says otherwise."
+  },
+  "pages": [
+    {
+      "slug": "start/how-to-use",
+      "title": "How to use this companion",
+      "section": "start",
+      "kind": "page",
+      "sources": [
+        "content/pages/start-how-to-use.md"
+      ],
+      "summary": "Three ways to use it, where to start, and what it is not.",
+      "minutes": 2,
+      "origin": "new-draft"
+    },
+    {
+      "slug": "start/one-spine",
+      "title": "Two kinds of conversation, one spine",
+      "section": "start",
+      "kind": "page",
+      "sources": [
+        "content/pages/start-one-spine.md"
+      ],
+      "summary": "The family meeting and the brief patient-directed conversation, and how the playbook, pocket card, five parts and move cards line up.",
+      "minutes": 3,
+      "origin": "new-draft"
+    },
+    {
+      "slug": "before/prepare-a-meeting",
+      "title": "Prepare a meeting",
+      "section": "before",
+      "kind": "card",
+      "order": 1,
+      "phase": "Before the meeting",
+      "sources": [
+        "content/cards/01-prepare-a-meeting.md"
+      ],
+      "summary": "Ask privately whom the patient wants involved, what they hope to say and what can be shared.",
+      "minutes": 3,
+      "evidence": [
+        "G1",
+        "G2"
+      ],
+      "origin": "astra-brief"
+    },
+    {
+      "slug": "room/hear-what-each-person-means",
+      "title": "Hear what each person means",
+      "section": "room",
+      "kind": "card",
+      "order": 2,
+      "phase": "Hear",
+      "sources": [
+        "content/cards/02-hear-what-each-person-means.md"
+      ],
+      "summary": "Invite each person to describe one moment, and check meaning before moving to solutions.",
+      "minutes": 3,
+      "evidence": [
+        "D1"
+      ],
+      "origin": "astra-brief"
+    },
+    {
+      "slug": "room/identify-an-interaction-pattern",
+      "title": "Identify an interaction pattern",
+      "section": "room",
+      "kind": "card",
+      "order": 3,
+      "phase": "Hear",
+      "sources": [
+        "content/cards/03-identify-an-interaction-pattern.md"
+      ],
+      "summary": "Name two observable actions in sequence, tentatively, and let either person reject your account.",
+      "minutes": 3,
+      "evidence": [
+        "X1"
+      ],
+      "origin": "astra-brief"
+    },
+    {
+      "slug": "room/shift-one-exchange",
+      "title": "Shift one exchange",
+      "section": "room",
+      "kind": "card",
+      "order": 4,
+      "phase": "Plan",
+      "sources": [
+        "content/cards/04-shift-one-exchange.md"
+      ],
+      "summary": "Invite the listener to say what they heard, then return to the speaker to confirm or correct it.",
+      "minutes": 3,
+      "evidence": [
+        "D1",
+        "D2",
+        "X1"
+      ],
+      "practice": "studio/when-a-friend-answers-first",
+      "origin": "astra-brief"
+    },
+    {
+      "slug": "room/make-a-plan-both-people-can-own",
+      "title": "Make a plan both people can own",
+      "section": "room",
+      "kind": "card",
+      "order": 5,
+      "phase": "Plan",
+      "sources": [
+        "content/cards/05-make-a-plan-both-people-can-own.md"
+      ],
+      "summary": "Turn one new understanding into a small experiment each person is willing and able to try.",
+      "minutes": 3,
+      "evidence": [
+        "D2",
+        "X2",
+        "G3"
+      ],
+      "origin": "astra-brief"
+    },
+    {
+      "slug": "room/close-with-follow-through",
+      "title": "Close with follow through",
+      "section": "room",
+      "kind": "card",
+      "order": 6,
+      "phase": "Close",
+      "sources": [
+        "content/cards/06-close-with-follow-through.md"
+      ],
+      "summary": "Each person says what they understood, what is unsettled, and who checks back by what route.",
+      "minutes": 3,
+      "evidence": [
+        "D3"
+      ],
+      "origin": "astra-brief"
+    },
+    {
+      "slug": "formats/time-format-stance",
+      "title": "Time, format and stance",
+      "section": "formats",
+      "kind": "page",
+      "sources": [
+        "content/pages/formats-time-format-stance.md"
+      ],
+      "summary": "Three formats titrated to stability, the decision rule, the five parts every meeting shares, and the PACE stance.",
+      "minutes": 2,
+      "origin": "author-materials"
+    },
+    {
+      "slug": "formats/family-meeting-playbook-90",
+      "title": "Family Meeting Playbook (90-min)",
+      "section": "formats",
+      "kind": "page",
+      "sources": [
+        "content/upstream/psychiatry-clerkship/06_Family_and_Relational/family_meeting_playbook_90min.md"
+      ],
+      "summary": "The five-phase arc of a structured 90-minute inpatient family meeting.",
+      "minutes": 6,
+      "origin": "upstream",
+      "upstreamKey": "family_playbook.md"
+    },
+    {
+      "slug": "formats/modalities",
+      "title": "Family Therapy Modalities Commonly Used Inpatient",
+      "section": "formats",
+      "kind": "page",
+      "sources": [
+        "content/upstream/psychiatry-clerkship/06_Family_and_Relational/family_therapy_modalities_inpatient.md"
+      ],
+      "summary": "The toolbox: match the modality to the family in front of you.",
+      "minutes": 6,
+      "evidence": [
+        "R1",
+        "R2",
+        "R3",
+        "R4",
+        "D3"
+      ],
+      "origin": "upstream",
+      "upstreamKey": "family_modalities.md"
+    },
+    {
+      "slug": "formats/pocket-card",
+      "title": "Family Meeting Pocket Card",
+      "section": "formats",
+      "kind": "page",
+      "sources": [
+        "content/upstream/psychiatry-clerkship/06_Family_and_Relational/_source/04_Family_Meeting_Pocket_Card.md"
+      ],
+      "summary": "The nine-step framework and scripts, sized to carry on the unit.",
+      "minutes": 3,
+      "origin": "upstream",
+      "upstreamKey": "_source/04_Family_Meeting_Pocket_Card.md",
+      "lineBreaks": true
+    },
+    {
+      "slug": "studio/when-a-friend-answers-first",
+      "title": "When a friend answers first",
+      "section": "studio",
+      "kind": "studio",
+      "sources": [
+        "cases/rowan-sal.case.json"
+      ],
+      "case": "cases/rowan-sal.case.json",
+      "summary": "A fictional rehearsal: Rowan, an adult receiving inpatient care, and Sal, a longtime friend.",
+      "minutes": 10,
+      "origin": "astra-prototype"
+    },
+    {
+      "slug": "studio/check-a-draft",
+      "title": "Check a draft against its source",
+      "section": "studio",
+      "kind": "page",
+      "sources": [
+        "content/pages/studio-check-a-draft.md"
+      ],
+      "summary": "A two-minute exercise: find the reversed agency in a meeting summary and fix it.",
+      "minutes": 2,
+      "origin": "new-draft",
+      "originNote": "Written by Claude around an exercise from a design brief drafted with ChatGPT (November 15, 2026): the source line, the faulty draft and the corrected sentence are the brief’s."
+    },
+    {
+      "slug": "teach/observer-card",
+      "title": "Observer card",
+      "section": "teach",
+      "kind": "page",
+      "printable": true,
+      "sources": [
+        "content/pages/teach-observer-card.md"
+      ],
+      "summary": "What to listen for, what to quote, and how to debrief one rehearsal.",
+      "minutes": 2,
+      "origin": "astra-brief",
+      "originNote": "Assembled from sentences in a design brief and prototype drafted with ChatGPT (November 15, 2026); the note lines and the closing sentence were added by Claude."
+    },
+    {
+      "slug": "system/unit-workflow",
+      "title": "The unit workflow",
+      "section": "system",
+      "kind": "workflow",
+      "printable": true,
+      "sources": [
+        "workflows/unit-family-meeting.workflow.json"
+      ],
+      "workflow": "workflows/unit-family-meeting.workflow.json",
+      "summary": "Eight steps from the admission interview to the discharge bridge: who owns each one, where it is written, and when it is done.",
+      "minutes": 5,
+      "origin": "unit-procedure",
+      "release": "unit-practice"
+    },
+    {
+      "slug": "system/set-it-up",
+      "title": "Set it up on your unit",
+      "section": "system",
+      "kind": "page",
+      "sources": [
+        "content/pages/system-set-it-up.md"
+      ],
+      "summary": "Six constraints the workflow answers, what to settle locally before you copy it, and what it does not claim.",
+      "minutes": 3,
+      "evidence": [
+        "D3",
+        "R1",
+        "G2",
+        "G3"
+      ],
+      "origin": "author-materials",
+      "release": "unit-practice"
+    },
+    {
+      "slug": "evidence/register",
+      "title": "Evidence register",
+      "section": "evidence",
+      "kind": "register",
+      "sources": [
+        "evidence/register.json"
+      ],
+      "summary": "Each study and guideline this companion leans on: what it showed, where, and what it cannot tell you.",
+      "minutes": 6,
+      "origin": "astra-brief",
+      "originNote": "Citations and figures were machine-checked against PubMed on November 15, 2026. The summaries were drafted with ChatGPT and Claude."
+    },
+    {
+      "slug": "boundaries/choice-and-confidentiality",
+      "title": "Choice and confidentiality",
+      "section": "boundaries",
+      "kind": "page",
+      "sources": [
+        "content/pages/boundaries-choice-and-confidentiality.md"
+      ],
+      "summary": "Attendance, receiving information and disclosure are three separate permissions.",
+      "minutes": 4,
+      "evidence": [
+        "G1",
+        "G2",
+        "G3"
+      ],
+      "origin": "astra-brief"
+    },
+    {
+      "slug": "about/how-this-site-is-made",
+      "title": "How this site is made",
+      "section": "about",
+      "kind": "page",
+      "sources": [
+        "content/pages/about-how-this-site-is-made.md"
+      ],
+      "summary": "Who writes, who decides, what AI did, and the licences.",
+      "minutes": 2,
+      "origin": "new-draft"
+    }
+  ]
+}

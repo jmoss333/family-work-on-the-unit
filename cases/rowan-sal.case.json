@@ -1,0 +1,698 @@
+{
+  "schema": 1,
+  "id": "rowan-sal",
+  "version": "0.2.0",
+  "title": "When a friend answers first",
+  "fictional": true,
+  "intro": "One resident, one supervisor, about ten minutes. Speak the next line aloud before you look at the alternatives.",
+  "learnerRole": "Resident",
+  "people": [
+    {
+      "name": "Rowan",
+      "role": "An adult receiving inpatient care"
+    },
+    {
+      "name": "Sal",
+      "role": "A longtime friend Rowan chose"
+    }
+  ],
+  "start": "start",
+  "pauseNode": "pause",
+  "observer": {
+    "listenFor": "Does the resident invite the listener to say what they heard, then give the speaker room to correct it?",
+    "prompts": [
+      "Quote the resident’s actual line.",
+      "Who got to check or correct the meaning?",
+      "Ask the same resident to try that moment again in their own words.",
+      "If participation stops, observe how the resident responds."
+    ],
+    "room": "Rowan is an adult receiving inpatient care. Sal is a longtime friend Rowan chose. Either person may decline, pause, or ask for a private conversation."
+  },
+  "exits": {
+    "withdrawal": "pause",
+    "restrictedTopic": "bounded",
+    "fear": "private",
+    "declinedMeeting": "soloAccept",
+    "privacyMiss": "slipRepair"
+  },
+  "twoMovesAdvance": {
+    "from": "choices",
+    "via": [
+      "direct",
+      "relay"
+    ],
+    "to": "heard"
+  },
+  "nodes": {
+    "start": {
+      "title": "Before the visit",
+      "joint": false,
+      "origin": "astra-prototype",
+      "lines": [
+        {
+          "kind": "narration",
+          "text": "Meet privately first. In this version, Rowan and Sal each say they feel safe meeting together. Rowan chooses visits as the topic and keeps medication and the reason for admission private. No updates to a cousin. Sal agrees to these limits."
+        },
+        {
+          "kind": "narration",
+          "text": "The resident will help them talk about what happens when someone asks Rowan a question."
+        }
+      ],
+      "choices": [
+        {
+          "label": "Begin the joint conversation",
+          "next": "exchange"
+        },
+        {
+          "label": "Try a different private check-in",
+          "next": "risk"
+        },
+        {
+          "label": "Rowan has second thoughts before the meeting",
+          "next": "solo",
+          "origin": "review-build-addition"
+        }
+      ]
+    },
+    "exchange": {
+      "title": "The room goes quiet",
+      "joint": true,
+      "origin": "astra-prototype",
+      "lines": [
+        {
+          "kind": "speech",
+          "speaker": "Rowan",
+          "text": "When people ask me a question, you answer before I can."
+        },
+        {
+          "kind": "speech",
+          "speaker": "Sal",
+          "text": "I thought you wanted an escape hatch."
+        },
+        {
+          "kind": "narration",
+          "text": "What would you say next? Give your own line aloud."
+        }
+      ],
+      "choices": [
+        {
+          "label": "Compare my approach",
+          "next": "choices"
+        }
+      ]
+    },
+    "choices": {
+      "title": "Compare your next line",
+      "joint": true,
+      "origin": "astra-prototype",
+      "lines": [
+        {
+          "kind": "narration",
+          "text": "Which move comes closest to the one you just tried? Each response below is one possible direction for this fictional conversation."
+        }
+      ],
+      "choices": [
+        {
+          "label": "Ask Sal to let Rowan answer first",
+          "next": "rule"
+        },
+        {
+          "label": "Invite Rowan to speak to Sal",
+          "next": "direct"
+        },
+        {
+          "label": "Offer to help Rowan put it into words",
+          "next": "relay"
+        }
+      ]
+    },
+    "rule": {
+      "title": "A reasonable request lands badly",
+      "joint": true,
+      "origin": "astra-prototype",
+      "lines": [
+        {
+          "kind": "speech",
+          "speaker": "Resident",
+          "text": "Sal, could you let Rowan answer from now on?"
+        },
+        {
+          "kind": "speech",
+          "speaker": "Sal",
+          "text": "Sure. I’ll just sit there, then."
+        },
+        {
+          "kind": "narration",
+          "text": "Rowan looks back at the resident. The instruction changed who spoke, but it left the meaning of the silence unexplored. Say a repair aloud."
+        }
+      ],
+      "choices": [
+        {
+          "label": "Compare a possible repair",
+          "next": "repair"
+        },
+        {
+          "label": "Retry the original moment",
+          "next": "exchange"
+        }
+      ]
+    },
+    "repair": {
+      "title": "Own your part in the exchange",
+      "joint": true,
+      "origin": "astra-prototype",
+      "lines": [
+        {
+          "kind": "speech",
+          "speaker": "Resident",
+          "text": "Rowan, I just answered for you too. Sal, I gave you a rule before hearing why you help. Can we start there?"
+        },
+        {
+          "kind": "narration",
+          "text": "Give either person time to decline. Ask the supervisor what in your own wording made room for a correction."
+        }
+      ],
+      "choices": [
+        {
+          "label": "Retry the original moment",
+          "next": "exchange"
+        }
+      ]
+    },
+    "direct": {
+      "title": "Let Rowan choose the words",
+      "joint": true,
+      "origin": "astra-prototype",
+      "lines": [
+        {
+          "kind": "speech",
+          "speaker": "Resident",
+          "text": "Rowan, would you like to tell Sal what the silence means to you? You can tell either of us."
+        },
+        {
+          "kind": "speech",
+          "speaker": "Rowan",
+          "text": "I’m looking for my own words. Sometimes I do want help."
+        },
+        {
+          "kind": "narration",
+          "text": "How would you invite Sal to check what they heard? Say it aloud."
+        }
+      ],
+      "choices": [
+        {
+          "label": "Hear what landed for Sal",
+          "next": "heard"
+        }
+      ]
+    },
+    "relay": {
+      "title": "Offer words Rowan can change",
+      "joint": true,
+      "origin": "astra-prototype",
+      "lines": [
+        {
+          "kind": "speech",
+          "speaker": "Resident",
+          "text": "Would it help if I tried saying what I heard, and you corrected me?"
+        },
+        {
+          "kind": "speech",
+          "speaker": "Rowan",
+          "text": "Please. I don’t want Sal to think I never want help."
+        },
+        {
+          "kind": "speech",
+          "speaker": "Resident",
+          "text": "You want time to find the words and a way to ask Sal for help when you want it. Does that fit?"
+        },
+        {
+          "kind": "speech",
+          "speaker": "Rowan",
+          "text": "Yes. I want the choice."
+        },
+        {
+          "kind": "narration",
+          "text": "Invite Sal to say what they heard, in their own words."
+        }
+      ],
+      "choices": [
+        {
+          "label": "Hear what landed for Sal",
+          "next": "heard"
+        }
+      ]
+    },
+    "heard": {
+      "title": "Whose turn comes next?",
+      "joint": true,
+      "origin": "astra-prototype",
+      "lines": [
+        {
+          "kind": "speech",
+          "speaker": "Sal",
+          "text": "So you want me to give you a minute?"
+        },
+        {
+          "kind": "narration",
+          "text": "Say your line before choosing."
+        }
+      ],
+      "choices": [
+        {
+          "label": "Ask Rowan what fits or needs changing",
+          "next": "correct"
+        },
+        {
+          "label": "Make the one-minute pause the plan",
+          "next": "early"
+        }
+      ]
+    },
+    "early": {
+      "title": "The plan came a turn too soon",
+      "joint": true,
+      "origin": "astra-prototype",
+      "lines": [
+        {
+          "kind": "speech",
+          "speaker": "Resident",
+          "text": "Great, so we’ll try a minute."
+        },
+        {
+          "kind": "speech",
+          "speaker": "Rowan",
+          "text": "That’s not quite it."
+        },
+        {
+          "kind": "narration",
+          "text": "What did the summary assume? Repair the moment with one question that gives Rowan the floor."
+        }
+      ],
+      "choices": [
+        {
+          "label": "Retry Sal’s reflection",
+          "next": "heard"
+        }
+      ]
+    },
+    "correct": {
+      "title": "Make room for the correction",
+      "joint": true,
+      "origin": "astra-prototype",
+      "lines": [
+        {
+          "kind": "speech",
+          "speaker": "Resident",
+          "text": "Rowan, does that fit, or is there something you’d change?"
+        },
+        {
+          "kind": "speech",
+          "speaker": "Rowan",
+          "text": "A minute feels like another timer. Wait for me to ask."
+        },
+        {
+          "kind": "speech",
+          "speaker": "Sal",
+          "text": "I thought staying quiet would feel like leaving you alone."
+        },
+        {
+          "kind": "speech",
+          "speaker": "Rowan",
+          "text": "Sitting with me is helping. It’s when you speak for me that I feel alone."
+        }
+      ],
+      "choices": [
+        {
+          "label": "Hear the plan they choose",
+          "next": "plan"
+        }
+      ]
+    },
+    "plan": {
+      "title": "Let the agreement stay small",
+      "joint": true,
+      "origin": "astra-prototype",
+      "lines": [
+        {
+          "kind": "speech",
+          "speaker": "Sal",
+          "text": "Next visit I’ll wait for you to ask."
+        },
+        {
+          "kind": "speech",
+          "speaker": "Rowan",
+          "text": "Yes. Let’s check how it felt afterward."
+        },
+        {
+          "kind": "narration",
+          "text": "The visit is the only agreed topic. The agreement leaves other conversations open."
+        }
+      ],
+      "choices": [
+        {
+          "label": "Debrief together",
+          "next": "debrief"
+        },
+        {
+          "label": "Try a disclosure boundary",
+          "next": "boundary"
+        }
+      ]
+    },
+    "boundary": {
+      "title": "Sal asks about medication",
+      "joint": true,
+      "origin": "astra-prototype",
+      "lines": [
+        {
+          "kind": "speech",
+          "speaker": "Sal",
+          "text": "Before we finish, can you tell me what Rowan is taking?"
+        },
+        {
+          "kind": "narration",
+          "text": "Respond aloud within the scope Rowan chose."
+        }
+      ],
+      "choices": [
+        {
+          "label": "My answer stayed on the agreed topic",
+          "next": "bounded",
+          "origin": "review-build-addition"
+        },
+        {
+          "label": "My answer said something about medication",
+          "next": "slip",
+          "origin": "review-build-addition"
+        }
+      ]
+    },
+    "bounded": {
+      "title": "Keep the agreed scope",
+      "joint": true,
+      "origin": "astra-prototype",
+      "lines": [
+        {
+          "kind": "speech",
+          "speaker": "Resident",
+          "text": "We agreed to talk about visits today. Is there anything about the next visit either of you wants to change?"
+        },
+        {
+          "kind": "narration",
+          "text": "The resident keeps medication private without asking Rowan to defend the boundary in front of Sal."
+        }
+      ],
+      "choices": [
+        {
+          "label": "Debrief together",
+          "next": "debrief"
+        }
+      ]
+    },
+    "pause": {
+      "title": "Honor a pause",
+      "joint": false,
+      "origin": "astra-prototype",
+      "lines": [
+        {
+          "kind": "narration",
+          "text": "Either person can end the joint conversation. Stop the exercise and ask privately what contact, if any, they want next."
+        }
+      ],
+      "choices": [
+        {
+          "label": "Debrief how the pause was handled",
+          "next": "debrief"
+        }
+      ]
+    },
+    "risk": {
+      "title": "One fact changes in private",
+      "joint": false,
+      "origin": "astra-prototype",
+      "lines": [
+        {
+          "kind": "speech",
+          "speaker": "Rowan",
+          "text": "When I disagree with Sal, they threaten to lock me out."
+        },
+        {
+          "kind": "narration",
+          "text": "Sal is absent. Say your next line before choosing a direction."
+        }
+      ],
+      "choices": [
+        {
+          "label": "Keep the conversation private",
+          "next": "private"
+        },
+        {
+          "label": "Propose discussing the threat together",
+          "next": "rethink"
+        }
+      ]
+    },
+    "rethink": {
+      "title": "Reconsider the invitation",
+      "joint": false,
+      "origin": "astra-prototype",
+      "lines": [
+        {
+          "kind": "narration",
+          "text": "Explaining the threat to Sal could expose Rowan to retaliation. Rewind to the private check-in before any invitation or disclosure. What could you say that leaves Rowan in control of the next contact?"
+        }
+      ],
+      "choices": [
+        {
+          "label": "Retry the private check-in",
+          "next": "risk"
+        }
+      ]
+    },
+    "private": {
+      "title": "Complete the rehearsal privately",
+      "joint": false,
+      "origin": "astra-prototype",
+      "lines": [
+        {
+          "kind": "speech",
+          "speaker": "Resident",
+          "text": "Thank you for telling me. We can keep talking here. What would feel safe when you leave this room?"
+        },
+        {
+          "kind": "narration",
+          "text": "End plans for a joint meeting without disclosing the reason to Sal. In this exercise the resident and supervisor assess immediate safety privately and ask how Rowan can be reached safely. Honoring the stop completes this route."
+        }
+      ],
+      "choices": [
+        {
+          "label": "Debrief the private route",
+          "next": "debriefPrivate"
+        }
+      ]
+    },
+    "debriefPrivate": {
+      "title": "Review the decision to stop",
+      "joint": false,
+      "debrief": true,
+      "origin": "astra-prototype",
+      "lines": [
+        {
+          "kind": "narration",
+          "text": "What did the resident do to protect Rowan’s disclosure? Did Rowan have a say in the next contact? The supervisor quotes one line and offers one specific change."
+        }
+      ],
+      "choices": [
+        {
+          "label": "Retry the private check-in",
+          "next": "risk"
+        },
+        {
+          "label": "Restart the rehearsal",
+          "next": "start"
+        }
+      ]
+    },
+    "debrief": {
+      "title": "Debrief and retry",
+      "joint": false,
+      "debrief": true,
+      "origin": "astra-prototype",
+      "lines": [
+        {
+          "kind": "narration",
+          "text": "Resident: which line would you keep? Supervisor: quote one line you heard. Where did the listener get to reflect, the speaker get to correct, or someone get to stop?"
+        },
+        {
+          "kind": "narration",
+          "text": "Repeat the original moment with one change. Then use the private variation to see what changes when a joint meeting could carry a cost."
+        }
+      ],
+      "choices": [
+        {
+          "label": "Retry the original moment",
+          "next": "exchange"
+        },
+        {
+          "label": "Try the private variation",
+          "next": "risk"
+        },
+        {
+          "label": "Restart the rehearsal",
+          "next": "start"
+        }
+      ]
+    },
+    "solo": {
+      "title": "Rowan changes course before the meeting",
+      "joint": false,
+      "lines": [
+        {
+          "kind": "speech",
+          "speaker": "Rowan",
+          "text": "I thought I wanted Sal here. I don’t. Not this week."
+        },
+        {
+          "kind": "narration",
+          "text": "Sal has already agreed to come. Say your next line aloud before choosing a direction."
+        }
+      ],
+      "choices": [
+        {
+          "label": "Accept the decision and ask what Rowan wants Sal told",
+          "next": "soloAccept"
+        },
+        {
+          "label": "Explain how much Sal’s involvement would help",
+          "next": "soloPress"
+        }
+      ],
+      "origin": "review-build-addition"
+    },
+    "soloPress": {
+      "title": "The invitation became pressure",
+      "joint": false,
+      "lines": [
+        {
+          "kind": "speech",
+          "speaker": "Resident",
+          "text": "It would really help your discharge plan if Sal were part of this."
+        },
+        {
+          "kind": "speech",
+          "speaker": "Rowan",
+          "text": "So I don’t actually get to say no."
+        },
+        {
+          "kind": "narration",
+          "text": "Involvement is negotiable. Repair the moment with one sentence that hands the decision back to Rowan."
+        }
+      ],
+      "choices": [
+        {
+          "label": "Retry the private check-in",
+          "next": "solo"
+        }
+      ],
+      "origin": "review-build-addition"
+    },
+    "soloAccept": {
+      "title": "A declined meeting is a completed conversation",
+      "joint": false,
+      "lines": [
+        {
+          "kind": "speech",
+          "speaker": "Resident",
+          "text": "That’s your call, and it can change. What would you like me to tell Sal, and what should I leave out?"
+        },
+        {
+          "kind": "speech",
+          "speaker": "Rowan",
+          "text": "Just that today doesn’t work. Nothing else."
+        },
+        {
+          "kind": "narration",
+          "text": "No joint meeting happens. The resident tells Sal only that, gives no reason, lets the supervising clinician know and leaves the invitation open. Honoring the decision completes this route."
+        }
+      ],
+      "choices": [
+        {
+          "label": "Debrief the declined meeting",
+          "next": "debriefSolo"
+        }
+      ],
+      "origin": "review-build-addition"
+    },
+    "debriefSolo": {
+      "title": "Review the declined meeting",
+      "joint": false,
+      "debrief": true,
+      "lines": [
+        {
+          "kind": "narration",
+          "text": "What did the resident say that left the decision with Rowan? Did Rowan choose what Sal would be told? The supervisor quotes one line and offers one specific change."
+        }
+      ],
+      "choices": [
+        {
+          "label": "Retry the private check-in",
+          "next": "solo"
+        },
+        {
+          "label": "Restart the rehearsal",
+          "next": "start"
+        }
+      ],
+      "origin": "review-build-addition"
+    },
+    "slip": {
+      "title": "A detail got out",
+      "joint": true,
+      "lines": [
+        {
+          "kind": "speech",
+          "speaker": "Resident",
+          "text": "It’s nothing new. The same medication as before."
+        },
+        {
+          "kind": "narration",
+          "text": "Rowan looks at the floor. The answer confirmed part of Rowan’s treatment, which Rowan had kept out of this conversation. Stop adding detail. Say what you would do next, in the room and after it."
+        }
+      ],
+      "choices": [
+        {
+          "label": "Compare a possible repair",
+          "next": "slipRepair"
+        }
+      ],
+      "origin": "review-build-addition"
+    },
+    "slipRepair": {
+      "title": "Stop, own it, repair in private",
+      "joint": true,
+      "lines": [
+        {
+          "kind": "speech",
+          "speaker": "Resident",
+          "text": "That was mine to keep out, and I didn’t. I’m going to stop there. We agreed to talk about visits today."
+        },
+        {
+          "kind": "narration",
+          "text": "The resident owns the slip without asking Rowan to explain the boundary in front of Sal. Afterward the resident acknowledges privately to Rowan what was disclosed and involves the supervising clinician and the privacy process. Rowan decides whether the joint conversation continues."
+        }
+      ],
+      "choices": [
+        {
+          "label": "Debrief together",
+          "next": "debrief"
+        },
+        {
+          "label": "Retry Sal’s question",
+          "next": "boundary"
+        }
+      ],
+      "origin": "review-build-addition"
+    }
+  }
+}

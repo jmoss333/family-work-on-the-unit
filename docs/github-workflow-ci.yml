@@ -1,0 +1,29 @@
+# Copy this file to .github/workflows/ci.yml to run the checks on GitHub (docs/DEPLOY.md, step 1).
+# It lives under docs/ because the tool that delivered this repository is not allowed to
+# write workflow files; adding CI to a repository is the owner's act.
+name: check
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      # No install step: the repository has no dependencies.
+      - name: Acceptance tests
+        run: node --test
+      - name: Review build (everything, each page marked)
+        run: node src/build.mjs --channel review --out dist
+      - name: Public build (attested pages only)
+        run: node src/build.mjs --channel public --out dist-public
+      - name: What is waiting for faculty review
+        run: node tools/queue.mjs

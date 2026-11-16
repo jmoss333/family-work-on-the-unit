@@ -1,0 +1,258 @@
+{
+  "schema": 1,
+  "id": "unit-family-meeting",
+  "version": "2.0",
+  "basis": "Adapted from one adult inpatient psychiatry unit’s one-page procedure, version 2.0 (November 2026), written by the author. The unit, its institution and the products it uses are not named.",
+  "purpose": "Every admitted patient has a documented decision about family or support-person involvement by the end of hospital day 1, and any indicated meeting is on the calendar — never improvised.",
+  "scope": "Psychiatrist/APP and residents, social work, nursing, mental health technicians, unit secretary.",
+  "principle": "Family work is a team workflow, not a heroic act: each step removes a handoff or a second phone call. “Family” means the people the patient chooses.",
+  "roles": {
+    "prescriber": "Psychiatrist, APP or resident",
+    "social-work": "Social work",
+    "nursing": "Nursing",
+    "techs": "Mental health technicians",
+    "secretary": "Unit secretary",
+    "team": "Treatment team"
+  },
+  "steps": [
+    {
+      "id": "ask",
+      "title": "Ask on day 1",
+      "trigger": "Admission interview",
+      "ownerLabel": "Psychiatrist / APP / resident",
+      "owner": [
+        "prescriber"
+      ],
+      "action": "Ask privately: who would you want involved · what would you like them to understand · what would you rather not discuss together · what are you worried might happen. Establish consent and scope. If a joint contact is possible, the private check: “Is there anything you could not say with this person in the room?”",
+      "record": "Admission note: involvement decision, consent and scope",
+      "doneWhen": "Decision and scope documented the same day",
+      "links": [
+        {
+          "label": "Move 1: Prepare a meeting",
+          "to": "page:before/prepare-a-meeting"
+        },
+        {
+          "label": "Choice and confidentiality",
+          "to": "page:boundaries/choice-and-confidentiality"
+        }
+      ]
+    },
+    {
+      "id": "invite",
+      "title": "Collateral call = invitation",
+      "trigger": "Within 24 h of admission",
+      "ownerLabel": "Social work",
+      "owner": [
+        "social-work"
+      ],
+      "action": "Make the collateral call. In the same call, invite the support person to a meeting and record their availability. One call, not two. Listening is always permitted; disclose only within the documented scope.",
+      "record": "Collateral note with availability",
+      "doneWhen": "Family reached; availability recorded (or attempts documented)",
+      "links": [
+        {
+          "label": "The collateral call, step by step (Clerkship Library, written for students)",
+          "to": "https://github.com/jmoss333/psychiatry-clerkship/blob/127e7e3c8cb71d7e57b23d397ed74676e2f83c87/06_Family_and_Relational/collateral_micro_workflow.md"
+        }
+      ]
+    },
+    {
+      "id": "book",
+      "title": "Book it",
+      "trigger": "Availability known",
+      "ownerLabel": "Unit secretary",
+      "owner": [
+        "secretary"
+      ],
+      "support": [
+        "social-work",
+        "nursing"
+      ],
+      "action": "Enter the meeting on the shared calendar (psychiatrist’s calendar shared with the unit secretary) like any other appointment: patient, support person and phone, format and length (5-min phone update · 30-min structured · optional 60–90-min alliance repair) as set in rounds. Notify social work and the charge nurse.",
+      "record": "Calendar entry",
+      "doneWhen": "Meeting on the calendar"
+    },
+    {
+      "id": "rounds",
+      "title": "Plan in rounds",
+      "trigger": "Morning treatment-team rounds, daily",
+      "ownerLabel": "Team — psychiatrist leads",
+      "owner": [
+        "team"
+      ],
+      "support": [
+        "prescriber"
+      ],
+      "action": "For every patient, one line: supports · pattern · format today · who makes contact. Confirm scheduled meetings and their length. Lowest-burden format for today’s acuity; step up only as the gates are met (sleep restored, arousal down, attention holds an agenda); step down any time.",
+      "record": "Rounds list / family-work line in the plan",
+      "doneWhen": "Each patient has a format and an owner",
+      "links": [
+        {
+          "label": "Time, format and stance",
+          "to": "page:formats/time-format-stance"
+        }
+      ]
+    },
+    {
+      "id": "bring-up",
+      "title": "Bring the family up",
+      "trigger": "Scheduled time",
+      "ownerLabel": "Mental health technicians",
+      "owner": [
+        "techs"
+      ],
+      "action": "Meet the support person at the entrance and bring them to the unit; set up the room; let the psychiatrist know they have arrived.",
+      "record": null,
+      "doneWhen": "Family in the room on time"
+    },
+    {
+      "id": "meet",
+      "title": "Run the meeting",
+      "trigger": "In the room",
+      "ownerLabel": "Psychiatrist (+ social work or nursing when available)",
+      "owner": [
+        "prescriber"
+      ],
+      "support": [
+        "social-work",
+        "nursing"
+      ],
+      "action": "The 30 and the 60–90 share five parts: join each person · hear each experience · work on one exchange · agree what to try · close and review. Stance: PACE. A pause is available to anyone. Each participant says the task, review point, and help contact back.",
+      "record": null,
+      "doneWhen": "Owners, dates and contingencies agreed and repeated back",
+      "links": [
+        {
+          "label": "The five parts and their move cards",
+          "to": "page:start/one-spine#the-five-parts-of-a-meeting"
+        },
+        {
+          "label": "Practice an exchange",
+          "to": "page:studio/when-a-friend-answers-first"
+        }
+      ]
+    },
+    {
+      "id": "note",
+      "title": "Note and handoff",
+      "trigger": "Same day",
+      "ownerLabel": "Psychiatrist",
+      "owner": [
+        "prescriber"
+      ],
+      "action": "See the patient alone afterwards (how it landed; new safety concerns). An ambient documentation tool drafts during the meeting → review, edit, sign. Record purpose and permission, what was worked on, what they tried, next step and who reviews, and the plan row: need · named person · date or trigger · verified · contingency. Update the support person every 72 h.",
+      "record": "Family-meeting note; discharge-summary draft",
+      "doneWhen": "Note signed; next owner and review point named",
+      "links": [
+        {
+          "label": "Check a draft against its source",
+          "to": "page:studio/check-a-draft"
+        }
+      ]
+    },
+    {
+      "id": "bridge",
+      "title": "Discharge bridge",
+      "trigger": "Discharge planning",
+      "ownerLabel": "Psychiatrist + social work",
+      "owner": [
+        "prescriber",
+        "social-work"
+      ],
+      "action": "Verify every “family will help” item: owner, date, verified, contingency. First appointment confirmed, not “being arranged.” Means-safety tasks closed and checked. A referral is not access; family willingness is not a discharge plan.",
+      "record": "Discharge summary; plan row",
+      "doneWhen": "All rows verified before the order is written",
+      "links": [
+        {
+          "label": "Move 6: Close with follow through",
+          "to": "page:room/close-with-follow-through"
+        }
+      ]
+    }
+  ],
+  "formats": {
+    "menu": [
+      {
+        "name": "5-minute phone update",
+        "focus": "Collateral focus: baseline, no relational processing, protects fragile capacity.",
+        "when": "Start here when acuity is high."
+      },
+      {
+        "name": "30-minute structured meeting",
+        "focus": "Logistics and safety: one concrete agenda, time-bounded.",
+        "when": "Step up when sleep is restored (5–6 h) and arousal is down."
+      },
+      {
+        "name": "60–90-minute alliance repair (optional)",
+        "focus": "Relational dynamics: high expressed emotion, rupture, trauma, boundaries.",
+        "when": "Step up when attention holds an agenda and purpose, safety, and staffing support it."
+      }
+    ],
+    "decisionRule": "the lowest-burden format that matches current acuity. None, separate contacts, or deferral remain available. Document the format, why, and who reassesses.",
+    "noJointMeeting": "suspected partner violence · suspected family abuse · the patient declines · contact exceeds tolerance. The 5-minute phone update or separate contacts can be the plan.",
+    "note": "sleep-figure"
+  },
+  "guardrails": [
+    "Listening is not disclosing. An involuntary status answers none of the consent questions.",
+    "No major decisions in the first 72 hours; start lower on the menu and move up when the patient can hold an agenda.",
+    "Nothing drafted by an AI tool reaches the chart or the family unreviewed; the clinician signs every line.",
+    "Describe behavior, not character, in the note; name uncertainty and discrepant accounts.",
+    "Never promise a support person that what they tell the team stays secret from the patient."
+  ],
+  "exceptions": [
+    {
+      "when": "Support person not reached in 24 h.",
+      "then": "Social work documents attempts and the interim plan; retry at the next rounds; patient asked for another contact."
+    },
+    {
+      "when": "Patient declines involvement.",
+      "then": "Document; receive collateral if offered (no disclosure); revisit at 72 h and before discharge."
+    },
+    {
+      "when": "Private check positive, or coercion suspected.",
+      "then": "No conjoint meeting. Separate contacts or none; attending informed; safety frame, not cycle frame."
+    },
+    {
+      "when": "Support person cannot come in.",
+      "then": "A scheduled phone or video call with the 30-minute structure counts as the meeting."
+    },
+    {
+      "when": "Meeting runs hot.",
+      "then": "Shorten, pause, or stop; repair the alliance within 24 h; a smaller format is not a failure."
+    }
+  ],
+  "measures": {
+    "cadence": "Monthly, from the chart and the calendar.",
+    "list": [
+      {
+        "name": "% of admissions with an involvement decision documented by day 1",
+        "checksStep": "ask"
+      },
+      {
+        "name": "% of indicated meetings on the calendar within 24 h of known availability",
+        "checksStep": "book"
+      },
+      {
+        "name": "Family meetings per day across the unit",
+        "checksStep": "meet"
+      },
+      {
+        "name": "% of discharges with every plan row verified",
+        "checksStep": "bridge"
+      }
+    ],
+    "baseline": "Set the baseline for one month before setting targets.",
+    "note": "no-results"
+  },
+  "additions": [
+    {
+      "id": "sleep-figure",
+      "text": "The sleep figure is a local pacing convention, not an evidence-derived threshold: the number is there so the team makes the same call twice.",
+      "basis": "Not in the procedure. Carried from the author’s July 2026 handbook for attending psychiatrists, which says it of a similar sleep rule."
+    },
+    {
+      "id": "no-results",
+      "text": "These measures are proposed. This page reports no results.",
+      "basis": "Not in the procedure. Added so that a reader does not take the workflow as evaluated."
+    }
+  ],
+  "closing": "Clinical judgment, supervision, and hospital policy govern; this page describes the workflow, not the clinical decision."
+}
