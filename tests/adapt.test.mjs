@@ -121,6 +121,9 @@ test('A18 · the validator refuses the defects it exists to catch', () => {
   assert.match(broken((s) => { s.notes.elsewhere = { slot: 'lead', among: ['psy-app-res'] }; }), /notes: "elsewhere" is not one of the workflow's added sentences/);
   assert.match(broken((s) => { delete s.board.count; }), /board: "count" is required/);
   assert.match(broken((s) => { delete s.board.card; }), /board: "card" is required/);
+  assert.match(broken((s) => { delete s.board.handoffs; }), /board: "handoffs" is required/);
+  assert.match(broken((s) => { s.board.handoffs = 'Handoffs: {count}.'; }), /board: "handoffs" has no \{steps\}/);
+  assert.match(broken((s) => { s.board.count = '{n} steps'; }), /board: "count" has no \{total\}/);
   assert.match(drift((w) => { w.steps.find((item) => item.id === 'rounds').support = []; }), /step "rounds": a step the team owns names who leads it as also involved \(psychiatrist\)/);
   assert.match(drift((w) => { w.roles.psychiatrist = 'Attending'; }), /role "psychiatrist": the workflow calls it "Attending"; these rules call it "Psychiatrist"/);
   assert.match(drift((w) => { w.roles.pharmacist = 'Pharmacist'; w.steps[0].support = ['pharmacist']; }), /role "pharmacist": the workflow uses it, and it is not one of the titles these rules know/);
@@ -170,6 +173,7 @@ test('A18 · every combination of owners reads as prose, and a step is refused e
 
   const codes = new Set();
   const sentences = new Set();
+  const handoffCounts = {};
   let count = 0;
   for (const choices of everyOwnerChoice()) {
     count += 1;
@@ -218,6 +222,23 @@ test('A18 · every combination of owners reads as prose, and a step is refused e
     for (const item of result.workflow.steps) assert.equal(item.ownerLabel === spec.messages.noOwner, unowned.includes(item.title), `${label}: step ${item.number} owner label`);
     assert.equal(/does not print/.test(core.status(result, given.spec)), empty.length > 0, `${label}: status`);
 
+    // A20: where the work changes hands, worked out here from the choices and not taken from
+    // the code under test. It changes hands after a step when nobody who owns it owns the next.
+    const who = given.workflow.steps.map((item) => {
+      const slots = spec.owners[item.id];
+      if (slots.every((slot) => choices[slot] === 'none')) return [];
+      return item.owner.includes('team') ? ['team'] : slots.map((slot) => choices[slot]).filter((id) => id !== 'none');
+    });
+    const after = [];
+    for (let i = 0; i + 1 < who.length; i += 1) if (who[i].length && who[i + 1].length && !who[i].some((id) => who[i + 1].includes(id))) after.push(i + 1);
+    assert.deepEqual([...core.handoffs(result, given.spec)], after, `${label}: where the work changes hands`);
+    const line = core.handoffLine(result, given.spec);
+    if (empty.length) assert.equal(line, '', `${label}: a version that does not print says nothing about handoffs`);
+    else {
+      assert.ok(line.startsWith(`Handoffs in this version: ${after.length}, after steps ${after.slice(0, -1).join(', ')} and ${after.at(-1)}. `), `${label}: “${line}”`);
+      handoffCounts[after.length] = (handoffCounts[after.length] || 0) + 1;
+    }
+
     assert.equal(result.changed, spec.slots.filter((slot) => choices[slot.id] !== slot.default).length, `${label}: changes counted`);
     assert.equal(result.workflow.scope === null, result.changed > 0, `${label}: the source unit's list of roles is dropped once a role changes`);
     codes.add(result.code);
@@ -225,6 +246,10 @@ test('A18 · every combination of owners reads as prose, and a step is refused e
   }
   assert.equal(count, expected);
   assert.equal(codes.size, expected, 'two different versions share a version code');
+  // Of the versions that print, how many times the work changes hands. Never fewer than
+  // twice: the team owns rounds, and nobody else does. Never more than five: one lead owns
+  // the meeting, the note and the bridge.
+  assert.deepEqual(handoffCounts, { 2: 10, 3: 555, 4: 6390, 5: 18245 });
 
   // A20: "also involved" is read off the words. For every sentence any version can print, the
   // roles the board finds in it are the roles a second, separately written reading finds.
@@ -293,6 +318,36 @@ test('A20 · the board follows the choices: who owns, who is also involved, how 
   assert.equal(html.match(/<td class="adapt-board__count">/g).length, picture.rows.length);
   assert.ok(html.includes('<th scope="col" class="adapt-board__count">Steps owned</th>'));
   assert.equal(core.board(adapt({}), given.spec).includes('adapt-board__gap'), false);
+});
+
+test('A20 · the board says how often the work changes hands, and after which steps', () => {
+  const line = (choices) => core.handoffLine(adapt(choices), given.spec);
+  const rule = ' A handoff is where no one who owns a step also owns the next.';
+  // As written: five. The lead keeps the meeting, the note and the bridge, so nothing changes hands after step 5.
+  assert.equal(line({}), `Handoffs in this version: 5, after steps 1, 2, 3, 4 and 5.${rule}`);
+  assert.deepEqual([...core.handoffs(adapt({}), given.spec)], [1, 2, 3, 4, 5]);
+  // The role that asks also makes the call: one fewer.
+  assert.equal(line({ ask: 'social-work', lead: 'social-work' }), `Handoffs in this version: 4, after steps 2, 3, 4 and 5.${rule}`);
+  // One role does everything but rounds: the team takes the work for rounds and gives it back.
+  assert.equal(line({ ask: 'social-work', scheduler: 'social-work', escort: 'social-work', lead: 'social-work' }), `Handoffs in this version: 2, after steps 3 and 4.${rule}`);
+  // A step two roles share does not hand off to either of them, or from either.
+  assert.deepEqual([...core.handoffs(adapt({ partner: 'nursing' }), given.spec)], [1, 2, 3, 4, 5], 'the bridge is shared by the lead, who owned the step before');
+  assert.deepEqual([...core.handoffs(adapt({ lead: 'social-work', ask: 'nursing' }), given.spec)], [1, 2, 3, 4, 5]);
+  // A version with a step nobody owns says nothing; the gap is already marked.
+  assert.equal(line({ escort: 'none' }), '');
+  assert.deepEqual([...core.handoffs(adapt({ escort: 'none' }), given.spec)], [1, 2, 3], 'a step nobody owns neither takes the work nor gives it');
+  // The count in the sentence is the number of steps it lists, and each change of choice can move it.
+  for (const choices of [{}, { lead: 'app' }, { scheduler: 'social-work' }, { escort: 'unit-secretary', scheduler: 'unit-secretary' }]) {
+    const said = line(choices).match(/^Handoffs in this version: (\d), after steps ([\d, and]+)\./);
+    assert.equal(Number(said[1]), said[2].split(/, | and /).length, JSON.stringify(choices));
+  }
+  // One handoff is written in the singular, should a workflow ever have just one.
+  const flat = JSON.parse(JSON.stringify(given));
+  flat.workflow.steps.forEach((item) => { item.owner = ['psy-app-res']; });
+  Object.keys(flat.spec.owners).forEach((id, index) => { flat.spec.owners[id] = [index < 3 ? 'ask' : 'lead']; });
+  const one = core.adapt(flat.workflow, flat.spec, { ...base, ask: 'nursing' });
+  assert.equal(core.handoffLine(one, flat.spec), `Handoffs in this version: 1, after step 3.${rule}`);
+  assert.equal(core.handoffLine(core.adapt(flat.workflow, flat.spec, { ...base }), flat.spec), '', 'nothing changes hands, so nothing is said');
 });
 
 test('A22 · a card for one role holds its steps as the sheet prints them, the guardrails and the exceptions, and nothing of its own', () => {
@@ -572,6 +627,7 @@ test('A18 · the page as built: fixed menus that are off until the script runs, 
   assert.equal(html.match(/<button\b[^>]*>/g).filter((tag) => / disabled>$/.test(tag)).length, 2 + rowsAsWritten.length, 'every button is off until the script runs');
   assert.equal(html.match(/<button\b[^>]*>/g).length, 2 + rowsAsWritten.length, 'a button that is on without the script');
   // A22: the cards and their buttons, as written, are in the page as the script would draw them.
+  assert.ok(html.includes(`<ul class="map-legend">`) && html.includes(`</ul>\n<p class="adapt-handoffs" data-adapt-handoffs>${core.handoffLine(adapt({}), given.spec)}</p>\n<h3 class="adapt-cards__title"`), 'the handoff line as built is not the line as written');
   assert.ok(html.includes(`<h3 class="adapt-cards__title" id="adapt-cards-title">${spec.board.card}</h3>\n<div class="adapt-cards__buttons" role="group" aria-labelledby="adapt-cards-title" data-adapt-card-buttons>${core.cardButtons(adapt({}), given.spec, true)}</div>`));
   assert.ok(html.includes(`<div class="adapt-cards" data-adapt-cards>${core.cards(adapt({}), given.spec)}</div>`));
   assert.equal(html.match(/<section class="adapt-card" /g).length, rowsAsWritten.length);

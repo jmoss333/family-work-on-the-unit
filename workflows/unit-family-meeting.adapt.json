@@ -455,6 +455,7 @@
     "involved": "also involved",
     "owned": "Steps owned",
     "count": "{n} of {total}",
+    "handoffs": "Handoffs in this version: {count}, after {steps}. A handoff is where no one who owns a step also owns the next.",
     "card": "Print a card for one role"
   },
   "messages": {

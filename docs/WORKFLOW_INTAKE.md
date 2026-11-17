@@ -80,7 +80,7 @@ The page also prints a card for one role: that role's steps, then the guardrails
 
 One sentence on the page is in no version of the procedure. A unit that answers "No" to "Is the note drafted by an ambient documentation tool?" has step 7's sentence about the tool replaced by "Write the note after the meeting; sign." The author approved that wording on 2026-11-17, and the rules file records its basis beside it. The line on a resident's supervision prints only on versions in which a resident can lead.
 
-What the page does add, and what the reviewer is asked to judge, is in that file: the nine questions, the roles offered for each job, the intervals offered, the board's heading and one line under it, the heading over the card buttons, and the two lists headed "You can change" and "What stays fixed". All of it is Claude's (`docs/DECISIONS.md`, ADR-003 and D15 to D18).
+What the page does add, and what the reviewer is asked to judge, is in that file: the nine questions, the roles offered for each job, the intervals offered, the board's heading and one line under it, the sentence on handoffs, the heading over the card buttons, and the two lists headed "You can change" and "What stays fixed". All of it is Claude's (`docs/DECISIONS.md`, ADR-003 and D15 to D18).
 
 The page is under the same release gate as the workflow, because it prints the unit's procedure.
 

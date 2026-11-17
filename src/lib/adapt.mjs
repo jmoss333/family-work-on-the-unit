@@ -85,8 +85,11 @@ export function validateAdaptation(spec, workflow) {
   for (const key of ['same', 'changed', 'refusedOne', 'refusedMany', 'markSame', 'markChanged', 'local', 'noOwner', 'noScript']) {
     if (!text(spec.messages?.[key])) errors.push(`messages: "${key}" is required`);
   }
-  for (const key of ['title', 'intro', 'caption', 'owns', 'involved', 'owned', 'count', 'card']) {
+  for (const key of ['title', 'intro', 'caption', 'owns', 'involved', 'owned', 'count', 'handoffs', 'card']) {
     if (!text(spec.board?.[key])) errors.push(`board: "${key}" is required`);
+  }
+  for (const [key, tokens] of [['count', ['{n}', '{total}']], ['handoffs', ['{count}', '{steps}']]]) {
+    for (const token of tokens) if (text(spec.board?.[key]) && !spec.board[key].includes(token)) errors.push(`board: "${key}" has no ${token}`);
   }
 
   const titles = spec.titles && typeof spec.titles === 'object' ? spec.titles : {};

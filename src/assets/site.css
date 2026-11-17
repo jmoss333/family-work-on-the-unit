@@ -441,6 +441,8 @@ a.ev-ref:hover { border-color: var(--rc-accent); text-decoration: none; }
 .adapt-board thead .adapt-board__gap { border-bottom-color: var(--rc-warning-strong); }
 /* A card for each role. The cards are for paper: on screen there is a button for each, and
  * the print styles show the one that was asked for. */
+.adapt-handoffs { margin: var(--rc-space-sm) 0 0; max-width: var(--rc-layout-reading-max); font-weight: var(--rc-font-weight-semibold); }
+.adapt-handoffs:empty { display: none; }
 .adapt-cards { display: none; }
 .adapt-cards__title { margin: var(--rc-space-lg) 0 var(--rc-space-xs); font-size: var(--rc-type-h4); }
 .adapt-cards__buttons { display: flex; flex-wrap: wrap; gap: var(--rc-space-xs); }

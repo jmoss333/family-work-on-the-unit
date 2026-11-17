@@ -349,6 +349,37 @@
     return found;
   }
 
+  /** Who owns each step in this version, as the board's row ids; nobody for a step with no owner. */
+  function owning(result, spec) {
+    return result.workflow.steps.map(function (step) {
+      if (step.unowned) return [];
+      // A step the team owns is the team's, and whoever leads it is named in its words.
+      if ((step.owner || []).indexOf(TEAM) !== -1) return [TEAM];
+      return (spec.owners[step.id] || []).map(function (slot) { return result.choices[slot]; }).filter(function (id) { return id !== 'none'; });
+    });
+  }
+
+  /** The steps after which the work changes hands: no one who owns the step also owns the next. */
+  function handoffs(result, spec) {
+    var owners = owning(result, spec);
+    var after = [];
+    for (var i = 0; i + 1 < owners.length; i += 1) {
+      var next = owners[i + 1];
+      if (owners[i].length && next.length && !owners[i].some(function (id) { return next.indexOf(id) !== -1; })) after.push(i + 1);
+    }
+    return after;
+  }
+
+  /** One sentence on how often the work changes hands, or nothing for a version that does not print. */
+  function handoffLine(result, spec) {
+    if (result.refused.length) return '';
+    var after = handoffs(result, spec);
+    if (!after.length) return '';
+    var last = after[after.length - 1];
+    var list = after.length === 1 ? 'step ' + last : 'steps ' + after.slice(0, -1).join(', ') + ' and ' + last;
+    return spec.board.handoffs.replace('{count}', after.length).replace('{steps}', list);
+  }
+
   /**
    * One row for each role this version names. A role owns a step when the choices give it
    * the job, and is also involved wherever the step's words, as rewritten, name it. That is
@@ -363,12 +394,7 @@
       if (!cells[id]) cells[id] = w.steps.map(function () { return null; });
       return cells[id];
     }
-    var owners = w.steps.map(function (step) {
-      if (step.unowned) return [];
-      // A step the team owns is the team's, and whoever leads it is named in its words.
-      if ((step.owner || []).indexOf(TEAM) !== -1) return [TEAM];
-      return (spec.owners[step.id] || []).map(function (slot) { return result.choices[slot]; }).filter(function (id) { return id !== 'none'; });
-    });
+    var owners = owning(result, spec);
     var terms = w.terms || {};
     w.steps.forEach(function (step, index) {
       owners[index].forEach(function (id) { of(id)[index] = 'owns'; });
@@ -459,7 +485,7 @@
     }).join('');
   }
 
-  global.FWUAdapt = { defaults: defaults, clean: clean, fill: fill, pick: pick, locate: locate, adapt: adapt, status: status, sheet: sheet, code: code, decode: decode, named: namedIn, rows: rows, board: board, cards: cards, cardButtons: cardButtons };
+  global.FWUAdapt = { defaults: defaults, clean: clean, fill: fill, pick: pick, locate: locate, adapt: adapt, status: status, sheet: sheet, code: code, decode: decode, named: namedIn, rows: rows, board: board, handoffs: handoffs, handoffLine: handoffLine, cards: cards, cardButtons: cardButtons };
 
   // ── Page wiring ────────────────────────────────────────────────────────────────────
   if (typeof document === 'undefined') return;
@@ -470,6 +496,7 @@
   var data = JSON.parse(source.textContent);
   var target = root.querySelector('[data-adapt-sheet]');
   var boardTarget = root.querySelector('[data-adapt-board]');
+  var handoffTarget = root.querySelector('[data-adapt-handoffs]');
   var cardsTarget = root.querySelector('[data-adapt-cards]');
   var cardButtonsTarget = root.querySelector('[data-adapt-card-buttons]');
   var message = document.getElementById('adapt-status');
@@ -487,6 +514,7 @@
     var result = adapt(data.workflow, data.spec, read());
     target.innerHTML = sheet(result, data.spec);
     if (boardTarget) boardTarget.innerHTML = board(result, data.spec);
+    if (handoffTarget) handoffTarget.textContent = handoffLine(result, data.spec);
     if (cardsTarget) cardsTarget.innerHTML = cards(result, data.spec);
     if (cardButtonsTarget) cardButtonsTarget.innerHTML = cardButtons(result, data.spec, false);
     wholeSheet();
