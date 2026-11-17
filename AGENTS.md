@@ -20,6 +20,7 @@ This site teaches clinicians. One faculty reviewer attests every page, and that 
 - Mark what you wrote. New pages get an `origin` in `content/manifest.json`; new rehearsal positions get `"origin": "review-build-addition"` or a dated successor; a sentence added to the unit workflow goes under `additions` with its basis. A reviewer must be able to find every line that is not the original author's.
 - Keep position ids in a case file stable. A branch-by-branch review refers to them.
 - Prefer copying to retyping. The intake scripts in `tools/` exist so that no sentence from a source document is transcribed by hand.
+- When you change a sentence in the unit workflow, list it under `differs` in `governance/workflow-source-check.json` with the reason, and add the row to `docs/WORKFLOW_INTAKE.md`. Never move an entry to `verbatim` by hand: only `tools/compare_workflow_source.mjs --record`, run against the procedure, writes a fingerprint. The procedure and its substitutions file name the unit and stay outside this repository.
 - Write tests that hold whatever has been attested. The deploy runs the tests before it builds. A test that changes the sources works in `scratchRepo()`, which starts from a ledger with nothing attested; a test of the real build asks the ledger what state a page is in before it asserts that the page did or did not ship.
 
 ## How the pieces fit

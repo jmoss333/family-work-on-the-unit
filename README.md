@@ -14,7 +14,7 @@ Node 20 or later. There is nothing to install.
 ```bash
 npm run build          # review build into dist/ : every page, each one marked
 open dist/index.html   # works straight from the file system
-npm test               # 110 checks, about twelve seconds
+npm test               # 114 checks, about twelve seconds
 npm run queue          # what is waiting for faculty review, highest risk first
 npm run build:public   # what the public would get: attested pages only
 ```
@@ -48,7 +48,7 @@ With nothing attested, the public build is the empty shell and the governance pa
 | `site.config.json` | Title, sections, the front-door links, and the owner's switches |
 | `src/` | The build (`build.mjs`), its library, and the stylesheets and scripts that ship |
 | `tests/` | The acceptance tests. `docs/ACCEPTANCE.md` maps each to a criterion |
-| `tools/` | `attest`, `queue`, `protect-term`, and the one-time intake scripts that produced the Astra-derived files |
+| `tools/` | `attest`, `queue`, `protect-term`, `compare_workflow_source` (the unit workflow against its procedure, which is kept outside this repository), and the one-time intake scripts that produced the Astra-derived files |
 | `vendor/marked/` | The Markdown parser, pinned and committed, so a build installs nothing |
 | `docs/` | Where the unit workflow's sentences came from, open decisions, acceptance map, deploy steps |
 

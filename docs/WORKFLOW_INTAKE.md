@@ -14,7 +14,20 @@ None of the source documents is in this repository. They name the unit, its inst
 
 The source documents were read as text from the author's document store on 2026-11-16 and copied by an AI assistant (Claude). Every field was then re-read against the source, clause by clause.
 
-That is weaker than the check the move cards had. The cards were lifted by a script and compared by a script. Here there was no file to run a script on, so the comparison was a reading. If the procedure is saved as text beside the other intake files, the same byte-level comparison can be run.
+That was weaker than the check the move cards had: the cards were lifted by a script and compared by a script, and here the comparison was a reading.
+
+**On 2026-11-17 the unit workflow was compared with the procedure by script** (`tools/compare_workflow_source.mjs`). The procedure was read again from the author's document store and saved as text outside this repository, beside a file of the six substitutions the table below lists as Replaced or Expanded. The script takes a sentence as carried over only where the procedure has it, in order, because the same short label occurs at more than one step.
+
+| | |
+|---|---|
+| Sentences of the workflow a reader sees | 86 |
+| In the procedure word for word, in its place, after the six substitutions | 72 |
+| Not in the procedure | 14, each with its reason in `governance/workflow-source-check.json` and in the tables below: the statement of where the workflow comes from, five changed on the author's instruction, three format names expanded, two recast (found by the script; see the table), three added |
+| What the procedure says that the workflow does not carry | The title lines, the list of sources, the table's headings and step numbers, the headings the page prints from its template, the three short format names, and the five phrases the author's instructions replaced. Read against the tables below; nothing else is left over |
+
+Not compared, because they are this site's own: the seven row labels of the boards, the eight "See also" labels, and the headings and labels the page template prints. The other two pages in the table above are still a reading; they have no script.
+
+The record holds a fingerprint of each sentence that was found, and none of the procedure's text beyond the short forms quoted as reasons. A test holds the workflow to it: a sentence changed after the comparison fails the suite until the comparison is run again or the change is listed with its reason (`docs/ACCEPTANCE.md`, A21).
 
 ## What was changed in the workflow
 
@@ -31,6 +44,8 @@ The procedure's wording is kept. These are all the departures.
 | Expanded | "5-min phone update", "30-min structured", "60–90-min alliance repair (optional)" as the names of the formats | "5-minute phone update", "30-minute structured meeting", "60–90-minute alliance repair (optional)". Step 3 keeps the short forms |
 | Rendered | A dash under "Where it is written" (steps 5 and 6) | A dash, read to a screen reader as "Nothing is written at this step" |
 | Restructured | One table, and four blocks of running text | Eight step cards, three format cards, two lists and a table |
+| Relabelled | The table's headings "What happens" and "Where it is written"; the label "Purpose." | What happens has no label; "Written in"; the purpose is the page's opening sentence, with no label |
+| Recast (found by the script, 2026-11-17) | "Proposed measures (monthly, from the chart and the calendar): … · family meetings per day across the unit · …" in one line | A sentence, "Monthly, from the chart and the calendar.", and a table of the four measures, in which "Family meetings per day across the unit" begins with a capital |
 | Changed on the author's instruction, 2026-11-17 | "Psychiatrist" as the owner of steps 6, 7 and 8 (the meeting, the note, the discharge bridge) | "Psychiatrist / APP / resident", the form step 1 already uses. The author said that an APP or a resident may lead the meeting and sign the note. Step 4 still reads "Team — psychiatrist leads" |
 | Changed on the author's instruction, 2026-11-17 | "psychiatrist's calendar shared with the unit secretary" (step 3) and "let the psychiatrist know they have arrived" (step 5) | "the meeting lead's calendar shared with the unit secretary" and "let the meeting lead know they have arrived". The author said both follow whoever leads the meeting |
 
