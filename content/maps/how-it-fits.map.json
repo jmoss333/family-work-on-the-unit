@@ -1,0 +1,28 @@
+{
+  "schema": 1,
+  "workflow": "unit-family-meeting",
+  "lead": "Family work on the unit, on one screen: who does what across a stay, what a meeting is made of, and where each page of this companion applies.",
+  "stay": {
+    "title": "Across the stay",
+    "intro": "The steps, in the order they happen.",
+    "hint": "Press a step to open it.",
+    "full": "The procedure in full, with its guardrails and exceptions:",
+    "adapt": "Staffed differently on your unit?"
+  },
+  "recall": {
+    "label": "Test yourself",
+    "prompt": "The answers are covered. Say who owns each step and when it starts, then press the step to check."
+  },
+  "meeting": {
+    "title": "Inside the meeting",
+    "step": "meet",
+    "intro": "Step {n}, opened up: how long, in what order, and the move card for each part.",
+    "parts": {
+      "page": "start/one-spine",
+      "heading": "The five parts of a meeting"
+    }
+  },
+  "rest": {
+    "title": "Also in this companion"
+  }
+}

@@ -50,8 +50,10 @@ export function build({ root, outDir, channel = 'review', buildId = '' }) {
   const register = site.pages.find((page) => page.kind === 'register');
   const studio = site.pages.find((page) => page.kind === 'studio');
   const workflow = site.pages.find((page) => page.kind === 'workflow');
+  const map = site.pages.find((page) => page.kind === 'map');
   const nav = [
     { file: 'index.html', label: 'Home' },
+    ...(map ? [{ file: map.file, label: 'Map' }] : []),
     { file: 'guide.html', label: 'Six moves' },
     ...(studio ? [{ file: studio.file, label: 'Practice studio' }] : []),
     ...(workflow ? [{ file: workflow.file, label: 'Unit workflow' }] : []),
@@ -118,6 +120,9 @@ export function build({ root, outDir, channel = 'review', buildId = '' }) {
     } else if (page.kind === 'adapt') {
       body = T.adaptPage(page, ctx);
       scripts = ['assets/site.js', 'assets/adapt.js'];
+    } else if (page.kind === 'map') {
+      body = T.mapPage(page, ctx);
+      scripts = ['assets/site.js', 'assets/map.js'];
     } else {
       const rendered = renderMarkdown(page.sourceText, {
         resolveLink: ctx.resolveLink,

@@ -73,7 +73,7 @@ git push                                   # the review site now shows it as att
 
 Then open a pull request from `review` into `main` on GitHub and merge it. The merge is what publishes. Attest several pages before you merge, so one production deploy carries them all.
 
-The two pages under "Build the system" ask one more question when you attest them: that the page identifies no one, reports no figure from the unit, and may be published. Type `released` to confirm, or anything else to leave the page in review.
+The pages that print the unit's procedure (the three under "Build the system", and the map) ask one more question when you attest them: that the page identifies no one, reports no figure from the unit, and may be published. Type `released` to confirm, or anything else to leave the page in review.
 
 To publish the two imported pages on the strength of your earlier Clerkship Library review, set `"acceptUpstreamAttestation": true` in `site.config.json` (`docs/DECISIONS.md`, D3).
 
@@ -104,7 +104,7 @@ A red deploy means a test failed or the sources are inconsistent. The log names 
 - a link to a page that does not exist
 - a citation with no entry in the evidence register
 - an imported file that was edited
-- a ledger row edited by hand, or a reviewed row for a "Build the system" page with no release record
+- a ledger row edited by hand, or a reviewed row for a page that prints the unit's procedure with no release record
 - a protected name in a file. The log gives the file and the line and never the name; `node tools/protect-term.mjs scan` gives the same report locally
 
 Netlify's deploy logs for this project are public, like the repository. That is why no test or build message prints a protected name.

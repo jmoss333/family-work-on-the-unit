@@ -55,6 +55,30 @@ Two parts: the architecture decision that shaped this build, and the decisions t
 
 **Consequences.** The reviewer attests a set of rules, not each of the 544,320 sheets those rules can print; the tests are what stand between the two (`docs/ACCEPTANCE.md`, A18). The page is under the release gate, because it prints the unit's procedure. The script can read a version code back into choices, and no page uses that yet. Adding a title or an interval is a content change, and D15 to D18 below are the judgments in the current lists.
 
+## ADR-004 · A map drawn only from text other pages carry, and tests that survive an attestation (2026-11-17)
+
+**Context.** The owner asked for an interactive, integrated visual of the workflow and the rest of the site, to make it quicker to understand and to learn from. A new teaching page is new text in the review queue, and the reviewer's time is the constraint.
+
+**Options.**
+
+| Option | For | Against |
+|---|---|---|
+| A. A drawn diagram with its own captions | Free in form | Every caption is a new sentence to review, and a drawing drifts from the workflow the day the workflow changes |
+| B. A richer workflow page (filters and views on the page that already exists) | No new page | It cannot hold the meeting, the move cards and the rest of the site, which is the integration that was asked for |
+| **C. A page the build draws from files other pages already use** | The board, the step cards, the formats, the parts and the page titles are copies, made by the build, so they cannot drift. About 100 words are new | It needs a new kind of page, and it reads one table out of another page's Markdown |
+
+**Decision.** C, "How it fits together", with five parts.
+
+1. **A board from the workflow file.** One column for each step, one row for each role. A role is marked at a step exactly when that step's own words name it: as owner when the owner label names it, otherwise as also involved. A test checks every mark against the words, in both directions. To make that true the workflow file's roles were corrected: it had lumped "Psychiatrist" into "Psychiatrist, APP or resident", where the procedure gives the first step to all three and the meeting, the note and the bridge to the psychiatrist. The build now also checks the file's owners against the adaptation rules.
+2. **The parts of a meeting come from the page that states them.** The build reads the table under "The five parts of a meeting" and refuses a table that has moved, changed shape or dropped a move card. The map prints the part names and takes each card's title from the list of pages.
+3. **A page that does not ship is not named.** In the map's own lists a move card that is still in review appears as "Move 3 (in review)" and a leftover page does not appear.
+4. **The script composes nothing.** It shows, hides and marks what the build wrote, and a test denies it every way of writing text. So the map's review covers three files (its own, the workflow, the page the parts come from) and not the script. The adaptation page is the opposite case (ADR-003).
+5. **Self-testing.** One button covers every answer on the board; pressing a step uncovers its column. No score is kept and nothing is stored.
+
+**What this turned up.** Simulating the map as the only attested page showed that the test suite assumed nothing was attested. Run against copies of the repository with pages attested, eleven tests failed. Eight started from a copy of the real ledger and took it to hold no attestation. Three asserted of the real build that a page was pending or had not shipped; one of those forbade any public page from naming a page in review, which an attested page does whenever it links to one. The deploy runs the tests before it builds, in every context, so the first attestation would have failed both sites. Now a test's scratch copy starts from a ledger with nothing attested and the owner's switches at their defaults; the naming rule covers the pages the build writes itself, and a new test holds an attested page to naming a page in review only as plain words marked "(in review)". The suite was then run against copies in seven states and passed in each (`docs/ACCEPTANCE.md`).
+
+**Consequences.** The map is under the release gate, because it prints the unit's procedure. Editing the workflow, the map file or "Two kinds of conversation, one spine" reopens it. The home page has a third door and the navigation a seventh entry (D19).
+
 ## Open decisions
 
 | # | Decision | Default in effect | Why it is yours | To change it |
@@ -76,6 +100,8 @@ Two parts: the architecture decision that shaped this build, and the decisions t
 | D16 | **What a unit may change.** Six owners and two intervals. Everything else is fixed: the private check, the formats and their gates, the reasons for no joint meeting, the guardrails, the measures, and four intervals (no major decisions in the first 72 hours, revisiting a declined involvement at 72 h, repairing the alliance within 24 h, and booking within 24 h of known availability) | As built | Where logistics end and clinical rule begins is yours to say | Add or remove a rule or an interval in the same file |
 | D17 | **The intervals on offer.** First contact within 24, 48 or 72 h; updates every 48 h, 72 h or week. Only 24 and 72 are the procedure's own | As built | "Every week" may be too slack for an acute unit, and you may prefer to offer the procedure's numbers alone | Edit `timings[].options`; a test records every interval that is not the procedure's |
 | D18 | **Rounds has its own owner.** The procedure has the psychiatrist lead rounds and the meeting. The page asks the two separately | Separate | You may hold that the person who leads the meeting must be the one who sets the format at rounds | Remove the `rounds` job and point its rule at `lead` |
+| D19 | **The map as a way in.** The home page has a third door, "See how it fits together", and the navigation a "Map" entry after Home | Both on | The front of the site is yours (D1) | Delete the third entry under `doors` in `site.config.json`; the navigation entry follows the page |
+| D20 | **Who counts as "also involved".** The board marks a role at a step when the step's words name it. So the psychiatrist is marked at booking (the meeting goes on the psychiatrist's calendar) and when the family is brought up (the psychiatrist is told), and nursing only where it is notified or may join | As the words have it | A reader will take the board as your account of who does what, and nursing owns no step on it | Change the step's wording in the workflow file; the marks follow the words, and a test fails if they do not |
 
 ## Decided
 
@@ -93,3 +119,6 @@ Two parts: the architecture decision that shaped this build, and the decisions t
 | 2026-11-17 | The adaptation page offers fixed lists only: nothing can be typed, nothing is stored, and there is no link that carries a version (ADR-003). |
 | 2026-11-17 | The adaptation page's review covers its rules, the workflow and its script (ADR-003). |
 | 2026-11-17 | A script ships only with a page that loads it, so the public build with nothing attested carries the site script and no other. |
+| 2026-11-17 | The map is drawn by the build from files other pages already use, and its script composes no text (ADR-004). |
+| 2026-11-17 | The workflow file names its roles as the procedure's owner labels do. "Psychiatrist" is a role of its own, and the build checks the file's owners against the adaptation rules (ADR-004). |
+| 2026-11-17 | A test's scratch copy starts from a ledger with nothing attested. An attested page may name a page still in review, as plain words marked "(in review)"; the pages the build writes itself may not (ADR-004). |

@@ -417,7 +417,7 @@ a.ev-ref:hover { border-color: var(--rc-accent); text-decoration: none; }
 .wf-label { font-weight: var(--rc-font-weight-bold); color: var(--rc-text-mid); margin-right: var(--rc-space-2xs); }
 .wf-formats { list-style: none; margin: 0 0 var(--rc-space-md); padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: var(--rc-space-md); }
 .wf-format { padding: var(--rc-space-md); }
-.wf-format h3 { font-size: var(--rc-type-h4); margin-bottom: var(--rc-space-xs); }
+.wf-format h3, .wf-format h4 { font-size: var(--rc-type-h4); margin-bottom: var(--rc-space-xs); }
 .wf-format p { margin: 0 0 var(--rc-space-xs); font-size: var(--rc-type-small); }
 .wf-format .wf-format__when { margin: 0; padding-top: var(--rc-space-xs); border-top: 1px solid var(--rc-border-light); color: var(--rc-text-mid); }
 .wf-list { margin: 0 0 var(--rc-paragraph-gap); padding-left: 1.35rem; }
@@ -475,6 +475,84 @@ a.ev-ref:hover { border-color: var(--rc-accent); text-decoration: none; }
 .adapt-mark__choices dd { margin: 0; font-weight: var(--rc-font-weight-semibold); }
 .wf-step--gap { border-color: var(--rc-warning-strong); }
 
+/* ─── The map ─── */
+.map-band { margin-top: var(--rc-space-2xl); }
+.map-band > h2 { margin-bottom: var(--rc-space-xs); }
+.map-band > p { max-width: var(--rc-measure); }
+.map-sub { font-size: var(--rc-type-h4); margin: var(--rc-space-lg) 0 var(--rc-space-sm); }
+.map-tools { display: flex; flex-wrap: wrap; align-items: center; gap: var(--rc-space-xs) var(--rc-space-md); margin: 0 0 var(--rc-space-md); }
+.map-hint { margin: 0; color: var(--rc-text-mid); }
+.map-tools .rc-btn[aria-pressed="true"] { background: var(--rc-accent-light); border-color: var(--rc-accent); color: var(--rc-accent-dark); }
+.map-prompt { margin: 0 0 var(--rc-space-md); padding-left: var(--rc-space-sm); border-left: 4px solid var(--rc-accent); font-weight: var(--rc-font-weight-semibold); }
+
+/* The board: one column for each step, one row for each role, then what is written,
+ * what is measured and where there is more to read. */
+/* Positioned, so that the board's screen-reader-only labels scroll with it and cannot widen the page. */
+.map-board-wrap { position: relative; margin: 0 0 var(--rc-space-sm); }
+.map-board { width: 100%; min-width: 46rem; border-collapse: collapse; table-layout: fixed; font-size: var(--rc-type-small); }
+.map-board th, .map-board td { padding: var(--rc-space-xs) var(--rc-space-2xs); border-bottom: 1px solid var(--rc-border-light); text-align: center; vertical-align: middle; }
+.map-board thead th, .map-board thead td { padding: var(--rc-space-2xs); vertical-align: top; border-bottom: 2px solid var(--rc-border); }
+.map-board thead td { width: 11rem; }
+.map-board tbody th { padding-left: var(--rc-space-md); text-align: left; font-weight: var(--rc-font-weight-semibold); }
+/* The row labels stay in view when the board scrolls sideways on a narrow screen. */
+.map-board thead td, .map-board tbody th { position: sticky; left: 0; background: var(--rc-surface); box-shadow: 1px 0 0 var(--rc-border); }
+.map-row--when th, .map-row--fact th { color: var(--rc-text-mid); }
+.map-row--when td { vertical-align: top; color: var(--rc-text-mid); font-size: var(--rc-type-caption); line-height: var(--rc-line-height-tight); }
+.map-row--role + .map-row--fact th, .map-row--role + .map-row--fact td { border-top: 2px solid var(--rc-border); }
+.map-board tbody tr:last-child th, .map-board tbody tr:last-child td { border-bottom: 0; }
+.map-board [data-open="true"] { background: var(--rc-accent-bg); }
+.map-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--rc-space-2xs);
+  width: 100%;
+  padding: var(--rc-space-xs) var(--rc-space-2xs);
+  border: 1px solid var(--rc-border-strong);
+  border-radius: var(--rc-radius-sm);
+  background: var(--rc-surface-alt);
+  color: var(--rc-text);
+  font: inherit;
+  font-weight: var(--rc-font-weight-semibold);
+  line-height: var(--rc-line-height-tight);
+  cursor: pointer;
+}
+.map-step:hover { background: var(--rc-surface-hover); border-color: var(--rc-accent); }
+/* Until the script runs a step is not a control, and it should not look like a dead one. */
+.map-step:disabled { cursor: default; background: none; border-color: transparent; }
+.map-step[aria-expanded="true"] { background: var(--rc-accent-light); border-color: var(--rc-accent); }
+.map-step__n { font-family: var(--rc-font-display); font-size: var(--rc-type-h3); line-height: 1; color: var(--rc-primary-dark); }
+
+/* Five marks, five shapes: the shape carries the meaning, the colour only helps. Each is
+ * drawn with borders and no background, because a browser leaves backgrounds out of print. */
+.map-mark { display: inline-block; box-sizing: border-box; width: 1rem; height: 1rem; vertical-align: middle; }
+.map-mark--owns { border-radius: var(--rc-radius-pill); border: 0.5rem solid var(--rc-primary-dark); }
+.map-mark--involved { border-radius: var(--rc-radius-pill); border: 2px solid var(--rc-primary-dark); }
+.map-mark--written { width: 0.75rem; border-radius: 2px; border: solid var(--rc-text-mid); border-width: 0.5rem 0.375rem; }
+.map-mark--measured { width: 0.75rem; height: 0.75rem; border: 0.375rem solid var(--rc-accent-dark); transform: rotate(45deg); }
+.map-mark--more { width: 0; height: 0; border-top: 0.45rem solid transparent; border-bottom: 0.45rem solid transparent; border-left: 0.75rem solid var(--rc-accent-dark); }
+/* Self-testing: every answer on the board is covered until its step is pressed. */
+.map[data-recall="true"] .map-board td:not([data-revealed]) .map-answer { visibility: hidden; }
+
+.map-legend { list-style: none; display: flex; flex-wrap: wrap; gap: var(--rc-space-2xs) var(--rc-space-lg); margin: 0 0 var(--rc-space-md); padding: 0; font-size: var(--rc-type-small); color: var(--rc-text-mid); }
+.map-legend li { display: flex; align-items: center; gap: var(--rc-space-xs); }
+.map-more { display: flex; flex-wrap: wrap; gap: var(--rc-space-2xs) var(--rc-space-lg); font-size: var(--rc-type-small); }
+.map-details { margin-top: var(--rc-space-md); }
+
+.map-parts { list-style: none; margin: 0 0 var(--rc-space-sm); padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(9.5rem, 1fr)); gap: var(--rc-space-sm); }
+.map-part { padding: var(--rc-space-sm) var(--rc-space-md); border-top: 3px solid var(--rc-primary); }
+.map-part h4 { font-size: var(--rc-type-body); margin-bottom: var(--rc-space-xs); }
+.map-part ul { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--rc-space-sm); font-size: var(--rc-type-small); }
+.map-part p { margin: 0; }
+.map-part__n { display: block; font-size: var(--rc-type-caption); font-weight: var(--rc-font-weight-bold); letter-spacing: 0.08em; text-transform: uppercase; color: var(--rc-text-mid); }
+.map-part li > a, .map-part li > .note-in-review { display: block; }
+.map-part__practice { display: block; margin-top: var(--rc-space-2xs); }
+
+.map-rest { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: var(--rc-space-md) var(--rc-space-lg); }
+.map-rest h3 { font-family: var(--rc-font-body); font-size: var(--rc-type-small); font-weight: var(--rc-font-weight-bold); letter-spacing: normal; color: var(--rc-text-mid); margin-bottom: var(--rc-space-2xs); }
+.map-rest ul { list-style: none; margin: 0; padding: 0; font-size: var(--rc-type-small); }
+.map-rest li { margin-bottom: var(--rc-space-2xs); }
+
 /* ─── Governance ─── */
 .gov-rules { max-width: var(--rc-measure); padding-left: 1.35rem; }
 .gov-rules li { margin-bottom: var(--rc-space-xs); }
@@ -503,6 +581,8 @@ a.ev-ref:hover { border-color: var(--rc-accent); text-decoration: none; }
   .record__facts dt { margin-top: var(--rc-space-2xs); }
   .wf-step { padding: var(--rc-space-md); gap: var(--rc-space-sm); }
   .adapt-controls { padding: var(--rc-space-md); }
+  .map-board thead td { width: 7.5rem; }
+  .map-board tbody th { padding-left: var(--rc-space-xs); }
   .adapt-mark__choices { grid-template-columns: 1fr; }
   .adapt-mark__choices dt { margin-top: var(--rc-space-2xs); }
   .wf-facts { grid-template-columns: 1fr; }
@@ -571,4 +651,15 @@ a.ev-ref:hover { border-color: var(--rc-accent); text-decoration: none; }
   .kind-adapt .adapt[data-refused="true"] .adapt-status { display: block; font-size: 12pt; }
   /* An attestation is of the workflow as written. It must not travel on a changed version. */
   .adapt[data-changed="true"][data-state="attested"] .status-banner { display: none; }
+
+  /* The map prints whole: every step open, nothing covered, no controls. Its steps are
+   * buttons on screen, and the rule above hides buttons, so they are put back here. */
+  .kind-map .map-tools, .kind-map .map-status { display: none; }
+  .kind-map .map-step { display: flex !important; border-color: var(--rc-border-strong); background: none; }
+  .kind-map .map-detail[hidden] { display: grid !important; }
+  .kind-map .map-board { min-width: 0; }
+  .kind-map .map-board-wrap { overflow: visible; }
+  .kind-map .map[data-recall="true"] .map-board td .map-answer { visibility: visible !important; }
+  .map-board [data-open="true"] { background: none; }
+  .map-part, .map-rest__group { break-inside: avoid; }
 }

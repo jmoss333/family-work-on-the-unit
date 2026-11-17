@@ -7,11 +7,12 @@
   "scope": "Psychiatrist/APP and residents, social work, nursing, mental health technicians, unit secretary.",
   "principle": "Family work is a team workflow, not a heroic act: each step removes a handoff or a second phone call. “Family” means the people the patient chooses.",
   "roles": {
-    "prescriber": "Psychiatrist, APP or resident",
+    "psy-app-res": "Psychiatrist / APP / resident",
+    "psychiatrist": "Psychiatrist",
     "social-work": "Social work",
     "nursing": "Nursing",
     "techs": "Mental health technicians",
-    "secretary": "Unit secretary",
+    "unit-secretary": "Unit secretary",
     "team": "Treatment team"
   },
   "steps": [
@@ -21,7 +22,7 @@
       "trigger": "Admission interview",
       "ownerLabel": "Psychiatrist / APP / resident",
       "owner": [
-        "prescriber"
+        "psy-app-res"
       ],
       "action": "Ask privately: who would you want involved · what would you like them to understand · what would you rather not discuss together · what are you worried might happen. Establish consent and scope. If a joint contact is possible, the private check: “Is there anything you could not say with this person in the room?”",
       "record": "Admission note: involvement decision, consent and scope",
@@ -61,9 +62,10 @@
       "trigger": "Availability known",
       "ownerLabel": "Unit secretary",
       "owner": [
-        "secretary"
+        "unit-secretary"
       ],
       "support": [
+        "psychiatrist",
         "social-work",
         "nursing"
       ],
@@ -80,7 +82,7 @@
         "team"
       ],
       "support": [
-        "prescriber"
+        "psychiatrist"
       ],
       "action": "For every patient, one line: supports · pattern · format today · who makes contact. Confirm scheduled meetings and their length. Lowest-burden format for today’s acuity; step up only as the gates are met (sleep restored, arousal down, attention holds an agenda); step down any time.",
       "record": "Rounds list / family-work line in the plan",
@@ -100,6 +102,9 @@
       "owner": [
         "techs"
       ],
+      "support": [
+        "psychiatrist"
+      ],
       "action": "Meet the support person at the entrance and bring them to the unit; set up the room; let the psychiatrist know they have arrived.",
       "record": null,
       "doneWhen": "Family in the room on time"
@@ -110,7 +115,7 @@
       "trigger": "In the room",
       "ownerLabel": "Psychiatrist (+ social work or nursing when available)",
       "owner": [
-        "prescriber"
+        "psychiatrist"
       ],
       "support": [
         "social-work",
@@ -136,7 +141,7 @@
       "trigger": "Same day",
       "ownerLabel": "Psychiatrist",
       "owner": [
-        "prescriber"
+        "psychiatrist"
       ],
       "action": "See the patient alone afterwards (how it landed; new safety concerns). An ambient documentation tool drafts during the meeting → review, edit, sign. Record purpose and permission, what was worked on, what they tried, next step and who reviews, and the plan row: need · named person · date or trigger · verified · contingency. Update the support person every 72 h.",
       "record": "Family-meeting note; discharge-summary draft",
@@ -154,7 +159,7 @@
       "trigger": "Discharge planning",
       "ownerLabel": "Psychiatrist + social work",
       "owner": [
-        "prescriber",
+        "psychiatrist",
         "social-work"
       ],
       "action": "Verify every “family will help” item: owner, date, verified, contingency. First appointment confirmed, not “being arranged.” Means-safety tasks closed and checked. A referral is not access; family willingness is not a discharge plan.",

@@ -1,6 +1,6 @@
 // Shared by every test file: build each channel once into a temp folder, and a few small
 // readers for the HTML the build writes. No dependencies; the HTML is our own and regular.
-import { cpSync, mkdtempSync, readFileSync, readdirSync, statSync } from 'node:fs';
+import { cpSync, mkdtempSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, posix } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -18,13 +18,29 @@ export function built(channel) {
   return cache.get(channel);
 }
 
-/** A throwaway copy of the repository's sources, for tests that need to change something. */
+/**
+ * A throwaway copy of the repository's sources, for tests that need to change something.
+ *
+ * The copy starts from a known place whatever the real ledger and the owner's switches say
+ * by then: every ledger row is reset to pending, and upstream attestations are not honoured.
+ * A test that needs an attested page signs one in the copy. Without this, the tests that
+ * exercise the review gate would start failing on the day the first page is attested, and
+ * the deploy runs the tests before it builds.
+ */
 export function scratchRepo() {
   const dir = mkdtempSync(join(tmpdir(), 'fwu-scratch-'));
   for (const name of ['content', 'cases', 'workflows', 'evidence', 'governance', 'site.config.json']) {
     cpSync(join(ROOT, name), join(dir, name), { recursive: true });
   }
   cpSync(join(ROOT, 'src', 'assets'), join(dir, 'src', 'assets'), { recursive: true });
+  const rewrite = (rel, change) => {
+    const value = JSON.parse(readFileSync(join(dir, rel), 'utf8'));
+    writeFileSync(join(dir, rel), `${JSON.stringify(change(value), null, 2)}\n`);
+  };
+  rewrite('governance/ledger.json', (ledger) =>
+    Object.fromEntries(Object.entries(ledger).map(([slug, row]) => [slug, { status: 'pending', risk: row.risk, reason: row.reason || 'Reset to pending for a test.', at: row.at, by: 'Pending faculty review' }])),
+  );
+  rewrite('site.config.json', (config) => ({ ...config, acceptUpstreamAttestation: false }));
   return dir;
 }
 

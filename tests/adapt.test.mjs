@@ -88,6 +88,18 @@ test('A18 · the validator refuses the defects it exists to catch', () => {
   assert.match(broken((s) => { s.owners.rounds = ['lead']; }), /slot "rounds" is the sole owner of no step/);
   assert.match(broken((s) => { s.titles.none = s.titles.nursing; }), /"none" is reserved/);
   assert.match(broken((s) => { delete s.messages.local; }), /messages: "local" is required/);
+
+  // The workflow's own list of who owns each step must agree with the rules.
+  const drift = (edit) => {
+    const flow = load(WORKFLOW);
+    edit(flow);
+    return validateAdaptation(load(RULES), flow).join(' | ');
+  };
+  assert.match(drift((w) => { w.steps.find((item) => item.id === 'note').owner = ['social-work']; }), /step "note": the workflow says it is owned by social-work; these rules, with nothing changed, say psychiatrist/);
+  assert.match(drift((w) => { w.steps.find((item) => item.id === 'bridge').owner = ['psychiatrist']; }), /step "bridge": the workflow says it is owned by psychiatrist; these rules, with nothing changed, say psychiatrist and social-work/);
+  assert.match(drift((w) => { w.steps.find((item) => item.id === 'rounds').support = []; }), /step "rounds": a step the team owns names who leads it as also involved \(psychiatrist\)/);
+  assert.match(drift((w) => { w.roles.psychiatrist = 'Attending'; }), /role "psychiatrist": the workflow calls it "Attending"; these rules call it "Psychiatrist"/);
+  assert.match(drift((w) => { w.roles.pharmacist = 'Pharmacist'; w.steps[0].support = ['pharmacist']; }), /role "pharmacist": the workflow uses it, and it is not one of the titles these rules know/);
 });
 
 test('A18 · with nothing changed, the sheet is the workflow word for word', () => {
@@ -330,7 +342,6 @@ test('A18 · the review of the page covers the rules, the workflow and the scrip
   const page = loadSite(ROOT).pages.find((p) => p.slug === SLUG);
   assert.deepEqual([...page.sources].sort(), [ADAPT_SCRIPT, RULES, WORKFLOW].sort());
   assert.equal(page.release, 'unit-practice', 'it prints a real unit’s procedure, so it needs the release record too');
-  assert.equal(page.state, 'pending');
 
   // Attested, it ships, and its script ships with it. Unattested, neither is in the public build.
   let dir = signed();
@@ -338,8 +349,11 @@ test('A18 · the review of the page covers the rules, the workflow and the scrip
   assert.equal(result.state, 'attested');
   assert.deepEqual(result.shipped, [SLUG]);
   assert.ok(existsSync(join(result.target, 'assets/adapt.js')));
-  assert.ok(!existsSync(join(built('public').dir, 'assets/adapt.js')), 'the script reached a public build that has no adaptation page');
-  assert.ok(!existsSync(join(built('public').dir, `${SLUG}.html`)));
+  dir = scratchRepo();
+  result = publicBuild(dir);
+  assert.deepEqual(result.shipped, []);
+  assert.ok(!existsSync(join(result.target, 'assets/adapt.js')), 'the script reached a public build that has no adaptation page');
+  assert.ok(!existsSync(join(result.target, `${SLUG}.html`)));
 
   for (const [what, change] of [
     ['the rules', (root) => { const rules = load(RULES, root); rules.slots[0].options.pop(); save(root, RULES, rules); }],

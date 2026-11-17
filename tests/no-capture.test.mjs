@@ -21,7 +21,7 @@ const FORBIDDEN = [
 
 test('A5 · shipped scripts store nothing, send nothing and listen to nothing', () => {
   // The inventory. A new script is added here on purpose, and is then held to the list above.
-  assert.deepEqual(scripts.sort(), ['adapt.js', 'site.js', 'studio.js']);
+  assert.deepEqual(scripts.sort(), ['adapt.js', 'map.js', 'site.js', 'studio.js']);
   for (const name of scripts) {
     const code = readFileSync(join(assets, name), 'utf8').replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '');
     for (const term of FORBIDDEN) assert.ok(!code.includes(term), `${name} uses ${term}`);

@@ -119,8 +119,8 @@ test('A14 · a page about a real unit prints no number that is not on its list, 
   const site = loadSite(ROOT);
   const pages = site.pages.filter((page) => page.release === 'unit-practice');
   // A page that prints the unit's procedure, in any form, is on this list and under the release gate.
-  assert.deepEqual(pages.map((page) => page.slug), ['system/unit-workflow', 'system/set-it-up', 'system/adapt-it']);
-  assert.deepEqual(site.pages.filter((page) => page.workflowFile).map((page) => page.slug), ['system/unit-workflow', 'system/adapt-it']);
+  assert.deepEqual(pages.map((page) => page.slug), ['start/how-it-fits', 'system/unit-workflow', 'system/set-it-up', 'system/adapt-it']);
+  assert.deepEqual(site.pages.filter((page) => page.workflowFile).map((page) => page.slug), ['start/how-it-fits', 'system/unit-workflow', 'system/adapt-it']);
   for (const page of pages) {
     if (page.kind === 'adapt') {
       const beyond = [];
@@ -134,7 +134,12 @@ test('A14 · a page about a real unit prints no number that is not on its list, 
       }
       assert.deepEqual([...new Set(beyond)].sort(), INTERVALS_OFFERED_BEYOND_THE_PROCEDURE);
     }
-    const source = page.kind === 'workflow' ? readerText(page.workflowFile) : page.kind === 'adapt' ? adaptText(page.adaptFile) : page.sourceText;
+    // The map prints the workflow's words and its own few sentences. The table it reads belongs
+    // to another page, and of that table it prints the names of the parts and nothing else.
+    const source = page.kind === 'workflow' ? readerText(page.workflowFile)
+      : page.kind === 'adapt' ? adaptText(page.adaptFile)
+      : page.kind === 'map' ? `${readerText(page.workflowFile)}${readerText(page.mapFile)}${page.parts.map((part) => `${part.part}\n${part.note || ''}\n`).join('')}`
+      : page.sourceText;
     const text = source
       .replace(/\]\([^)]*\)/g, ']') // link targets
       .replace(/\[(?:[DXRG]\d+)(?:,\s*[DXRG]\d+)*\]/g, ''); // evidence references

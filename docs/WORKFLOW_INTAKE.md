@@ -62,6 +62,15 @@ What the page does add, and what the reviewer is asked to judge, is in that file
 
 The page is under the same release gate as the workflow, because it prints the unit's procedure.
 
+## The map (added 2026-11-17)
+
+"How it fits together" draws the workflow as a board and adds no sentence to it. Two things about the workflow file changed to make the board true to the procedure.
+
+- **The roles are named as the owner labels name them.** The file had one role, "Psychiatrist, APP or resident", for the first step and for the meeting, the note and the discharge bridge. The procedure gives the first step to "Psychiatrist / APP / resident" and the other three to "Psychiatrist". The file now has both roles. No reader-facing sentence changed.
+- **A role is listed as also involved wherever a step's words name it.** That added the psychiatrist at booking (the meeting goes on the psychiatrist's calendar) and when the family is brought up (the psychiatrist is told they have arrived). A test compares every mark with the step's words, in both directions.
+
+What the map adds of its own is in `content/maps/how-it-fits.map.json`: an introduction, three headings and four short lines, about 100 words (`docs/DECISIONS.md`, ADR-004, D19 and D20).
+
 ## What "de-identified" means here
 
 The pages do not name the unit, the institution, its affiliates or the products in use, and a test fails if any of those names appears in any file or built page (`governance/protected-terms.json`, kept as hashes). They contain no patient, no staff member and no figure from the unit.

@@ -6,8 +6,9 @@ import { HEX40, PENDING_SENTINEL, blobSha, pageDigest, reviewedMeta, upstreamDig
 import { validateCase } from './casegraph.mjs';
 import { validateWorkflow } from './workflow.mjs';
 import { ADAPT_SCRIPT, validateAdaptation } from './adapt.mjs';
+import { checkParts, readParts, validateMap } from './map.mjs';
 
-export const KINDS = new Set(['page', 'card', 'studio', 'register', 'workflow', 'adapt']);
+export const KINDS = new Set(['page', 'card', 'studio', 'register', 'workflow', 'adapt', 'map']);
 // A page that describes how a real unit works needs more than a clinical read before it is
 // public. The attest command asks the reviewer to confirm each line below, and a reviewed
 // row without that record is refused.
@@ -153,6 +154,33 @@ export function loadSite(root) {
         if (!validateWorkflow(workflowFile).length) for (const error of validateAdaptation(adaptFile, workflowFile)) problems.push(`${page.adapt}: ${error}`);
         page.workflowFile = workflowFile;
         page.adaptFile = adaptFile;
+      }
+    }
+    if (page.kind === 'map') {
+      // The map prints the workflow and one table from another page, so its review covers
+      // its own file, the workflow file and that page's source. Its script only shows and
+      // hides what the build wrote, so the script is not a source (compare 'adapt' above).
+      if (!page.map || !page.workflow || !page.sources.includes(page.map) || !page.sources.includes(page.workflow)) problems.push(`${at}: a map page's sources include its own file and the workflow it draws`);
+      else if (existsSync(join(root, page.map)) && existsSync(join(root, page.workflow))) {
+        const workflowFile = readJson(root, page.workflow);
+        const mapFile = readJson(root, page.map);
+        const flaws = validateWorkflow(workflowFile).length ? ['its workflow is not sound'] : validateMap(mapFile, workflowFile);
+        for (const error of flaws) problems.push(`${page.map}: ${error}`);
+        const partsPage = manifest.pages.find((other) => other.slug === mapFile.meeting?.parts?.page);
+        if (!flaws.length && !partsPage) problems.push(`${page.map}: it reads the parts of a meeting from "${mapFile.meeting.parts.page}", which is not a page`);
+        if (!flaws.length && partsPage) {
+          const partsSource = partsPage.sources?.[0];
+          if (page.sources.length !== 3 || !page.sources.includes(partsSource)) problems.push(`${at}: a map page's third source is the page whose table it reads (${partsSource})`);
+          else if (existsSync(join(root, partsSource))) {
+            const { rows, errors } = readParts(readFileSync(join(root, partsSource), 'utf8'), mapFile.meeting.parts.heading);
+            const cards = manifest.pages.filter((other) => other.kind === 'card');
+            for (const error of errors.length ? errors : checkParts(rows, cards)) problems.push(`${partsSource}: ${error}`);
+            page.parts = rows;
+            page.partsPage = partsPage.slug;
+          }
+        }
+        page.workflowFile = workflowFile;
+        page.mapFile = mapFile;
       }
     }
 

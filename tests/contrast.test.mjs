@@ -44,6 +44,9 @@ const BOTH = [
   ['accent-dark', 'bg', 'accent text'], ['accent-dark', 'surface', 'secondary button'], ['accent-dark', 'accent-light>surface', 'evidence chip, calm button'], ['accent-dark', 'accent-light>bg', 'evidence chip in text'],
   ['primary-dark', 'surface', 'move numbers'],
   ['text', 'accent-light>surface', 'speech bubble'], ['text', 'primary-light>surface', 'learner speech bubble'], ['text', 'surface-quiet', 'inline code'],
+  // The map: a step as a control (resting, under the pointer, open) and the column of the open step.
+  ['text', 'surface-alt', 'map step'], ['primary-dark', 'surface-alt', 'map step number'], ['text', 'surface-hover', 'map step under the pointer'], ['primary-dark', 'surface-hover', 'map step number under the pointer'],
+  ['primary-dark', 'accent-light>surface', 'number on the open map step'], ['text', 'accent-bg>surface', 'open column on the map'], ['text-mid', 'accent-bg>surface', 'open column on the map, secondary text'],
 ];
 const LIGHT_ONLY = [
   ['success-strong', 'success-light>surface', 'attested badge and banner'], ['success-strong', 'success-light>bg', 'attested banner'],
@@ -75,6 +78,17 @@ test('A11 · the adaptation page’s menu borders and missing-owner marks are at
   for (const mode of ['light', 'dark']) {
     for (const [mark, ground, where] of marks) assert.ok(ratio(mark, ground, mode) >= 3, `${mode}: ${mark} on ${ground} (${where}) is ${ratio(mark, ground, mode).toFixed(2)}:1`);
   }
+});
+
+test('A11 · the map’s five marks are at least 3:1 in both palettes, on the board and in the open column', () => {
+  // Each mark also has its own shape and a spoken label, so colour is never the only cue.
+  const marks = [['primary-dark', 'owns, also involved'], ['text-mid', 'written down'], ['accent-dark', 'measured, more to read']];
+  for (const mode of ['light', 'dark']) {
+    for (const [mark, what] of marks) {
+      for (const ground of ['surface', 'accent-bg>surface']) assert.ok(ratio(mark, ground, mode) >= 3, `${mode}: ${mark} on ${ground} (${what}) is ${ratio(mark, ground, mode).toFixed(2)}:1`);
+    }
+  }
+  for (const kind of ['owns', 'involved', 'written', 'measured', 'more']) assert.ok(site.includes(`.map-mark--${kind} {`), `no shape for the mark "${kind}"`);
 });
 
 test('A11 · the design system’s low-contrast pairings are measured, and the site does not use them', () => {

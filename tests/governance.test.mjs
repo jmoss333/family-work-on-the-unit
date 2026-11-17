@@ -8,7 +8,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { build } from '../src/build.mjs';
 import { blobSha, pageDigest, reviewedMeta, upstreamDigest } from '../src/lib/hash.mjs';
-import { RELEASES, SiteError, loadSite } from '../src/lib/model.mjs';
+import { RELEASES, SiteError, loadSite, ships } from '../src/lib/model.mjs';
 import { ROOT, built, htmlFiles, read, scratchRepo, visibleText, walk } from './helpers.mjs';
 
 const json = (dir, rel) => JSON.parse(readFileSync(join(dir, rel), 'utf8'));
@@ -46,21 +46,62 @@ test('A7 · a reviewed row in the committed ledger always carries a well-formed 
   }
 });
 
-test('A9 · with nothing attested, the public build is an empty shell: no teaching page, title or sentence gets out', () => {
+test('A9 · the public build holds the pages that may ship and no others; with none, it is an empty shell: no teaching page, title or sentence gets out', () => {
   const { dir, report } = built('public');
   const state = loadSite(ROOT);
-  const shippable = state.pages.filter((page) => page.state === 'attested');
+  const shippable = state.pages.filter((page) => ships(page, 'public', state.config));
   assert.equal(report.counts.shipped, shippable.length);
   if (shippable.length === 0) {
     // No rehearsal and no adaptation page, so neither of their scripts.
     assert.deepEqual(walk(dir).sort(), ['404.html', 'about/governance.html', 'assets/site.css', 'assets/site.js', 'assets/tokens.css', 'build-report.json', 'index.html', 'robots.txt']);
     assert.match(read(dir, 'index.html'), /Nothing is published yet/);
   }
-  const text = htmlFiles(dir).map((file) => visibleText(read(dir, file))).join(' ');
-  for (const page of state.pages.filter((p) => p.state !== 'attested')) {
-    assert.ok(!text.includes(page.title), `the public build names the unreviewed page “${page.title}”`);
+  // A page that may not ship is not in the build, and the pages the build writes itself
+  // (the home page, the ledger, the index of moves, the not-found page) do not name it.
+  // A page that did ship may: its sentences were reviewed as they stand, and a link from one
+  // to a page still in review is written as plain words marked "(in review)". The next test
+  // holds the build to that.
+  const generated = ['index.html', 'about/governance.html', 'guide.html', '404.html'].filter((file) => existsSync(join(dir, file)));
+  const text = generated.map((file) => visibleText(read(dir, file))).join(' ');
+  const held = state.pages.filter((page) => !shippable.includes(page));
+  for (const page of held) {
+    assert.ok(!text.includes(page.title), `a page the build writes itself names the unreviewed page “${page.title}”`);
     assert.ok(!existsSync(join(dir, `${page.slug}.html`)), `${page.slug}.html reached the public build`);
   }
+  if (!shippable.length) {
+    // With nothing shipped there is no reviewed sentence to carry a name, so no page at all may.
+    const all = htmlFiles(dir).map((file) => visibleText(read(dir, file))).join(' ');
+    for (const page of held) assert.ok(!all.includes(page.title), `the public build names the unreviewed page “${page.title}”`);
+  }
+});
+
+test('A9 · an attested page that links to a page still in review names it as plain words marked "(in review)", and nothing else in the build names it', () => {
+  // The day the first page is attested, the public build stops being an empty shell. This is
+  // that day, in a copy: the orientation page alone is attested, and it links to nine pages.
+  const dir = scratchRepo();
+  const slug = 'start/how-to-use';
+  sign(dir, slug);
+  const target = out();
+  const report = build({ root: dir, outDir: target, channel: 'public' });
+  assert.deepEqual(report.pages.filter((p) => p.shipped).map((p) => p.slug), [slug]);
+  const held = loadSite(dir).pages.filter((page) => page.slug !== slug);
+  const page = read(target, `${slug}.html`);
+  const marked = page.replace(/<span class="note-in-review">\(in review\)<\/span>/g, '⟦in review⟧').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ');
+  let mentions = 0;
+  for (const other of held) {
+    for (let at = marked.indexOf(other.title); at !== -1; at = marked.indexOf(other.title, at + 1)) {
+      mentions += 1;
+      assert.ok(marked.slice(at + other.title.length).trimStart().startsWith('⟦in review⟧'), `“${other.title}” is named on the attested page without the mark`);
+    }
+    assert.ok(!existsSync(join(target, `${other.slug}.html`)), `${other.slug}.html reached the public build`);
+  }
+  assert.ok(mentions >= 5, 'the orientation page no longer links to the pages this test relies on');
+  for (const [, href] of page.matchAll(/<a\s[^>]*?href="([^"#][^"]*)"/g)) {
+    if (!/^https:/.test(href)) assert.ok(existsSync(join(target, 'start', href.split('#')[0])), `the attested page links to ${href}, which is not in the build`);
+  }
+  const generated = ['index.html', 'about/governance.html', '404.html'].map((file) => visibleText(read(target, file))).join(' ');
+  for (const other of held) assert.ok(!generated.includes(other.title), `a page the build writes itself names “${other.title}”`);
+  assert.ok(!existsSync(join(target, 'guide.html')), 'the index of moves is written only when a move card ships');
 });
 
 test('A7 · an attested page ships publicly, and stops shipping the moment its text changes', () => {
@@ -162,7 +203,7 @@ test('A8 · the upstream attestation hash is re-derived from the bytes shipped h
   }
   assert.equal(attested, 2);
   const states = Object.fromEntries(loadSite(ROOT).pages.filter((p) => p.origin === 'upstream').map((p) => [p.slug, p.state]));
-  assert.equal(states['formats/pocket-card'], 'pending', 'the pocket card was never attested upstream and must not borrow a status');
+  assert.notEqual(states['formats/pocket-card'], 'upstream-attested', 'the pocket card was never attested upstream and must not borrow a status');
 });
 
 test('A8 · editing an imported file by one byte fails the build', () => {

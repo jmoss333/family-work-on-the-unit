@@ -9,7 +9,8 @@
     "new-draft": "Written by Claude for the review build (2026-11-15).",
     "unit-procedure": "De-identified by Claude (2026-11-16) from the author's own one-page unit procedure, version 2.0 (November 2026). The unit, its institution and the products it uses are not named; docs/WORKFLOW_INTAKE.md lists every other change.",
     "author-materials": "Assembled by Claude (2026-11-16) from Dr. Moss's own teaching materials: his November 2026 resident reference and slides, and his July 2026 handbook for attending psychiatrists. The sentences are his unless docs/WORKFLOW_INTAKE.md says otherwise.",
-    "adaptation-tool": "Built by Claude (2026-11-17). The sheet is the unit workflow's own text. The questions, the roles offered for each job, the intervals offered, and the line between what can change and what stays fixed are Claude's."
+    "adaptation-tool": "Built by Claude (2026-11-17). The sheet is the unit workflow's own text. The questions, the roles offered for each job, the intervals offered, and the line between what can change and what stays fixed are Claude's.",
+    "site-map": "Built by Claude (2026-11-17) from text other pages already carry: the unit workflow, the table of the five parts and their move cards, and the list of pages. Its introduction, its headings and its layout are Claude's."
   },
   "pages": [
     {
@@ -23,6 +24,23 @@
       "summary": "Three ways to use it, where to start, and what it is not.",
       "minutes": 2,
       "origin": "new-draft"
+    },
+    {
+      "slug": "start/how-it-fits",
+      "title": "How it fits together",
+      "section": "start",
+      "kind": "map",
+      "sources": [
+        "content/maps/how-it-fits.map.json",
+        "workflows/unit-family-meeting.workflow.json",
+        "content/pages/start-one-spine.md"
+      ],
+      "map": "content/maps/how-it-fits.map.json",
+      "workflow": "workflows/unit-family-meeting.workflow.json",
+      "summary": "One screen: who does what across a stay, what a meeting is made of, and where each page of this companion applies.",
+      "minutes": 3,
+      "origin": "site-map",
+      "release": "unit-practice"
     },
     {
       "slug": "start/one-spine",

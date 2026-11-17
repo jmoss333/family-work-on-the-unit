@@ -113,7 +113,30 @@ export function validateAdaptation(spec, workflow) {
     if (!Object.values(owners).some((list) => Array.isArray(list) && list.length === 1 && list[0] === slot)) errors.push(`slot "${slot}" is the sole owner of no step`);
   }
 
-  if (errors.length) return errors; // the rule checks below need a well-formed spec
+  if (errors.length) return errors; // the checks below need a well-formed spec
+
+  // The workflow file also says who owns each step, as role ids, for the pages that draw
+  // it as a board. Those ids are checked against the rules here, and the rules are checked
+  // against the procedure's own owner labels below. So a mark on the board cannot disagree
+  // with the words on the page. "team" is the one role that is not a title: a step the team
+  // owns names the person who leads it as also involved.
+  const TEAM = 'team';
+  for (const [role, label] of Object.entries(workflow.roles || {})) {
+    if (role === TEAM) continue;
+    if (!titles[role]) errors.push(`role "${role}": the workflow uses it, and it is not one of the titles these rules know`);
+    else if (titles[role].label !== label) errors.push(`role "${role}": the workflow calls it "${label}"; these rules call it "${titles[role].label}"`);
+  }
+  for (const step of workflow.steps) {
+    const written = [...new Set((owners[step.id] || []).map((slot) => slots.find((item) => item.id === slot).default))].sort();
+    const owned = [...(step.owner || [])].sort();
+    if (owned.includes(TEAM)) {
+      const missing = written.filter((title) => !(step.support || []).includes(title));
+      if (owned.length !== 1 || missing.length) errors.push(`step "${step.id}": a step the team owns names who leads it as also involved (${written.join(', ')})`);
+    } else if (JSON.stringify(owned) !== JSON.stringify(written)) {
+      errors.push(`step "${step.id}": the workflow says it is owned by ${owned.join(' and ') || 'nobody'}; these rules, with nothing changed, say ${written.join(' and ')}`);
+    }
+  }
+  if (errors.length) return errors;
 
   const core = adaptCore();
   const base = core.defaults(spec);

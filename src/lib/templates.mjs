@@ -4,6 +4,8 @@
 import { STALE_REASON, reviewQueue } from './model.mjs';
 import { reviewOrder } from './casegraph.mjs';
 import { adaptCore, payload } from './adapt.mjs';
+import { board } from './map.mjs';
+import { coverage } from './workflow.mjs';
 import { esc, escAttr, formatDate } from './render.mjs';
 
 const STATE = {
@@ -22,6 +24,7 @@ const ORIGIN_NOTE = {
   'unit-procedure': 'Adapted by Claude (November 16, 2026) from the author’s own unit procedure, with the unit, its institution and its products left unnamed.',
   'author-materials': 'Assembled by Claude (November 16, 2026) from Dr. Moss’s own teaching materials; the wording is largely his.',
   'adaptation-tool': 'Built by Claude (November 17, 2026). The sheet is the unit workflow’s own text; the questions, the roles offered for each job and the line between what can change and what stays fixed are Claude’s.',
+  'site-map': 'Built by Claude (November 17, 2026) from text other pages already carry: the unit workflow, the five parts and their move cards, and the list of pages. The introduction, the headings and the layout are Claude’s.',
 };
 
 const ORIGIN_SHORT = {
@@ -33,6 +36,7 @@ const ORIGIN_SHORT = {
   'unit-procedure': 'Author’s unit procedure, de-identified by Claude',
   'author-materials': 'Author’s teaching materials, assembled by Claude',
   'adaptation-tool': 'Claude; the sheet is the unit workflow’s text',
+  'site-map': 'Claude; drawn from text other pages carry',
 };
 
 export const stateBadge = (state) => `<span class="rc-badge ${STATE[state].badge}">${STATE[state].label}</span>`;
@@ -301,44 +305,49 @@ function seeAlso(links, ctx) {
   return `<p class="wf-step__links"><span class="wf-label">See also</span> ${items.join(' · ')}</p>`;
 }
 
-export function workflowPage(page, ctx) {
-  const w = page.workflowFile;
-  const additions = new Map((w.additions || []).map((note) => [note.id, note]));
-  // A sentence that is not in the source procedure is marked while the page is in review.
-  const added = (id) => {
-    const note = additions.get(id);
-    if (!note) return '';
-    const mark = ctx.channel === 'review' ? ' <span class="rc-badge rc-badge--info">Added in adaptation</span>' : '';
-    return `<p class="wf-note">${esc(note.text)}${mark}</p>`;
-  };
-  const numberOf = new Map(w.steps.map((step, index) => [step.id, index + 1]));
-  const titleOf = new Map(w.steps.map((step) => [step.id, step.title]));
-  const steps = w.steps
-    .map(
-      (step, index) => `<li class="wf-step rc-card" id="step-${escAttr(step.id)}">
-<span class="wf-step__n" aria-hidden="true">${index + 1}</span>
+/** A sentence that is not in the source procedure, marked while the page is in review. */
+function addedNote(w, id, ctx) {
+  const note = (w.additions || []).find((item) => item.id === id);
+  if (!note) return '';
+  const mark = ctx.channel === 'review' ? ' <span class="rc-badge rc-badge--info">Added in adaptation</span>' : '';
+  return `<p class="wf-note">${esc(note.text)}${mark}</p>`;
+}
+
+/** One step of the workflow as a card. The workflow page and the map both print it. */
+function stepCard(step, number, ctx, { id, classes = '', attributes = '', facts = '' }) {
+  return `<li class="wf-step rc-card${classes}" id="${escAttr(id)}"${attributes}>
+<span class="wf-step__n" aria-hidden="true">${number}</span>
 <div class="wf-step__body">
-<h3><span class="sr-only">Step ${index + 1}: </span>${esc(step.title)}</h3>
+<h3><span class="sr-only">Step ${number}: </span>${esc(step.title)}</h3>
 <p class="wf-step__who"><span class="rc-badge rc-badge--neutral">${esc(step.ownerLabel)}</span><span>${esc(step.trigger)}</span></p>
 <p>${esc(step.action)}</p>
 <dl class="wf-facts">
 <dt>Written in</dt><dd>${step.record === null ? '<span aria-hidden="true">—</span><span class="sr-only">Nothing is written at this step</span>' : esc(step.record)}</dd>
-<dt>Done when</dt><dd>${esc(step.doneWhen)}</dd>
+<dt>Done when</dt><dd>${esc(step.doneWhen)}</dd>${facts}
 </dl>
 ${seeAlso(step.links, ctx)}
 </div>
-</li>`,
-    )
-    .join('\n');
-  const formats = w.formats.menu
-    .map((format) => `<li class="wf-format rc-card"><h3>${esc(format.name)}</h3><p>${esc(format.focus)}</p><p class="wf-format__when">${esc(format.when)}</p></li>`)
-    .join('\n');
+</li>`;
+}
+
+/** The menu of formats as cards. `tag` is the heading level that fits where they are printed. */
+const formatCards = (w, tag = 'h3') => w.formats.menu.map((format) => `<li class="wf-format rc-card"><${tag}>${esc(format.name)}</${tag}><p>${esc(format.focus)}</p><p class="wf-format__when">${esc(format.when)}</p></li>`).join('\n');
+
+export function workflowPage(page, ctx) {
+  const w = page.workflowFile;
+  const added = (id) => addedNote(w, id, ctx);
+  const numberOf = new Map(w.steps.map((step, index) => [step.id, index + 1]));
+  const titleOf = new Map(w.steps.map((step) => [step.id, step.title]));
+  const steps = w.steps.map((step, index) => stepCard(step, index + 1, ctx, { id: `step-${step.id}` })).join('\n');
+  const formats = formatCards(w);
   const measures = w.measures.list
     .map((measure) => `<tr><td>${esc(measure.name)}</td><td><a href="#step-${escAttr(measure.checksStep)}">Step ${numberOf.get(measure.checksStep)}: ${esc(titleOf.get(measure.checksStep))}</a></td></tr>`)
     .join('\n');
   const adaptation = ctx.site.pages.find((other) => other.kind === 'adapt' && other.workflow === page.workflow && ctx.outputs.has(other.file));
   const adaptLink = adaptation ? `<a class="rc-btn rc-btn--ghost" href="${escAttr(ctx.href(adaptation.file))}">${esc(adaptation.title)}</a>` : '';
-  const print = page.printable || adaptation ? `<div class="page-actions">${page.printable ? '<button type="button" class="rc-btn rc-btn--secondary" data-print>Print this page</button>' : ''}${adaptLink}</div>` : '';
+  const map = ctx.site.pages.find((other) => other.kind === 'map' && other.workflow === page.workflow && ctx.outputs.has(other.file));
+  const mapLink = map ? `<a class="rc-btn rc-btn--ghost" href="${escAttr(ctx.href(map.file))}">${esc(map.title)}</a>` : '';
+  const print = page.printable || adaptation || map ? `<div class="page-actions">${page.printable ? '<button type="button" class="rc-btn rc-btn--secondary" data-print>Print this page</button>' : ''}${mapLink}${adaptLink}</div>` : '';
   return `<article class="page">
 ${pageHeader(page, ctx, { eyebrow: sectionEyebrow(page, ctx), meta: `${w.steps.length} steps · ${page.minutes} min read · Workflow version ${w.version}` })}
 <p class="hero__lead">${esc(w.purpose)}</p>
@@ -394,6 +403,153 @@ ${added(w.measures.note)}
 
 <p class="wf-closing">${esc(w.closing)}</p>
 ${print}
+</article>`;
+}
+
+// ── The map ───────────────────────────────────────────────────────────────────────────
+// Everything a reader sees here is copied by the build from a file another page already
+// draws on, except the few sentences in the map file: the board from the workflow's steps
+// and roles, the step cards from the same template as the workflow page, the parts and
+// their move cards from the table on the page that states them, and page titles from the
+// manifest. A page that does not ship in this build is not named. The script that goes
+// with this page shows and hides what is written here; it writes nothing.
+export function mapPage(page, ctx) {
+  const w = page.workflowFile;
+  const map = page.mapFile;
+  const { site } = ctx;
+
+  // Every page this map links to. What is left over is listed at the foot, by section.
+  const placed = new Set([page.slug]);
+  const linkTo = (target, label) => {
+    if (!target || !ctx.outputs.has(target.file)) return null;
+    placed.add(target.slug);
+    return `<a href="${escAttr(ctx.href(target.file))}">${esc(label ?? target.title)}</a>`;
+  };
+  for (const step of w.steps) {
+    for (const item of step.links || []) {
+      const target = item.to.startsWith('page:') ? site.bySlug.get(item.to.slice(5).split('#')[0]) : null;
+      if (target && ctx.outputs.has(target.file)) placed.add(target.slug);
+    }
+  }
+
+  // ── Across the stay: the board
+  const rows = board(w);
+  const { watched } = coverage(w);
+  const measureOf = new Map(w.measures.list.map((measure) => [measure.checksStep, measure.name]));
+  const cell = (step, inner) => `<td data-step="${escAttr(step.id)}">${inner ? `<span class="map-answer">${inner}</span>` : ''}</td>`;
+  const mark = (kind, says) => `<span class="map-mark map-mark--${kind}" aria-hidden="true"></span><span class="sr-only">${says}</span>`;
+  const row = (kind, label, each) => `<tr class="map-row map-row--${kind}"><th scope="row">${esc(label)}</th>${w.steps.map((step, index) => cell(step, each(step, index))).join('')}</tr>`;
+  const head = w.steps
+    .map((step, index) => `<th scope="col" data-step="${escAttr(step.id)}"><button type="button" class="map-step" data-map-step="${escAttr(step.id)}" aria-controls="map-step-${escAttr(step.id)}" disabled><span class="map-step__n" aria-hidden="true">${index + 1}</span><span class="map-step__title"><span class="sr-only">Step ${index + 1}: </span>${esc(step.title)}</span></button></th>`)
+    .join('');
+  const body = [
+    row('when', 'When', (step) => esc(step.trigger)),
+    ...rows.map((role) => row('role', role.label, (step, index) => (role.cells[index] === 'owns' ? mark('owns', 'owns this step') : role.cells[index] === 'involved' ? mark('involved', 'also involved') : ''))),
+    row('fact', 'Written in', (step) => (step.record === null ? '<span aria-hidden="true">—</span><span class="sr-only">nothing is written</span>' : mark('written', 'written down'))),
+    row('fact', 'Measured', (step) => (watched.includes(step.id) ? mark('measured', 'a proposed measure checks it') : '')),
+    row('fact', 'See also', (step) => ((step.links || []).length ? mark('more', 'there is more to read or practice') : '')),
+  ].join('\n');
+  const legend = [['owns', 'owns the step'], ['involved', 'also involved'], ['written', 'something is written down'], ['measured', 'a proposed measure checks it'], ['more', 'more to read or practice']]
+    .map(([kind, says]) => `<li><span class="map-mark map-mark--${kind}" aria-hidden="true"></span>${says}</li>`)
+    .join('');
+  const details = w.steps
+    .map((step, index) =>
+      stepCard(step, index + 1, ctx, {
+        id: `map-step-${step.id}`,
+        classes: ' map-detail',
+        attributes: ` data-map-detail="${escAttr(step.id)}"`,
+        facts: `\n<dt>Measured by</dt><dd>${measureOf.has(step.id) ? esc(measureOf.get(step.id)) : 'No proposed measure'}</dd>`,
+      }),
+    )
+    .join('\n');
+  const workflowPageRef = site.pages.find((other) => other.kind === 'workflow' && other.workflow === page.workflow);
+  const adaptRef = site.pages.find((other) => other.kind === 'adapt' && other.workflow === page.workflow);
+  const more = [
+    [map.stay.full, linkTo(workflowPageRef)],
+    [map.stay.adapt, linkTo(adaptRef)],
+  ]
+    .filter(([, anchor]) => anchor)
+    .map(([says, anchor]) => `<span>${esc(says)} ${anchor}</span>`)
+    .join(' ');
+
+  // ── Inside the meeting: formats, then the parts and the move card for each
+  const meetingStep = w.steps.findIndex((step) => step.id === map.meeting.step) + 1;
+  const cardBySlug = new Map(site.cards.map((card) => [card.slug, card]));
+  const parts = page.parts
+    .map((part) => {
+      const cards = part.cards.map((slug) => {
+        const card = cardBySlug.get(slug);
+        const anchor = linkTo(card);
+        if (!anchor) return `<li><span class="map-part__n">Move ${card.order}</span> <span class="note-in-review">(in review)</span></li>`;
+        const practice = card.practice ? linkTo(site.bySlug.get(card.practice)) : null;
+        return `<li><span class="map-part__n">Move ${card.order}</span> ${anchor} <span class="note-in-review">${card.minutes} min</span>${practice ? `<span class="map-part__practice"><span class="wf-label">Practice</span> ${practice}</span>` : ''}</li>`;
+      });
+      return `<li class="map-part rc-card"><h4>${esc(part.part)}</h4>${cards.length ? `<ul>${cards.join('')}</ul>` : `<p class="note-in-review">${esc(part.note)}</p>`}</li>`;
+    })
+    .join('\n');
+  const partsSource = linkTo(site.bySlug.get(page.partsPage));
+
+  // ── Everything not yet placed, by section
+  const rest = site.config.sections
+    .map((section) => {
+      const pages = site.pages.filter((other) => other.section === section.id && ctx.outputs.has(other.file) && !placed.has(other.slug));
+      if (!pages.length) return '';
+      return `<div class="map-rest__group"><h3>${esc(section.title)}</h3><ul>${pages.map((other) => `<li><a href="${escAttr(ctx.href(other.file))}">${esc(other.title)}</a> <span class="note-in-review">· ${other.minutes} min</span></li>`).join('')}</ul></div>`;
+    })
+    .filter(Boolean)
+    .join('\n');
+
+  return `<article class="page page--wide map" data-map-root>
+${pageHeader(page, ctx, { eyebrow: sectionEyebrow(page, ctx), meta: `${w.steps.length} steps · ${w.formats.menu.length} formats · ${site.cards.length} moves · ${page.minutes} min` })}
+<p class="hero__lead">${esc(map.lead)}</p>
+
+<section class="map-band" aria-labelledby="map-stay">
+<h2 id="map-stay">${esc(map.stay.title)}</h2>
+<p>${esc(map.stay.intro)}</p>
+<div class="map-tools" data-map-tools hidden>
+<p class="map-hint">${esc(map.stay.hint)}</p>
+<button type="button" class="rc-btn rc-btn--ghost" data-map-recall aria-pressed="false">${esc(map.recall.label)}</button>
+</div>
+<div class="map-status" role="status"><p class="map-prompt" data-map-prompt hidden>${esc(map.recall.prompt)}</p></div>
+<div class="rc-table-wrap map-board-wrap" role="region" aria-labelledby="map-board-caption" tabindex="0">
+<table class="map-board">
+<caption id="map-board-caption" class="sr-only">Each step of the workflow: when it starts, who owns it, who is also involved, whether anything is written down, whether a proposed measure checks it, and whether there is more to read</caption>
+<thead><tr><td></td>${head}</tr></thead>
+<tbody>
+${body}
+</tbody>
+</table>
+</div>
+<ul class="map-legend">${legend}</ul>
+${more ? `<p class="map-more">${more}</p>` : ''}
+<ol class="wf-steps map-details">
+${details}
+</ol>
+</section>
+
+<section class="map-band" aria-labelledby="map-meeting">
+<h2 id="map-meeting">${esc(map.meeting.title)}</h2>
+<p>${esc(map.meeting.intro.replace('{n}', String(meetingStep)))}</p>
+<h3 class="map-sub">${countWord(w.formats.menu.length)} formats</h3>
+<ol class="wf-formats">
+${formatCards(w, 'h4')}
+</ol>
+<p><strong>Decision rule:</strong> ${esc(w.formats.decisionRule)}</p>
+<p><strong>No joint meeting today when:</strong> ${esc(w.formats.noJointMeeting)}</p>
+${addedNote(w, w.formats.note, ctx)}
+<h3 class="map-sub">${esc(map.meeting.parts.heading)}</h3>
+<ol class="map-parts">
+${parts}
+</ol>
+${partsSource ? `<p class="wf-note">From ${partsSource}.</p>` : ''}
+</section>
+${rest ? `
+<section class="map-band" aria-labelledby="map-rest">
+<h2 id="map-rest">${esc(map.rest.title)}</h2>
+<div class="map-rest">
+${rest}
+</div>
+</section>` : ''}
 </article>`;
 }
 
@@ -525,7 +681,7 @@ function counts(pages) {
 
 function pageItem(page, ctx) {
   const find = `${page.title} ${page.summary} ${ctx.site.sectionById.get(page.section).title} ${page.phase || ''}`.toLowerCase();
-  const meta = page.kind === 'card' ? `Move ${page.order} of ${ctx.site.cards.length} · ${page.minutes} min` : page.kind === 'studio' ? `Rehearsal · about ${page.minutes} min` : page.kind === 'workflow' ? `Workflow · ${page.workflowFile.steps.length} steps · ${page.minutes} min` : page.kind === 'adapt' ? `Tool · ${page.adaptFile.slots.length + page.adaptFile.timings.length} choices · prints as your version` : `${page.minutes} min`;
+  const meta = page.kind === 'card' ? `Move ${page.order} of ${ctx.site.cards.length} · ${page.minutes} min` : page.kind === 'studio' ? `Rehearsal · about ${page.minutes} min` : page.kind === 'workflow' ? `Workflow · ${page.workflowFile.steps.length} steps · ${page.minutes} min` : page.kind === 'adapt' ? `Tool · ${page.adaptFile.slots.length + page.adaptFile.timings.length} choices · prints as your version` : page.kind === 'map' ? `Map · ${page.workflowFile.steps.length} steps · ${page.minutes} min` : `${page.minutes} min`;
   return `<li class="page-item rc-card" data-find="${escAttr(find)}">
 <div class="page-item__head"><a class="page-item__title" href="${escAttr(ctx.href(page.file))}">${esc(page.title)}</a>${stateBadge(page.state)}</div>
 <p>${esc(page.summary)}</p>
@@ -697,6 +853,7 @@ ${surfaces.map((item) => `<li><a href="${escAttr(item.url)}" rel="noopener noref
 <li>A page that describes how a real unit works carries a second gate. Before it can be attested, the reviewer confirms by name that it identifies no patient, staff member, unit, hospital or product, that it reports no internal figure, and that it may be published.</li>
 <li>The build refuses to write a page that prints a name on the protected list: the unit the workflow comes from, its institution and its products. The list is kept as hashes, so this repository does not spell those names out.</li>
 <li>One page computes what it shows: it rewrites the unit workflow with a reader’s own owners and intervals. Its review covers the rules, the workflow and the script that applies them. An attestation is of the workflow as written, so a changed version says it is a local adaptation and does not carry the attestation in print.</li>
+<li>One page is a map: the build draws it from the workflow and from text other pages already carry. Its review covers the files it is drawn from, and its script only shows and hides what the build wrote.</li>
 </ol>
 </section>
 

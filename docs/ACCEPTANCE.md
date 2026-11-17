@@ -2,7 +2,9 @@
 
 Every criterion has an id, the test that checks it, and what a test cannot settle. The first table is the design brief's own four-owner acceptance test, line by line. The second lists the criteria this build adds.
 
-`npm test` runs every automated check (98 on 2026-11-17) in about seven seconds; most of that is one test that tries every way to fill the adaptation page's six jobs. The browser checks were run by hand against the review build on 2026-11-15, on 2026-11-16 for the new and changed pages (Chromium 1280 and 390 px wide, light and dark, and the workflow's print layout), and on 2026-11-17 for the adaptation page (listed under A18); they are not yet part of `npm test`.
+`npm test` runs every automated check (108 on 2026-11-17) in about eight seconds; most of that is one test that tries every way to fill the adaptation page's six jobs. The browser checks were run by hand against the review build on 2026-11-15, on 2026-11-16 for the new and changed pages (Chromium 1280 and 390 px wide, light and dark, and the workflow's print layout), and on 2026-11-17 for the adaptation page and the map (listed under A18 and A19); they are not yet part of `npm test`.
+
+The deploy runs the tests before it builds, so the tests have to pass in every state the owner may put the repository in, and not only in today's. On 2026-11-17 the whole suite was run against copies of the repository with one page attested, with every page attested, with a mixed set attested, with upstream attestations honoured, with both, with indexing switched on and with the licences confirmed. It passed in each. Before that day's changes it failed as soon as one page was attested (see `docs/DECISIONS.md`, ADR-004).
 
 ## The brief's acceptance tests
 
@@ -37,7 +39,7 @@ Every criterion has an id, the test that checks it, and what a test cannot settl
 | A6 | The rehearsal graph is sound (see above) | `case.test.mjs` |
 | A7 | The review gate: one ledger row per page; a reviewed row needs a hash and a named reviewer; changing text, title or dialogue reopens the review; the attest command refuses to run unattended; the hash can be reproduced with `git hash-object` | `governance.test.mjs` |
 | A8 | Imported files are byte-identical to their pins, and the upstream attestation hash is re-derived from the bytes shipped here | `governance.test.mjs` |
-| A9 | The public build ships attested pages only; with none attested, no teaching page, title or sentence gets out; a review build is marked and asks not to be indexed | `governance.test.mjs`, `build.test.mjs` |
+| A9 | The public build holds the pages that may ship and no others. With none, no teaching page, title or sentence gets out. The pages the build writes itself (home, ledger, index of moves, not-found) never name a page still in review; an attested page names one only as plain words marked "(in review)", never as a link. A review build is marked and asks not to be indexed | `governance.test.mjs`, `build.test.mjs` |
 | A10 | Every evidence reference resolves to a register entry with an identifier and a dated source check; no effect size appears on a move card | `evidence.test.mjs` |
 | A11 | One h1, a main landmark, a skip link and an unbroken heading outline on every page; every text pairing in use is at least 4.5:1 in the light and dark palettes | `build.test.mjs`, `contrast.test.mjs` |
 | A12 | The palette matches the design system value for value, and the site stylesheet introduces no colour | `design-tokens.test.mjs` |
@@ -46,7 +48,8 @@ Every criterion has an id, the test that checks it, and what a test cannot settl
 | A15 | **The workflow is sound.** Every step has an owner, a trigger and a completion test; every role in scope has a step; every measure checks a step that exists, and the steps no measure watches are recorded; the page shows every field; additions to the source procedure are listed and marked; format names, the decision rule and the five parts agree across the three pages that state them | `workflow.test.mjs` |
 | A16 | **The second gate.** A page about a real unit cannot be attested by a clinical review alone: a reviewed row without the three-part release record fails the build, two of three confirmations is not enough, and a release record cannot sit on a pending row or on a page with no gate | `governance.test.mjs` |
 | A17 | The licence files, the footer and the owner's switch say the same thing | `content-rules.test.mjs` |
-| A18 | **The adaptation page is sound.** Each rule replaces words that occur exactly once in the workflow, and with nothing changed the sheet is the workflow word for word. Every one of the 60,480 ways to fill the six jobs, and each of the 9 pairs of intervals, reads as prose: no leftover placeholder, no role named twice in one phrase. A step is refused exactly when nobody owns it, and the refusal names the step. Only the choices on offer are accepted, and the sheet escapes everything it prints. The page as built has fixed menus that are off until the script runs, each with a label and the steps it changes, and nothing to type. The review covers the rules, the workflow and the script, so changing any of the three reopens the page; and the page is under the release gate | `adapt.test.mjs`; also `no-capture.test.mjs`, `deidentify.test.mjs`, `contrast.test.mjs` |
+| A18 | **The adaptation page is sound.** Each rule replaces words that occur exactly once in the workflow, and with nothing changed the sheet is the workflow word for word. Every one of the 60,480 ways to fill the six jobs, and each of the 9 pairs of intervals, reads as prose: no leftover placeholder, no role named twice in one phrase. A step is refused exactly when nobody owns it, and the refusal names the step. Only the choices on offer are accepted, and the sheet escapes everything it prints. The page as built has fixed menus that are off until the script runs, each with a label and the steps it changes, and nothing to type. The review covers the rules, the workflow and the script, so changing any of the three reopens the page; and the page is under the release gate. The workflow file's own list of who owns each step agrees with the rules | `adapt.test.mjs`; also `no-capture.test.mjs`, `deidentify.test.mjs`, `contrast.test.mjs` |
+| A19 | **The map is a faithful copy.** A role is marked at a step exactly when that step's own words name it. The board as built says what the workflow file says: when each step starts, who owns it, who is also involved, whether anything is written, whether a measure checks it, whether there is more to read. Each step opens to the same words as the workflow page, plus its measure. The formats, the two rules and the parts with their move cards are printed as their sources have them, and every move card is placed once. Every page that ships is one press from the map, and a page that does not ship is neither linked nor, in the map's own lists, named. The page is whole without its script, and the script has no way to put a word on the page. The review covers the map's file, the workflow and the page the parts come from; and the page is under the release gate | `map.test.mjs`; also `no-capture.test.mjs`, `deidentify.test.mjs`, `contrast.test.mjs` |
 
 ### A18 in a browser (2026-11-17, Chromium, by hand)
 
@@ -63,6 +66,20 @@ Every criterion has an id, the test that checks it, and what a test cannot settl
 | Script switched off: all eight menus and both buttons are off, a note says why, and the sheet is the workflow as written | Pass |
 | A screen reader announces the status line after a choice; the menus are usable with VoiceOver on a phone | **Needs a person.** The status line is a live region; nobody has listened to it |
 
+### A19 in a browser (2026-11-17, Chromium, by hand)
+
+| Checked | Result |
+|---|---|
+| The steps come alive when the script runs; a step opens its card and marks its column; another step replaces it; pressing it again closes it | Pass |
+| Self-testing: all 42 answers on the board and their spoken labels are covered; a pressed step uncovers its own column only; switching it off uncovers everything | Pass |
+| A reload, and a return with the Back button, both start over; nothing stored; no request beyond the site's own files; the address does not change | Pass |
+| Keyboard only: Tab reaches the self-test button, the board, then steps 1 to 8 in order; Enter and Space open and close; focus stays on the step | Pass |
+| 390 px and 320 px wide: the page does not scroll sideways; the board scrolls inside its frame with the row labels pinned; every control at least 44 px tall | Pass |
+| Script switched off: all eight cards are open, the board is complete, the steps are plain labels, and the controls that need the script are not shown | Pass |
+| Print, even from the middle of a self-test: every card open, nothing covered, the marks printed, no controls | Pass. Six Letter pages; the page is not laid out as a poster |
+| The home page door and the navigation both lead to the map | Pass |
+| A screen reader reads the board as a table and announces that a step has opened | **Needs a person.** The board is a table with row and column headers and the steps carry `aria-expanded`; nobody has listened to it |
+
 ## What no test here establishes
 
 - That any sentence is clinically right. That is the attestation.
@@ -70,5 +87,6 @@ Every criterion has an id, the test that checks it, and what a test cannot settl
 - That the privacy and disclosure page is right for a given hospital. That is a privacy or legal reader.
 - That the pages work with a screen reader, on a phone, or printed. Those are short human checks.
 - That the unit workflow matches the procedure it came from word for word. It was copied and re-read, not compared by script (`docs/WORKFLOW_INTAKE.md`).
+- That the map teaches. It is a faithful copy of the workflow, drawn as a board; whether a resident learns the workflow faster from it, or from covering it and recalling, has not been tried with a resident.
 - That the roles offered for each job are ones that may hold it on a given unit, or that an adapted version is safe to work from. The tests check that every version reads as prose and that no step is left without an owner. A changed version says on its face that nobody has reviewed it.
 - That publishing the unit workflow is permitted, or wise. The hashed list keeps names off the page; it cannot tell whether a reader could work out which unit this is. That is the release confirmation.

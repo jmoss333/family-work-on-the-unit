@@ -12,7 +12,7 @@ const manifest = JSON.parse(readFileSync(join(ROOT, 'content/manifest.json'), 'u
 test('A1 · the review build writes one file for every page in the manifest', () => {
   const { dir } = built('review');
   for (const page of manifest.pages) assert.ok(existsSync(join(dir, `${page.slug}.html`)), `${page.slug}.html is missing`);
-  for (const file of ['index.html', 'guide.html', 'guide-print.html', 'about/governance.html', '404.html', 'robots.txt', 'build-report.json', 'assets/tokens.css', 'assets/site.css', 'assets/site.js', 'assets/studio.js', 'assets/adapt.js']) {
+  for (const file of ['index.html', 'guide.html', 'guide-print.html', 'about/governance.html', '404.html', 'robots.txt', 'build-report.json', 'assets/tokens.css', 'assets/site.css', 'assets/site.js', 'assets/studio.js', 'assets/adapt.js', 'assets/map.js']) {
     assert.ok(existsSync(join(dir, file)), `${file} is missing`);
   }
 });

@@ -25,6 +25,11 @@
       "label": "Practice an exchange",
       "hint": "A ten-minute rehearsal with a supervisor or a colleague.",
       "target": "page:studio/when-a-friend-answers-first"
+    },
+    {
+      "label": "See how it fits together",
+      "hint": "One screen: who does what across a stay, and where each page applies.",
+      "target": "page:start/how-it-fits"
     }
   ],
   "sections": [

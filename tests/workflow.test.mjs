@@ -4,6 +4,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { loadSite } from '../src/lib/model.mjs';
 import { coverage, validateWorkflow } from '../src/lib/workflow.mjs';
 import { ROOT, built, ids, read, visibleText } from './helpers.mjs';
 
@@ -98,9 +99,12 @@ test('A15 · the five parts named in step 6 are the five parts mapped to move ca
   assert.ok(ids(read(built('review').dir, 'start/one-spine.html')).includes('the-five-parts-of-a-meeting'));
 });
 
-test('A15 · with nothing attested, the public build carries no trace of the workflow', () => {
+test('A15 · until the workflow page is attested, the public build carries no trace of it', () => {
   const { dir, report } = built('public');
-  assert.equal(report.pages.find((page) => page.slug === SLUG).shipped, false);
+  const pages = loadSite(ROOT).pages;
+  const shipped = (slug) => report.pages.find((page) => page.slug === slug).shipped;
+  assert.equal(shipped(SLUG), pages.find((page) => page.slug === SLUG).state === 'attested');
   const home = visibleText(read(dir, 'index.html'));
-  assert.ok(!home.includes('Unit workflow') && !home.includes('Build the system'));
+  if (!shipped(SLUG)) assert.ok(!home.includes('Unit workflow'), 'the navigation offers a workflow page that did not ship');
+  if (!pages.some((page) => page.section === 'system' && shipped(page.slug))) assert.ok(!home.includes('Build the system'), 'the home page lists a section with nothing in it');
 });

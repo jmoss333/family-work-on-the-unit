@@ -9,6 +9,16 @@
     "at": "2026-11-16",
     "by": "Pending faculty review"
   },
+  "start/how-it-fits": {
+    "status": "pending",
+    "risk": {
+      "kind": "local-policy",
+      "level": "moderate"
+    },
+    "reason": "Built by Claude (2026-11-17) from text other pages already carry: the unit workflow, the five-parts table and the page list. About 100 words are its own. It prints the unit's procedure, so it needs clinical review and release.",
+    "at": "2026-11-17",
+    "by": "Pending faculty review"
+  },
   "start/one-spine": {
     "status": "pending",
     "risk": {
