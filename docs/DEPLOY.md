@@ -13,7 +13,7 @@ Both sites are public, and both ask search engines not to index them.
 
 ## Setting it up, once
 
-Skip any step that is already done.
+All five steps were done on 2026-11-17. They are kept here so the setup can be repeated or checked.
 
 1. **Create the repository.** Open <https://github.com/new?name=family-work-on-the-unit&owner=jmoss333&visibility=public> and create it empty: no README, no licence, no .gitignore.
 2. **Push both branches** from this folder:
@@ -25,8 +25,8 @@ Skip any step that is already done.
    ```
 
    With the GitHub CLI, steps 1 and 2 are one line: `gh repo create jmoss333/family-work-on-the-unit --public --source=. --remote=origin --push && git push -u origin review`.
-3. **Link Netlify to the repository.** The Netlify project `family-work-on-the-unit` already exists and is empty. In its Project configuration, under Build & deploy, link the GitHub repository `family-work-on-the-unit`. Leave the build settings blank: `netlify.toml` supplies them.
-4. **Turn on the review site.** On the same page, under branches and deploy contexts, add `review` as a branch deploy.
+3. **Link Netlify to the repository.** In the Netlify project: Project configuration > Developer settings > Continuous deployment > Link repository > GitHub > `family-work-on-the-unit`. Netlify reads the build command and the publish folder from `netlify.toml`; change nothing.
+4. **Turn on the review site.** On the same page: Branches and deploy contexts > Configure > "Let me add individual branches" > `review`. The review site is built on the next push to `review`.
 5. **Check.** The published site shows "Nothing is published yet" and a governance page. The review site shows 20 pages, each marked "In review" or "Attested upstream".
 
 ## How a change reaches each site
@@ -106,6 +106,8 @@ A red deploy means a test failed or the sources are inconsistent. The log names 
 - an imported file that was edited
 - a ledger row edited by hand, or a reviewed row for a "Build the system" page with no release record
 - a protected name in a file. The log gives the file and the line and never the name; `node tools/protect-term.mjs scan` gives the same report locally
+
+Netlify's deploy logs for this project are public, like the repository. That is why no test or build message prints a protected name.
 
 ## Running the checks on GitHub as well
 
