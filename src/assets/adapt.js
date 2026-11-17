@@ -1,9 +1,10 @@
 /* adapt.js — rewrites the unit workflow with a reader's own owners, intervals and answers.
  *
  * What it does: reads the workflow and the adaptation rules from the page, applies the
- * choices made in the page's menus, and redraws two things: the sheet, and a board of who
- * owns each step and who is also involved. A version with a step nobody owns is marked and
- * cannot be printed.
+ * choices made in the page's menus, and redraws three things: the sheet, a board of who
+ * owns each step and who is also involved, and a card for each role that holds that role's
+ * steps as the sheet has them. A version with a step nobody owns is marked and cannot be
+ * printed, whole or as cards.
  *
  * What it never does (tests/no-capture.test.mjs fails the build if any of these appear):
  * it stores nothing, sends nothing and puts nothing in the address bar. There is no text
@@ -205,6 +206,34 @@
     return messages.changed.replace('{count}', result.changed).replace('{total}', result.total);
   }
 
+  /** The added sentences of this version, by id, each as a paragraph. */
+  function noteWriter(w) {
+    var notes = {};
+    (w.additions || []).forEach(function (note) { notes[note.id] = note.text; });
+    return function (id) { return notes[id] ? '<p class="wf-note">' + esc(notes[id]) + '</p>' : ''; };
+  }
+
+  /** The line that says which version this is. */
+  function versionMark(result, spec) {
+    return result.changed
+      ? spec.messages.markChanged.replace('{version}', result.workflow.version).replace('{code}', result.code)
+      : spec.messages.markSame.replace('{version}', result.workflow.version);
+  }
+
+  /** One step. The sheet and the role cards both print it, so a card cannot say anything else. */
+  function stepItem(step, note, id, lead) {
+    return '<li class="wf-step rc-card' + (step.unowned ? ' wf-step--gap' : '') + '"' + (id ? ' id="' + esc(id) + '"' : '') + '>' +
+      '<span class="wf-step__n" aria-hidden="true">' + step.number + '</span><div class="wf-step__body">' + (lead || '') +
+      '<h3><span class="sr-only">Step ' + step.number + ': </span>' + esc(step.title) + '</h3>' +
+      '<p class="wf-step__who"><span class="rc-badge ' + (step.unowned ? 'rc-badge--warning' : 'rc-badge--neutral') + '">' + esc(step.ownerLabel) + '</span><span>' + esc(step.trigger) + '</span></p>' +
+      '<p>' + esc(step.action) + '</p>' + note(step.note) +
+      '<dl class="wf-facts"><dt>Written in</dt><dd>' +
+      (step.record === null ? '<span aria-hidden="true">—</span><span class="sr-only">Nothing is written at this step</span>' : esc(step.record)) +
+      '</dd><dt>Done when</dt><dd>' + esc(step.doneWhen) + '</dd></dl></div></li>';
+  }
+  function guardrailItems(w) { return w.guardrails.map(function (line) { return '<li>' + esc(line) + '</li>'; }).join(''); }
+  function exceptionItems(w) { return w.exceptions.map(function (exception) { return '<dt>' + esc(exception.when) + '</dt><dd>' + esc(exception.then) + '</dd>'; }).join(''); }
+
   /** The sheet, as HTML. Every value is escaped; the text comes only from the page's own data. */
   function sheet(result, spec) {
     var w = result.workflow;
@@ -212,14 +241,9 @@
     var numberOf = {};
     var titleOf = {};
     w.steps.forEach(function (step) { numberOf[step.id] = step.number; titleOf[step.id] = step.title; });
-    var notes = {};
-    (w.additions || []).forEach(function (note) { notes[note.id] = note.text; });
-    function note(id) { return notes[id] ? '<p class="wf-note">' + esc(notes[id]) + '</p>' : ''; }
+    var note = noteWriter(w);
 
-    var mark = result.changed
-      ? messages.markChanged.replace('{version}', w.version).replace('{code}', result.code)
-      : messages.markSame.replace('{version}', w.version);
-    var html = '<div class="adapt-mark"><p class="adapt-mark__line">' + esc(mark) + '</p>';
+    var html = '<div class="adapt-mark"><p class="adapt-mark__line">' + esc(versionMark(result, spec)) + '</p>';
     if (result.changed) {
       html += '<p class="adapt-mark__local">' + esc(messages.local) + '</p><dl class="adapt-mark__choices">';
       spec.slots.forEach(function (slot) {
@@ -241,16 +265,7 @@
     html += '<p class="note-in-review">' + esc(w.basis) + '</p>';
 
     html += '<section class="wf-section" aria-labelledby="wf-steps"><h2 id="wf-steps">' + countWord(w.steps.length) + ' steps</h2><ol class="wf-steps">';
-    w.steps.forEach(function (step) {
-      html += '<li class="wf-step rc-card' + (step.unowned ? ' wf-step--gap' : '') + '" id="step-' + esc(step.id) + '">' +
-        '<span class="wf-step__n" aria-hidden="true">' + step.number + '</span><div class="wf-step__body">' +
-        '<h3><span class="sr-only">Step ' + step.number + ': </span>' + esc(step.title) + '</h3>' +
-        '<p class="wf-step__who"><span class="rc-badge ' + (step.unowned ? 'rc-badge--warning' : 'rc-badge--neutral') + '">' + esc(step.ownerLabel) + '</span><span>' + esc(step.trigger) + '</span></p>' +
-        '<p>' + esc(step.action) + '</p>' + note(step.note) +
-        '<dl class="wf-facts"><dt>Written in</dt><dd>' +
-        (step.record === null ? '<span aria-hidden="true">—</span><span class="sr-only">Nothing is written at this step</span>' : esc(step.record)) +
-        '</dd><dt>Done when</dt><dd>' + esc(step.doneWhen) + '</dd></dl></div></li>';
-    });
+    w.steps.forEach(function (step) { html += stepItem(step, note, 'step-' + step.id); });
     html += '</ol></section>';
 
     html += '<section class="wf-section" aria-labelledby="wf-formats"><h2 id="wf-formats">' + countWord(w.formats.menu.length) + ' formats</h2><ol class="wf-formats">';
@@ -260,13 +275,9 @@
     html += '</ol><p><strong>Decision rule:</strong> ' + esc(w.formats.decisionRule) + '</p>' +
       '<p><strong>No joint meeting today when:</strong> ' + esc(w.formats.noJointMeeting) + '</p>' + note(w.formats.note) + '</section>';
 
-    html += '<section class="wf-section" aria-labelledby="wf-guardrails"><h2 id="wf-guardrails">Guardrails</h2><ul class="wf-list">';
-    w.guardrails.forEach(function (line) { html += '<li>' + esc(line) + '</li>'; });
-    html += '</ul></section>';
+    html += '<section class="wf-section" aria-labelledby="wf-guardrails"><h2 id="wf-guardrails">Guardrails</h2><ul class="wf-list">' + guardrailItems(w) + '</ul></section>';
 
-    html += '<section class="wf-section" aria-labelledby="wf-exceptions"><h2 id="wf-exceptions">When it does not go to plan</h2><dl class="wf-exceptions">';
-    w.exceptions.forEach(function (exception) { html += '<dt>' + esc(exception.when) + '</dt><dd>' + esc(exception.then) + '</dd>'; });
-    html += '</dl></section>';
+    html += '<section class="wf-section" aria-labelledby="wf-exceptions"><h2 id="wf-exceptions">When it does not go to plan</h2><dl class="wf-exceptions">' + exceptionItems(w) + '</dl></section>';
 
     html += '<section class="wf-section" aria-labelledby="wf-measures"><h2 id="wf-measures">Proposed measures</h2><p>' + esc(w.measures.cadence) + '</p>' +
       '<div class="rc-table-wrap" role="region" aria-label="Proposed measures" tabindex="0"><table class="rc-table">' +
@@ -411,7 +422,44 @@
     return html + '</tbody></table>';
   }
 
-  global.FWUAdapt = { defaults: defaults, clean: clean, fill: fill, pick: pick, locate: locate, adapt: adapt, status: status, sheet: sheet, code: code, decode: decode, named: namedIn, rows: rows, board: board };
+  // ── A card for each role ────────────────────────────────────────────────────────────
+  /**
+   * One card for each row of the board: the steps that role owns and the steps that also
+   * involve it, each exactly as the sheet prints it, then the guardrails and the exceptions,
+   * which bind every role. A card leaves out the other roles' steps, the formats and the
+   * measures. Nothing on a card is written here. A version with a step nobody owns has no
+   * cards, as it has no printable sheet.
+   */
+  function cards(result, spec) {
+    if (result.refused.length) return '';
+    var w = result.workflow;
+    var text = spec.board;
+    var note = noteWriter(w);
+    var head = '<div class="adapt-mark"><p class="adapt-mark__line">' + esc(versionMark(result, spec)) + '</p>' +
+      (result.changed ? '<p class="adapt-mark__local">' + esc(spec.messages.local) + '</p>' : '') + '</div>';
+    var foot = '<h3>Guardrails</h3><ul class="wf-list">' + guardrailItems(w) + '</ul>' +
+      '<h3>When it does not go to plan</h3><dl class="wf-exceptions">' + exceptionItems(w) + '</dl>' +
+      '<p class="wf-closing">' + esc(w.closing) + '</p>';
+    return rows(result, spec).rows.map(function (row) {
+      var html = '<section class="adapt-card" data-adapt-card="' + esc(row.id) + '">' + head +
+        '<h2>' + esc(row.label) + '</h2><p class="note-in-review">' + esc(w.basis) + '</p><ol class="wf-steps">';
+      w.steps.forEach(function (step, index) {
+        var cell = row.cells[index];
+        if (!cell) return;
+        html += stepItem(step, note, '', '<p class="adapt-card__part"><span class="map-mark map-mark--' + (cell === 'owns' ? 'owns' : 'involved') + '" aria-hidden="true"></span>' + esc(cell === 'owns' ? text.owns : text.involved) + '</p>');
+      });
+      return html + '</ol>' + foot + '</section>';
+    }).join('');
+  }
+
+  /** A button for each card, named for its role. `off` writes them switched off, as the page is built. */
+  function cardButtons(result, spec, off) {
+    return rows(result, spec).rows.map(function (row) {
+      return '<button type="button" class="rc-btn rc-btn--ghost" data-adapt-card-print="' + esc(row.id) + '"' + (off || result.refused.length ? ' disabled' : '') + '>' + esc(row.label) + '</button>';
+    }).join('');
+  }
+
+  global.FWUAdapt = { defaults: defaults, clean: clean, fill: fill, pick: pick, locate: locate, adapt: adapt, status: status, sheet: sheet, code: code, decode: decode, named: namedIn, rows: rows, board: board, cards: cards, cardButtons: cardButtons };
 
   // ── Page wiring ────────────────────────────────────────────────────────────────────
   if (typeof document === 'undefined') return;
@@ -422,6 +470,8 @@
   var data = JSON.parse(source.textContent);
   var target = root.querySelector('[data-adapt-sheet]');
   var boardTarget = root.querySelector('[data-adapt-board]');
+  var cardsTarget = root.querySelector('[data-adapt-cards]');
+  var cardButtonsTarget = root.querySelector('[data-adapt-card-buttons]');
   var message = document.getElementById('adapt-status');
   var printButton = root.querySelector('[data-adapt-print]');
   var resetButton = root.querySelector('[data-adapt-reset]');
@@ -437,6 +487,9 @@
     var result = adapt(data.workflow, data.spec, read());
     target.innerHTML = sheet(result, data.spec);
     if (boardTarget) boardTarget.innerHTML = board(result, data.spec);
+    if (cardsTarget) cardsTarget.innerHTML = cards(result, data.spec);
+    if (cardButtonsTarget) cardButtonsTarget.innerHTML = cardButtons(result, data.spec, false);
+    wholeSheet();
     message.textContent = status(result, data.spec);
     root.setAttribute('data-refused', result.refused.length ? 'true' : 'false');
     root.setAttribute('data-changed', result.changed ? 'true' : 'false');
@@ -450,6 +503,26 @@
     menus.forEach(function (menu) { menu.value = menu.getAttribute('data-default'); });
     draw();
   }
+
+  // Printing one role's card: the page is marked so that the print styles show that card
+  // and hide the sheet, and the mark comes off when the print dialog closes.
+  function wholeSheet() {
+    root.removeAttribute('data-print-card');
+    Array.prototype.forEach.call(root.querySelectorAll('[data-adapt-card][data-printing]'), function (card) { card.removeAttribute('data-printing'); });
+  }
+  root.addEventListener('click', function (event) {
+    var button = event.target.closest ? event.target.closest('[data-adapt-card-print], [data-adapt-print]') : null;
+    if (!button || button.disabled) return;
+    wholeSheet();
+    var id = button.getAttribute('data-adapt-card-print');
+    if (id === null) return; // the button for the whole sheet: site.js opens the print dialog
+    var card = Array.prototype.filter.call(root.querySelectorAll('[data-adapt-card]'), function (item) { return item.getAttribute('data-adapt-card') === id; })[0];
+    if (!card) return;
+    card.setAttribute('data-printing', 'true');
+    root.setAttribute('data-print-card', 'true');
+    window.print();
+  });
+  window.addEventListener('afterprint', wholeSheet);
 
   root.addEventListener('change', function (event) {
     if (event.target && event.target.matches && event.target.matches('select[data-adapt]')) draw();

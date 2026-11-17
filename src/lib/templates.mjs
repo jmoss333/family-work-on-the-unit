@@ -607,7 +607,10 @@ ${fields}
 <p>${esc(spec.board.intro)}</p>
 <div class="rc-table-wrap map-board-wrap" role="region" aria-labelledby="adapt-board-title" tabindex="0" data-adapt-board>${core.board(result, given.spec)}</div>
 <ul class="map-legend">${legend}</ul>
+<h3 class="adapt-cards__title" id="adapt-cards-title">${esc(spec.board.card)}</h3>
+<div class="adapt-cards__buttons" role="group" aria-labelledby="adapt-cards-title" data-adapt-card-buttons>${core.cardButtons(result, given.spec, true)}</div>
 </section>
+<div class="adapt-cards" data-adapt-cards>${core.cards(result, given.spec)}</div>
 <section class="adapt-sheet" aria-labelledby="adapt-sheet-title">
 <h2 id="adapt-sheet-title">The unit workflow</h2>
 <div data-adapt-sheet>

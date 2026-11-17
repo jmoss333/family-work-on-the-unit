@@ -454,7 +454,8 @@
     "owns": "owns the step",
     "involved": "also involved",
     "owned": "Steps owned",
-    "count": "{n} of {total}"
+    "count": "{n} of {total}",
+    "card": "Print a card for one role"
   },
   "messages": {
     "same": "This is the workflow as written. Nothing has been changed.",

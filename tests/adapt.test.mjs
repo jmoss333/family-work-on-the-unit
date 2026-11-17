@@ -5,7 +5,8 @@
 //   - a version with a step nobody owns is refused, and says which step;
 //   - a reader chooses from fixed lists: nothing can be typed, stored or sent;
 //   - the review of the page covers the rules, the workflow and the script that applies them;
-//   - the board says who owns each step in the reader's version, and as written it is the map's board.
+//   - the board says who owns each step in the reader's version, and as written it is the map's board;
+//   - a card for one role holds that role's steps as the sheet prints them, and nothing of its own.
 // The functions under test are the browser's own (src/assets/adapt.js), loaded without a browser.
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -16,7 +17,7 @@ import { build } from '../src/build.mjs';
 import { ADAPT_SCRIPT, adaptCore, payload, revision, validateAdaptation } from '../src/lib/adapt.mjs';
 import { board as mapBoard } from '../src/lib/map.mjs';
 import { RELEASES, SiteError, loadSite } from '../src/lib/model.mjs';
-import { ROOT, built, headings, read, scratchRepo, visibleText } from './helpers.mjs';
+import { ROOT, built, headings, ids, read, scratchRepo, visibleText } from './helpers.mjs';
 
 const WORKFLOW = 'workflows/unit-family-meeting.workflow.json';
 const RULES = 'workflows/unit-family-meeting.adapt.json';
@@ -119,6 +120,7 @@ test('A18 · the validator refuses the defects it exists to catch', () => {
   assert.match(broken((s) => { s.notes['resident-supervision'].slot = 'chair'; }), /notes: "resident-supervision" depends on unknown slot "chair"/);
   assert.match(broken((s) => { s.notes.elsewhere = { slot: 'lead', among: ['psy-app-res'] }; }), /notes: "elsewhere" is not one of the workflow's added sentences/);
   assert.match(broken((s) => { delete s.board.count; }), /board: "count" is required/);
+  assert.match(broken((s) => { delete s.board.card; }), /board: "card" is required/);
   assert.match(drift((w) => { w.steps.find((item) => item.id === 'rounds').support = []; }), /step "rounds": a step the team owns names who leads it as also involved \(psychiatrist\)/);
   assert.match(drift((w) => { w.roles.psychiatrist = 'Attending'; }), /role "psychiatrist": the workflow calls it "Attending"; these rules call it "Psychiatrist"/);
   assert.match(drift((w) => { w.roles.pharmacist = 'Pharmacist'; w.steps[0].support = ['pharmacist']; }), /role "pharmacist": the workflow uses it, and it is not one of the titles these rules know/);
@@ -194,6 +196,14 @@ test('A18 · every combination of owners reads as prose, and a step is refused e
       result.workflow.steps.forEach((item, index) => {
         if (item.action.includes('the meeting lead')) for (const row of leads) assert.ok(row.cells[index], `${label}: step ${index + 1} names the meeting lead, and ${row.id} is not marked there`);
       });
+      // A22: a card for each row, holding as many steps as the row has marks; none when a step has no owner.
+      const made = core.cards(result, given.spec);
+      if (picture.steps.some((item) => item.unowned)) assert.equal(made, '', `${label}: cards for a version that does not print`);
+      else {
+        const each = made.split('<section class="adapt-card" ').slice(1);
+        assert.deepEqual(each.map((card) => card.match(/^data-adapt-card="([^"]+)"/)[1]), drawn.map((row) => row.id), `${label}: one card for each row`);
+        each.forEach((card, n) => assert.equal(card.split('<li class="wf-step rc-card').length - 1, [...drawn[n].cells].filter(Boolean).length, `${label}: steps on the card for ${drawn[n].id}`));
+      }
     }
     assert.ok(!leftovers.test(text), `${label}: a leftover placeholder or a stray space`);
     assert.ok(!twice.test(text), `${label}: the same role named twice in one phrase`);
@@ -283,6 +293,79 @@ test('A20 · the board follows the choices: who owns, who is also involved, how 
   assert.equal(html.match(/<td class="adapt-board__count">/g).length, picture.rows.length);
   assert.ok(html.includes('<th scope="col" class="adapt-board__count">Steps owned</th>'));
   assert.equal(core.board(adapt({}), given.spec).includes('adapt-board__gap'), false);
+});
+
+test('A22 · a card for one role holds its steps as the sheet prints them, the guardrails and the exceptions, and nothing of its own', () => {
+  const cardsOf = (html) => [...html.matchAll(/<section class="adapt-card" data-adapt-card="([^"]+)">([\s\S]*?)<\/section>/g)].map(([, id, inner]) => ({ id, inner }));
+  const STEP = /<li class="wf-step rc-card[^"]*"(?: id="step-[a-z-]+")?>([\s\S]*?)<\/li>/g;
+  const versions = [{}, { lead: 'app', drafting: 'no' }, { lead: 'social-work', scheduler: 'social-work', escort: 'social-work', contact: '48 h' }, { partner: 'nursing', escort: 'nursing-assistants', rounds: 'resident', lead: 'resident' }];
+  for (const choices of versions) {
+    const result = adapt(choices);
+    const label = result.code;
+    const picture = local(core.rows(result, given.spec));
+    const onSheet = [...core.sheet(result, given.spec).matchAll(STEP)].map(([, inner]) => inner);
+    assert.equal(onSheet.length, workflow.steps.length);
+    const made = cardsOf(core.cards(result, given.spec));
+    assert.deepEqual(made.map((card) => card.id), picture.rows.map((row) => row.id), `${label}: one card for each row of the board, in its order`);
+    const mark = result.changed ? `${spec.messages.markChanged.replace('{version}', workflow.version).replace('{code}', result.code)} ${spec.messages.local}` : spec.messages.markSame.replace('{version}', workflow.version);
+    for (const [n, card] of made.entries()) {
+      const row = picture.rows[n];
+      const marked = row.cells.map((cell, index) => (cell ? index : -1)).filter((index) => index >= 0);
+      const steps = [...card.inner.matchAll(STEP)].map(([, inner]) => inner);
+      assert.equal(steps.length, marked.length, `${label}, ${row.label}: it holds the steps the board marks for it, and no others`);
+      marked.forEach((index, k) => {
+        const says = row.cells[index] === 'owns' ? spec.board.owns : spec.board.involved;
+        const part = `<p class="adapt-card__part"><span class="map-mark map-mark--${row.cells[index] === 'owns' ? 'owns' : 'involved'}" aria-hidden="true"></span>${says}</p>`;
+        assert.ok(steps[k].includes(`<div class="wf-step__body">${part}<h3>`), `${label}, ${row.label}, step ${index + 1}: says whether the role owns it`);
+        // Take that one line out, and the step on the card is the step on the sheet, tag for tag.
+        assert.equal(steps[k].replace(part, ''), onSheet[index], `${label}, ${row.label}: step ${index + 1} differs from the sheet`);
+      });
+      // Around its steps a card has the version line, the role, where the workflow comes from,
+      // the guardrails, the exceptions and the closing line. Each is the sheet's; nothing else is there.
+      const around = squash(visibleText(card.inner.replace(STEP, '')));
+      const want = [mark, row.label, result.workflow.basis, 'Guardrails', ...result.workflow.guardrails, 'When it does not go to plan', ...result.workflow.exceptions.flatMap((item) => [item.when, item.then]), result.workflow.closing];
+      assert.equal(around, squash(want.join(' ')), `${label}, ${row.label}: the card says something of its own`);
+      assert.ok(!/ id="/.test(card.inner), 'a card repeats an id the sheet uses');
+    }
+  }
+  // Read off the cards: who gets what, as written and when one title leads.
+  const held = (choices) => Object.fromEntries(cardsOf(core.cards(adapt(choices), given.spec)).map((card) => [card.id, [...card.inner.matchAll(/<span class="sr-only">Step (\d): <\/span>/g)].map(([, number]) => Number(number))]));
+  assert.deepEqual(held({}), { 'psy-app-res': [1, 3, 5, 6, 7, 8], psychiatrist: [4], 'social-work': [2, 3, 6, 8], nursing: [3, 6], techs: [5], 'unit-secretary': [3], team: [4] });
+  assert.deepEqual(held({ lead: 'app' }).app, [3, 5, 6, 7, 8]);
+  // The line on a resident's supervision is on a card only where the sheet has it.
+  const supervision = workflow.additions.find((note) => note.id === 'resident-supervision').text;
+  assert.ok(cardsOf(core.cards(adapt({}), given.spec)).find((card) => card.id === 'psy-app-res').inner.includes(supervision));
+  assert.ok(!core.cards(adapt({ lead: 'app' }), given.spec).includes(supervision));
+  assert.ok(!cardsOf(core.cards(adapt({}), given.spec)).find((card) => card.id === 'social-work').inner.includes(supervision), 'step 7 is not social work’s');
+
+  // A version with a step nobody owns has no cards, and its buttons are off.
+  const refused = adapt({ scheduler: 'none' });
+  assert.equal(core.cards(refused, given.spec), '');
+  const buttons = (result, off) => [...core.cardButtons(result, given.spec, off).matchAll(/<button type="button" class="rc-btn rc-btn--ghost" data-adapt-card-print="([^"]+)"( disabled)?>([^<]+)<\/button>/g)].map(([, id, disabled, name]) => [id, name, Boolean(disabled)]);
+  assert.ok(buttons(refused, false).length > 0 && buttons(refused, false).every(([, , disabled]) => disabled));
+  const written = local(core.rows(adapt({}), given.spec));
+  assert.deepEqual(buttons(adapt({}), false), written.rows.map((row) => [row.id, row.label, false]), 'a button for each row, named for its role');
+  assert.deepEqual(buttons(adapt({}), true), written.rows.map((row) => [row.id, row.label, true]), 'as the page is built, every button is off');
+  assert.equal(core.cardButtons(adapt({}), given.spec, false).replace(/<button[^>]*>[^<]*<\/button>/g, ''), '', 'something besides buttons');
+
+  // Nothing in the data reaches a card or a button as markup.
+  const hostile = JSON.parse(JSON.stringify(given));
+  hostile.workflow.steps[0].title = '<img src=x onerror=boom()>';
+  hostile.workflow.guardrails[0] = '</li><script>boom()</script>';
+  hostile.workflow.basis = '<u>basis</u>';
+  hostile.spec.titles['social-work'].label = '<i>SW</i>';
+  hostile.spec.board.owns = '<b>owns</b>';
+  hostile.workflow.roles.team = '"><strong>Team</strong>';
+  const outcome = core.adapt(hostile.workflow, hostile.spec, { ...base });
+  for (const html of [core.cards(outcome, hostile.spec), core.cardButtons(outcome, hostile.spec, false)]) assert.ok(!/<(?:img|script|u|i|b|strong)[\s>]/.test(html), 'markup from the data reached a card');
+  for (const shown of ['&lt;img src=x onerror=boom()&gt;', '&lt;/li&gt;&lt;script&gt;boom()&lt;/script&gt;', '&lt;u&gt;basis&lt;/u&gt;', '<h2>&lt;i&gt;SW&lt;/i&gt;</h2>', '&lt;b&gt;owns&lt;/b&gt;']) assert.ok(core.cards(outcome, hostile.spec).includes(shown), `not shown as text on a card: ${shown}`);
+  assert.ok(core.cardButtons(outcome, hostile.spec, false).includes('>&quot;&gt;&lt;strong&gt;Team&lt;/strong&gt;</button>'));
+
+  // In print a card stands in for the sheet only while it is being printed; on screen the cards are not shown.
+  const css = readFileSync(join(ROOT, 'src/assets/site.css'), 'utf8');
+  const print = css.slice(css.indexOf('@media print'));
+  assert.ok(css.slice(0, css.indexOf('@media print')).includes('.adapt-cards { display: none; }'));
+  for (const rule of ['.adapt[data-print-card] .adapt-sheet { display: none; }', '.adapt[data-print-card] .adapt-cards { display: block; }', '.adapt-card { display: none; }', '.adapt-card[data-printing] { display: block; }']) assert.ok(print.includes(rule), `print rule missing: ${rule}`);
 });
 
 test('A18 · every combination of intervals and answers is written into the step, the note and the exception that depend on it', () => {
@@ -485,7 +568,14 @@ test('A18 · the page as built: fixed menus that are off until the script runs, 
     assert.deepEqual(menu.options.map((option) => [option.value, option.label]), want.options, `${want.id}: its options are the declared ones, in order`);
     assert.deepEqual(menu.options.filter((option) => option.selected).map((option) => option.value), [want.fallback]);
   }
-  assert.equal(html.match(/<button\b[^>]*>/g).filter((tag) => / disabled>$/.test(tag)).length, 2, 'both buttons are off until the script runs');
+  const rowsAsWritten = local(core.rows(adapt({}), given.spec)).rows;
+  assert.equal(html.match(/<button\b[^>]*>/g).filter((tag) => / disabled>$/.test(tag)).length, 2 + rowsAsWritten.length, 'every button is off until the script runs');
+  assert.equal(html.match(/<button\b[^>]*>/g).length, 2 + rowsAsWritten.length, 'a button that is on without the script');
+  // A22: the cards and their buttons, as written, are in the page as the script would draw them.
+  assert.ok(html.includes(`<h3 class="adapt-cards__title" id="adapt-cards-title">${spec.board.card}</h3>\n<div class="adapt-cards__buttons" role="group" aria-labelledby="adapt-cards-title" data-adapt-card-buttons>${core.cardButtons(adapt({}), given.spec, true)}</div>`));
+  assert.ok(html.includes(`<div class="adapt-cards" data-adapt-cards>${core.cards(adapt({}), given.spec)}</div>`));
+  assert.equal(html.match(/<section class="adapt-card" /g).length, rowsAsWritten.length);
+  assert.equal(new Set(ids(html)).size, ids(html).length, 'an id is used twice on the page');
   assert.ok(html.includes(`<noscript><p class="rc-alert rc-alert--warning">${spec.messages.noScript}</p></noscript>`));
 
   // What the page is built with is what the browser is given, and the sheet in the file is the workflow as written.

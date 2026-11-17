@@ -85,7 +85,7 @@ export function validateAdaptation(spec, workflow) {
   for (const key of ['same', 'changed', 'refusedOne', 'refusedMany', 'markSame', 'markChanged', 'local', 'noOwner', 'noScript']) {
     if (!text(spec.messages?.[key])) errors.push(`messages: "${key}" is required`);
   }
-  for (const key of ['title', 'intro', 'caption', 'owns', 'involved', 'owned', 'count']) {
+  for (const key of ['title', 'intro', 'caption', 'owns', 'involved', 'owned', 'count', 'card']) {
     if (!text(spec.board?.[key])) errors.push(`board: "${key}" is required`);
   }
 

@@ -439,6 +439,13 @@ a.ev-ref:hover { border-color: var(--rc-accent); text-decoration: none; }
 /* A step nobody owns: its whole column is marked, and its heading says so in words. */
 .adapt-board .adapt-board__gap { background: var(--rc-warning-light); }
 .adapt-board thead .adapt-board__gap { border-bottom-color: var(--rc-warning-strong); }
+/* A card for each role. The cards are for paper: on screen there is a button for each, and
+ * the print styles show the one that was asked for. */
+.adapt-cards { display: none; }
+.adapt-cards__title { margin: var(--rc-space-lg) 0 var(--rc-space-xs); font-size: var(--rc-type-h4); }
+.adapt-cards__buttons { display: flex; flex-wrap: wrap; gap: var(--rc-space-xs); }
+.adapt-cards__buttons .rc-btn:disabled { cursor: not-allowed; opacity: 0.55; }
+.adapt-card__part { display: flex; align-items: center; gap: var(--rc-space-xs); color: var(--rc-text-mid); font-size: var(--rc-type-small); }
 .adapt-rules { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: var(--rc-space-lg); margin: 0 0 var(--rc-space-xl); }
 .adapt-rules h2 { font-size: var(--rc-type-h4); margin-bottom: var(--rc-space-xs); }
 .adapt-rules ul { margin: 0; padding-left: 1.35rem; }
@@ -663,6 +670,14 @@ a.ev-ref:hover { border-color: var(--rc-accent); text-decoration: none; }
   .kind-adapt .adapt[data-refused="true"] .adapt-status { display: block; font-size: 12pt; }
   /* An attestation is of the workflow as written. It must not travel on a changed version. */
   .adapt[data-changed="true"][data-state="attested"] .status-banner { display: none; }
+  /* One role's card: while it is being printed it stands in for the sheet, set as the sheet is. */
+  .adapt[data-print-card] .adapt-sheet { display: none; }
+  .adapt[data-print-card] .adapt-cards { display: block; }
+  .adapt-card { display: none; }
+  .adapt-card[data-printing] { display: block; }
+  .adapt-card > h2 { font-size: 15pt; margin-bottom: 3pt; }
+  .adapt-card > h3 { margin-top: 5pt; }
+  .adapt-card .adapt-card__part { margin-bottom: 1pt; font-size: inherit; color: inherit; }
 
   /* The map prints whole: every step open, nothing covered, no controls. Its steps are
    * buttons on screen, and the rule above hides buttons, so they are put back here. */
