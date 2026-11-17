@@ -1,0 +1,408 @@
+{
+  "schema": 1,
+  "workflow": "unit-family-meeting",
+  "workflowVersion": "2.0",
+  "intro": "Choose who does each job on your unit and how often. The workflow below rewrites itself as you choose, and prints as your version.",
+  "canChange": [
+    "Who owns each step.",
+    "How soon after admission the support person is called.",
+    "How often the support person is updated."
+  ],
+  "cannotChange": [
+    "The private check, the formats and their gates, the reasons for no joint meeting, and the guardrails. Those are clinical rules, not logistics.",
+    "The measures, so that every unit using the workflow counts the same things.",
+    "Each job is chosen from a list. There is nowhere to type, so no name can be entered.",
+    "Nothing you choose is stored or sent. Leaving or refreshing the page starts over.",
+    "A version with a step nobody owns does not print."
+  ],
+  "titles": {
+    "psy-app-res": {
+      "label": "Psychiatrist / APP / resident",
+      "bare": "psychiatrist, APP or resident",
+      "phrase": "the psychiatrist, APP or resident",
+      "person": "psychiatrist, APP or resident"
+    },
+    "psychiatrist": {
+      "label": "Psychiatrist",
+      "bare": "psychiatrist",
+      "phrase": "the psychiatrist",
+      "person": "psychiatrist"
+    },
+    "app": {
+      "label": "APP",
+      "bare": "APP",
+      "phrase": "the APP",
+      "person": "APP"
+    },
+    "resident": {
+      "label": "Resident",
+      "bare": "resident",
+      "phrase": "the resident",
+      "person": "resident"
+    },
+    "psychologist": {
+      "label": "Psychologist",
+      "bare": "psychologist",
+      "phrase": "the psychologist",
+      "person": "psychologist"
+    },
+    "social-work": {
+      "label": "Social work",
+      "bare": "social work",
+      "phrase": "social work",
+      "person": "social worker"
+    },
+    "case-management": {
+      "label": "Case management",
+      "bare": "case management",
+      "phrase": "case management",
+      "person": "case manager"
+    },
+    "nursing": {
+      "label": "Nursing",
+      "bare": "nursing",
+      "phrase": "nursing",
+      "person": "nurse"
+    },
+    "unit-secretary": {
+      "label": "Unit secretary",
+      "bare": "unit secretary",
+      "phrase": "the unit secretary",
+      "person": "unit secretary"
+    },
+    "unit-clerk": {
+      "label": "Unit clerk",
+      "bare": "unit clerk",
+      "phrase": "the unit clerk",
+      "person": "unit clerk"
+    },
+    "techs": {
+      "label": "Mental health technicians",
+      "bare": "mental health technicians",
+      "phrase": "the mental health technicians",
+      "person": "mental health technician"
+    },
+    "nursing-assistants": {
+      "label": "Nursing assistants",
+      "bare": "nursing assistants",
+      "phrase": "the nursing assistants",
+      "person": "nursing assistant"
+    },
+    "peer-specialist": {
+      "label": "Peer specialist",
+      "bare": "peer specialist",
+      "phrase": "the peer specialist",
+      "person": "peer specialist"
+    }
+  },
+  "none": {
+    "label": "No one yet",
+    "bare": "[no one yet]",
+    "phrase": "[no one yet]",
+    "person": "[no one yet]"
+  },
+  "slots": [
+    {
+      "id": "ask",
+      "code": "A",
+      "question": "Who asks on day 1 and records the decision?",
+      "default": "psy-app-res",
+      "options": [
+        "psy-app-res",
+        "psychiatrist",
+        "app",
+        "resident",
+        "social-work",
+        "nursing"
+      ]
+    },
+    {
+      "id": "partner",
+      "code": "C",
+      "question": "Who makes the collateral call, joins the meeting when free, and shares the discharge bridge?",
+      "default": "social-work",
+      "options": [
+        "social-work",
+        "case-management",
+        "nursing",
+        "resident"
+      ]
+    },
+    {
+      "id": "scheduler",
+      "code": "S",
+      "question": "Who books the meeting?",
+      "default": "unit-secretary",
+      "options": [
+        "unit-secretary",
+        "unit-clerk",
+        "social-work",
+        "case-management",
+        "nursing"
+      ]
+    },
+    {
+      "id": "rounds",
+      "code": "R",
+      "question": "Who leads morning treatment-team rounds?",
+      "default": "psychiatrist",
+      "options": [
+        "psychiatrist",
+        "app",
+        "resident",
+        "social-work",
+        "nursing"
+      ]
+    },
+    {
+      "id": "escort",
+      "code": "E",
+      "question": "Who brings the family to the unit?",
+      "default": "techs",
+      "options": [
+        "techs",
+        "nursing-assistants",
+        "nursing",
+        "unit-secretary",
+        "unit-clerk",
+        "social-work",
+        "peer-specialist"
+      ]
+    },
+    {
+      "id": "lead",
+      "code": "L",
+      "question": "Who leads the meeting and signs the note?",
+      "default": "psychiatrist",
+      "options": [
+        "psychiatrist",
+        "app",
+        "resident",
+        "psychologist",
+        "social-work"
+      ]
+    }
+  ],
+  "timings": [
+    {
+      "id": "contact",
+      "code": "T",
+      "question": "How soon after admission is the support person called?",
+      "prefix": "Within",
+      "default": "24 h",
+      "options": [
+        "24 h",
+        "48 h",
+        "72 h"
+      ]
+    },
+    {
+      "id": "update",
+      "code": "U",
+      "question": "How often is the support person updated?",
+      "prefix": "Every",
+      "default": "72 h",
+      "options": [
+        "48 h",
+        "72 h",
+        "week"
+      ]
+    }
+  ],
+  "owners": {
+    "ask": [
+      "ask"
+    ],
+    "invite": [
+      "partner"
+    ],
+    "book": [
+      "scheduler"
+    ],
+    "rounds": [
+      "rounds"
+    ],
+    "bring-up": [
+      "escort"
+    ],
+    "meet": [
+      "lead"
+    ],
+    "note": [
+      "lead"
+    ],
+    "bridge": [
+      "lead",
+      "partner"
+    ]
+  },
+  "rules": [
+    {
+      "at": "steps.ask.ownerLabel",
+      "find": "Psychiatrist / APP / resident",
+      "replace": "{ask.label}"
+    },
+    {
+      "at": "steps.invite.trigger",
+      "find": "24 h",
+      "replace": "{contact}"
+    },
+    {
+      "at": "steps.invite.ownerLabel",
+      "find": "Social work",
+      "replace": "{partner.label}"
+    },
+    {
+      "at": "steps.book.ownerLabel",
+      "find": "Unit secretary",
+      "replace": "{scheduler.label}"
+    },
+    {
+      "at": "steps.book.action",
+      "find": "(psychiatrist’s calendar shared with the unit secretary)",
+      "replace": "({lead.person}’s calendar shared with {scheduler.phrase})",
+      "variants": [
+        {
+          "same": [
+            "lead",
+            "scheduler"
+          ],
+          "replace": "({lead.person}’s calendar)"
+        }
+      ]
+    },
+    {
+      "at": "steps.book.action",
+      "find": "Notify social work and the charge nurse.",
+      "replace": "Notify {partner.phrase} and the charge nurse.",
+      "variants": [
+        {
+          "none": [
+            "partner"
+          ],
+          "replace": "Notify the charge nurse."
+        },
+        {
+          "same": [
+            "scheduler",
+            "partner"
+          ],
+          "replace": "Notify the charge nurse."
+        },
+        {
+          "is": {
+            "partner": "nursing"
+          },
+          "replace": "Notify the charge nurse."
+        }
+      ]
+    },
+    {
+      "at": "steps.rounds.ownerLabel",
+      "find": "psychiatrist leads",
+      "replace": "{rounds.person} leads"
+    },
+    {
+      "at": "steps.bring-up.ownerLabel",
+      "find": "Mental health technicians",
+      "replace": "{escort.label}"
+    },
+    {
+      "at": "steps.bring-up.action",
+      "find": "; let the psychiatrist know they have arrived.",
+      "replace": "; let {lead.phrase} know they have arrived.",
+      "variants": [
+        {
+          "same": [
+            "escort",
+            "lead"
+          ],
+          "replace": "."
+        }
+      ]
+    },
+    {
+      "at": "steps.meet.ownerLabel",
+      "find": "Psychiatrist (+ social work or nursing when available)",
+      "replace": "{lead.label} (+ {partner.bare} or nursing when available)",
+      "variants": [
+        {
+          "none": [
+            "partner"
+          ],
+          "replace": "{lead.label} (+ nursing when available)"
+        },
+        {
+          "same": [
+            "lead",
+            "partner"
+          ],
+          "replace": "{lead.label} (+ nursing when available)"
+        },
+        {
+          "is": {
+            "partner": "nursing"
+          },
+          "replace": "{lead.label} (+ nursing when available)"
+        }
+      ]
+    },
+    {
+      "at": "steps.note.ownerLabel",
+      "find": "Psychiatrist",
+      "replace": "{lead.label}"
+    },
+    {
+      "at": "steps.note.action",
+      "find": "every 72 h",
+      "replace": "every {update}"
+    },
+    {
+      "at": "steps.bridge.ownerLabel",
+      "find": "Psychiatrist + social work",
+      "replace": "{lead.label} + {partner.bare}",
+      "variants": [
+        {
+          "none": [
+            "partner"
+          ],
+          "replace": "{lead.label}"
+        },
+        {
+          "none": [
+            "lead"
+          ],
+          "replace": "{partner.label}"
+        },
+        {
+          "same": [
+            "lead",
+            "partner"
+          ],
+          "replace": "{lead.label}"
+        }
+      ]
+    },
+    {
+      "at": "exceptions.0.when",
+      "find": "not reached in 24 h",
+      "replace": "not reached in {contact}"
+    },
+    {
+      "at": "exceptions.0.then",
+      "find": "Social work documents",
+      "replace": "{partner.Phrase} documents"
+    }
+  ],
+  "messages": {
+    "same": "This is the workflow as written. Nothing has been changed.",
+    "changed": "Changed from the workflow as written: {count} of {total} choices.",
+    "refusedOne": "{steps} has no owner. A version with a step nobody owns does not print.",
+    "refusedMany": "{steps} have no owner. A version with a step nobody owns does not print.",
+    "markSame": "Family Work on the Unit, unit workflow version {version}, as written.",
+    "markChanged": "Adapted from Family Work on the Unit, unit workflow version {version}. Version code {code}.",
+    "local": "A local adaptation. It has not been reviewed by the workflow’s author or by your institution. Your unit’s policy governs.",
+    "noOwner": "No owner yet",
+    "noScript": "Adapting the workflow needs JavaScript, which is switched off in this browser. The workflow below is shown as written."
+  }
+}

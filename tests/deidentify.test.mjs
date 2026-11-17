@@ -94,12 +94,47 @@ function readerText(value, key = '') {
   return '';
 }
 
+/** The words an adaptation page adds to the workflow's own: its instructions, the titles and
+ *  questions it offers, what its rules write, and its messages. */
+function adaptText(spec) {
+  return [
+    spec.intro, ...spec.canChange, ...spec.cannotChange,
+    ...Object.values(spec.titles).flatMap((title) => Object.values(title)), ...Object.values(spec.none),
+    ...spec.slots.map((slot) => slot.question),
+    ...spec.timings.flatMap((timing) => [timing.question, timing.prefix]),
+    ...spec.rules.flatMap((rule) => [rule.find, rule.replace, ...(rule.variants || []).map((variant) => variant.replace)]),
+    ...Object.values(spec.messages),
+  ].join('\n');
+}
+
+// The intervals an adaptation page offers are choices put to a reader about their own unit.
+// They are not figures from the unit the workflow came from, so the list above is not
+// extended for them. They are held to their own rule: each is a whole number of hours or
+// "week", each default is the procedure's own interval, and the ones that are not the
+// procedure's are recorded here. Offering another interval changes this line on purpose.
+const INTERVAL = /^(?:[1-9]\d? h|week)$/;
+const INTERVALS_OFFERED_BEYOND_THE_PROCEDURE = ['48'];
+
 test('A14 · a page about a real unit prints no number that is not on its list, and names no individual', () => {
   const site = loadSite(ROOT);
   const pages = site.pages.filter((page) => page.release === 'unit-practice');
-  assert.deepEqual(pages.map((page) => page.slug), ['system/unit-workflow', 'system/set-it-up']);
+  // A page that prints the unit's procedure, in any form, is on this list and under the release gate.
+  assert.deepEqual(pages.map((page) => page.slug), ['system/unit-workflow', 'system/set-it-up', 'system/adapt-it']);
+  assert.deepEqual(site.pages.filter((page) => page.workflowFile).map((page) => page.slug), ['system/unit-workflow', 'system/adapt-it']);
   for (const page of pages) {
-    const source = page.kind === 'workflow' ? readerText(page.workflowFile) : page.sourceText;
+    if (page.kind === 'adapt') {
+      const beyond = [];
+      for (const timing of page.adaptFile.timings) {
+        for (const option of timing.options) {
+          assert.match(option, INTERVAL, `${page.slug}: “${option}” is not a number of hours`);
+          const [number] = option.match(/\d+/) || [];
+          if (number && !NUMBERS_ALLOWED.has(number)) beyond.push(number);
+        }
+        assert.ok(NUMBERS_ALLOWED.has(timing.default.match(/\d+/)[0]), `${page.slug}: the default interval “${timing.default}” is not the procedure's own`);
+      }
+      assert.deepEqual([...new Set(beyond)].sort(), INTERVALS_OFFERED_BEYOND_THE_PROCEDURE);
+    }
+    const source = page.kind === 'workflow' ? readerText(page.workflowFile) : page.kind === 'adapt' ? adaptText(page.adaptFile) : page.sourceText;
     const text = source
       .replace(/\]\([^)]*\)/g, ']') // link targets
       .replace(/\[(?:[DXRG]\d+)(?:,\s*[DXRG]\d+)*\]/g, ''); // evidence references

@@ -12,10 +12,22 @@ const manifest = JSON.parse(readFileSync(join(ROOT, 'content/manifest.json'), 'u
 test('A1 · the review build writes one file for every page in the manifest', () => {
   const { dir } = built('review');
   for (const page of manifest.pages) assert.ok(existsSync(join(dir, `${page.slug}.html`)), `${page.slug}.html is missing`);
-  for (const file of ['index.html', 'guide.html', 'guide-print.html', 'about/governance.html', '404.html', 'robots.txt', 'build-report.json', 'assets/tokens.css', 'assets/site.css', 'assets/site.js', 'assets/studio.js']) {
+  for (const file of ['index.html', 'guide.html', 'guide-print.html', 'about/governance.html', '404.html', 'robots.txt', 'build-report.json', 'assets/tokens.css', 'assets/site.css', 'assets/site.js', 'assets/studio.js', 'assets/adapt.js']) {
     assert.ok(existsSync(join(dir, file)), `${file} is missing`);
   }
 });
+
+for (const channel of ['review', 'public']) {
+  test(`A1 · ${channel}: a script ships only with a page that loads it, and every script a page loads ships`, () => {
+    const { dir } = built(channel);
+    const shipped = walk(dir).filter((file) => file.endsWith('.js')).sort();
+    const loaded = new Set();
+    for (const file of htmlFiles(dir)) {
+      for (const [, src] of read(dir, file).matchAll(/<script\b[^>]*\ssrc="([^"]+)"/g)) loaded.add(posix.normalize(posix.join(dirname(file), src)));
+    }
+    assert.deepEqual(shipped, [...loaded].sort());
+  });
+}
 
 test('A1 · the build is deterministic: the same sources give byte-identical files', () => {
   const first = built('review').dir;

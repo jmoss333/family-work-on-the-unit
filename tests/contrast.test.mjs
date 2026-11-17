@@ -69,6 +69,14 @@ for (const [mode, pairs] of [['light', [...BOTH, ...LIGHT_ONLY]], ['dark', [...B
   });
 }
 
+test('A11 · the adaptation page’s menu borders and missing-owner marks are at least 3:1 in both palettes', () => {
+  // Not text, so the bar is 3:1: the edge of a control, and a mark that carries meaning.
+  const marks = [['text-light', 'surface', 'menu border'], ['warning-strong', 'surface', 'border of a menu or a step with no owner'], ['warning-strong', 'bg', 'status line when a version is refused'], ['accent', 'bg', 'status line'], ['accent', 'surface', 'edge of the version mark']];
+  for (const mode of ['light', 'dark']) {
+    for (const [mark, ground, where] of marks) assert.ok(ratio(mark, ground, mode) >= 3, `${mode}: ${mark} on ${ground} (${where}) is ${ratio(mark, ground, mode).toFixed(2)}:1`);
+  }
+});
+
 test('A11 · the design system’s low-contrast pairings are measured, and the site does not use them', () => {
   // Recorded so the numbers in site.css stay true. If the design system fixes one of these,
   // this test says so and the workaround can go.

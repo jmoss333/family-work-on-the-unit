@@ -14,7 +14,7 @@ This is a working companion for residents and attending physicians who run famil
 | want the whole arc of a longer meeting | [Family Meeting Playbook (90-min)](page:formats/family-meeting-playbook-90) |
 | want to practice one hard moment | [When a friend answers first](page:studio/when-a-friend-answers-first) |
 | are supervising or observing | [Observer card](page:teach/observer-card) |
-| want family meetings to happen every day, not when someone remembers | [The unit workflow](page:system/unit-workflow), then [Set it up on your unit](page:system/set-it-up) |
+| want family meetings to happen every day, not when someone remembers | [The unit workflow](page:system/unit-workflow), then [Set it up on your unit](page:system/set-it-up) and [Adapt it for your unit](page:system/adapt-it) |
 | want to know what the evidence does and does not show | [Evidence register](page:evidence/register) |
 
 ## What this is not

@@ -3,6 +3,7 @@
 // forbids all three, and tests/csp.test.mjs checks the output).
 import { STALE_REASON, reviewQueue } from './model.mjs';
 import { reviewOrder } from './casegraph.mjs';
+import { adaptCore, payload } from './adapt.mjs';
 import { esc, escAttr, formatDate } from './render.mjs';
 
 const STATE = {
@@ -20,6 +21,7 @@ const ORIGIN_NOTE = {
   'new-draft': 'Written by Claude for the review build (November 15, 2026).',
   'unit-procedure': 'Adapted by Claude (November 16, 2026) from the author’s own unit procedure, with the unit, its institution and its products left unnamed.',
   'author-materials': 'Assembled by Claude (November 16, 2026) from Dr. Moss’s own teaching materials; the wording is largely his.',
+  'adaptation-tool': 'Built by Claude (November 17, 2026). The sheet is the unit workflow’s own text; the questions, the roles offered for each job and the line between what can change and what stays fixed are Claude’s.',
 };
 
 const ORIGIN_SHORT = {
@@ -30,6 +32,7 @@ const ORIGIN_SHORT = {
   'new-draft': 'Claude',
   'unit-procedure': 'Author’s unit procedure, de-identified by Claude',
   'author-materials': 'Author’s teaching materials, assembled by Claude',
+  'adaptation-tool': 'Claude; the sheet is the unit workflow’s text',
 };
 
 export const stateBadge = (state) => `<span class="rc-badge ${STATE[state].badge}">${STATE[state].label}</span>`;
@@ -333,7 +336,9 @@ ${seeAlso(step.links, ctx)}
   const measures = w.measures.list
     .map((measure) => `<tr><td>${esc(measure.name)}</td><td><a href="#step-${escAttr(measure.checksStep)}">Step ${numberOf.get(measure.checksStep)}: ${esc(titleOf.get(measure.checksStep))}</a></td></tr>`)
     .join('\n');
-  const print = page.printable ? `<div class="page-actions"><button type="button" class="rc-btn rc-btn--secondary" data-print>Print this page</button></div>` : '';
+  const adaptation = ctx.site.pages.find((other) => other.kind === 'adapt' && other.workflow === page.workflow && ctx.outputs.has(other.file));
+  const adaptLink = adaptation ? `<a class="rc-btn rc-btn--ghost" href="${escAttr(ctx.href(adaptation.file))}">${esc(adaptation.title)}</a>` : '';
+  const print = page.printable || adaptation ? `<div class="page-actions">${page.printable ? '<button type="button" class="rc-btn rc-btn--secondary" data-print>Print this page</button>' : ''}${adaptLink}</div>` : '';
   return `<article class="page">
 ${pageHeader(page, ctx, { eyebrow: sectionEyebrow(page, ctx), meta: `${w.steps.length} steps · ${page.minutes} min read · Workflow version ${w.version}` })}
 <p class="hero__lead">${esc(w.purpose)}</p>
@@ -389,6 +394,61 @@ ${added(w.measures.note)}
 
 <p class="wf-closing">${esc(w.closing)}</p>
 ${print}
+</article>`;
+}
+
+// ── Adapt it for your unit ────────────────────────────────────────────────────────────
+// The sheet is drawn by src/assets/adapt.js, the same code the browser runs, so the page as
+// built and the page after a reader's first choice are made by one implementation.
+export function adaptPage(page, ctx) {
+  const w = page.workflowFile;
+  const spec = page.adaptFile;
+  const core = adaptCore();
+  // The sheet in the file is drawn from exactly the data the browser is given.
+  const given = payload(w, spec);
+  const result = core.adapt(given.workflow, given.spec, core.defaults(given.spec));
+  const numberOf = new Map(w.steps.map((step, index) => [step.id, index + 1]));
+  const list = (numbers) => (numbers.length === 1 ? `Step ${numbers[0]}` : `Steps ${numbers.slice(0, -1).join(', ')} and ${numbers.at(-1)}`);
+  const stepsOwnedBy = (slot) => Object.entries(spec.owners).filter(([, slots]) => slots.includes(slot)).map(([step]) => numberOf.get(step));
+  const stepsTimedBy = (timing) => [...new Set(spec.rules.filter((rule) => rule.at.startsWith('steps.') && rule.replace.includes(`{${timing}}`)).map((rule) => numberOf.get(rule.at.split('.')[1])))];
+  const field = (id, question, hint, options, fallback) => `<div class="adapt-field">
+<label for="adapt-${escAttr(id)}">${esc(question)}</label>
+<select id="adapt-${escAttr(id)}" data-adapt="${escAttr(id)}" data-default="${escAttr(fallback)}" autocomplete="off" aria-describedby="adapt-${escAttr(id)}-hint" disabled>
+${options.map(([value, label]) => `<option value="${escAttr(value)}"${value === fallback ? ' selected' : ''}>${esc(label)}</option>`).join('\n')}
+</select>
+<p class="adapt-field__hint" id="adapt-${escAttr(id)}-hint">${esc(hint)}</p>
+</div>`;
+  const fields = [
+    ...spec.slots.map((slot) => field(slot.id, slot.question, list(stepsOwnedBy(slot.id)), [...slot.options.map((id) => [id, spec.titles[id].label]), ['none', spec.none.label]], slot.default)),
+    ...spec.timings.map((timing) => field(timing.id, timing.question, list(stepsTimedBy(timing.id)), timing.options.map((value) => [value, `${timing.prefix} ${value}`]), timing.default)),
+  ].join('\n');
+  const data = JSON.stringify(given).replace(/</g, '\\u003c');
+  return `<article class="page adapt" data-adapt-root data-refused="false" data-changed="false" data-state="${escAttr(page.state)}">
+${pageHeader(page, ctx, { eyebrow: sectionEyebrow(page, ctx), meta: `${spec.slots.length} jobs and ${spec.timings.length} intervals to choose · Workflow version ${w.version}` })}
+<p class="hero__lead no-print">${esc(spec.intro)}</p>
+<div class="adapt-rules">
+<div><h2>You can change</h2><ul>${spec.canChange.map((line) => `<li>${esc(line)}</li>`).join('')}</ul></div>
+<div><h2>What stays fixed</h2><ul>${spec.cannotChange.map((line) => `<li>${esc(line)}</li>`).join('')}</ul></div>
+</div>
+<noscript><p class="rc-alert rc-alert--warning">${esc(spec.messages.noScript)}</p></noscript>
+<section class="adapt-controls" aria-labelledby="adapt-your-unit">
+<h2 id="adapt-your-unit">Your unit</h2>
+<div class="adapt-grid">
+${fields}
+</div>
+<div class="adapt-actions">
+<button type="button" class="rc-btn rc-btn--secondary" data-print data-adapt-print disabled>Print your version</button>
+<button type="button" class="rc-btn rc-btn--ghost" data-adapt-reset disabled>Back to the workflow as written</button>
+</div>
+</section>
+<p class="adapt-status" id="adapt-status" role="status">${esc(core.status(result, given.spec))}</p>
+<section class="adapt-sheet" aria-labelledby="adapt-sheet-title">
+<h2 id="adapt-sheet-title">The unit workflow</h2>
+<div data-adapt-sheet>
+${core.sheet(result, given.spec)}
+</div>
+</section>
+<script type="application/json" id="adapt-data">${data}</script>
 </article>`;
 }
 
@@ -465,7 +525,7 @@ function counts(pages) {
 
 function pageItem(page, ctx) {
   const find = `${page.title} ${page.summary} ${ctx.site.sectionById.get(page.section).title} ${page.phase || ''}`.toLowerCase();
-  const meta = page.kind === 'card' ? `Move ${page.order} of ${ctx.site.cards.length} · ${page.minutes} min` : page.kind === 'studio' ? `Rehearsal · about ${page.minutes} min` : page.kind === 'workflow' ? `Workflow · ${page.workflowFile.steps.length} steps · ${page.minutes} min` : `${page.minutes} min`;
+  const meta = page.kind === 'card' ? `Move ${page.order} of ${ctx.site.cards.length} · ${page.minutes} min` : page.kind === 'studio' ? `Rehearsal · about ${page.minutes} min` : page.kind === 'workflow' ? `Workflow · ${page.workflowFile.steps.length} steps · ${page.minutes} min` : page.kind === 'adapt' ? `Tool · ${page.adaptFile.slots.length + page.adaptFile.timings.length} choices · prints as your version` : `${page.minutes} min`;
   return `<li class="page-item rc-card" data-find="${escAttr(find)}">
 <div class="page-item__head"><a class="page-item__title" href="${escAttr(ctx.href(page.file))}">${esc(page.title)}</a>${stateBadge(page.state)}</div>
 <p>${esc(page.summary)}</p>
@@ -636,6 +696,7 @@ ${surfaces.map((item) => `<li><a href="${escAttr(item.url)}" rel="noopener noref
 <li>Pages copied from the Psychiatry Clerkship Library are never edited here. The build re-derives the hash the upstream review recorded and fails if the copy differs by one byte.</li>
 <li>A page that describes how a real unit works carries a second gate. Before it can be attested, the reviewer confirms by name that it identifies no patient, staff member, unit, hospital or product, that it reports no internal figure, and that it may be published.</li>
 <li>The build refuses to write a page that prints a name on the protected list: the unit the workflow comes from, its institution and its products. The list is kept as hashes, so this repository does not spell those names out.</li>
+<li>One page computes what it shows: it rewrites the unit workflow with a reader’s own owners and intervals. Its review covers the rules, the workflow and the script that applies them. An attestation is of the workflow as written, so a changed version says it is a local adaptation and does not carry the attestation in print.</li>
 </ol>
 </section>
 

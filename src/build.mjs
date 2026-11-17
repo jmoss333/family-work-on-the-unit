@@ -115,6 +115,9 @@ export function build({ root, outDir, channel = 'review', buildId = '' }) {
       body = T.registerPage(page, ctx);
     } else if (page.kind === 'workflow') {
       body = T.workflowPage(page, ctx);
+    } else if (page.kind === 'adapt') {
+      body = T.adaptPage(page, ctx);
+      scripts = ['assets/site.js', 'assets/adapt.js'];
     } else {
       const rendered = renderMarkdown(page.sourceText, {
         resolveLink: ctx.resolveLink,
@@ -124,7 +127,9 @@ export function build({ root, outDir, channel = 'review', buildId = '' }) {
       });
       body = page.kind === 'card' ? T.cardPage(page, ctx, rendered) : T.contentPage(page, ctx, rendered);
     }
-    emit(page.file, T.layout(ctx, { title: page.title, description: page.summary, body, bodyClass: `kind-${page.kind}`, scripts }));
+    // The adaptation page prints as a workflow sheet, so it takes the workflow's print layout too.
+    const bodyClass = page.kind === 'adapt' ? 'kind-adapt kind-workflow' : `kind-${page.kind}`;
+    emit(page.file, T.layout(ctx, { title: page.title, description: page.summary, body, bodyClass, scripts }));
   }
 
   {
@@ -209,7 +214,13 @@ export function build({ root, outDir, channel = 'review', buildId = '' }) {
   }
   const assetsDir = join(root, 'src', 'assets');
   mkdirSync(join(outDir, 'assets'), { recursive: true });
-  const assets = readdirSync(assetsDir).sort();
+  // A script ships only with a page that loads it, so a build without the rehearsal or the
+  // adaptation page carries none of their code. Stylesheets always ship.
+  const loaded = new Set();
+  for (const content of files.values()) {
+    for (const [, name] of String(content).matchAll(/<script src="[^"]*assets\/([^"/]+\.js)" defer><\/script>/g)) loaded.add(name);
+  }
+  const assets = readdirSync(assetsDir).sort().filter((name) => !name.endsWith('.js') || loaded.has(name));
   for (const name of assets) copyFileSync(join(assetsDir, name), join(outDir, 'assets', name));
 
   report.stale = [];

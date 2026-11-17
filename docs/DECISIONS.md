@@ -34,6 +34,27 @@ Two parts: the architecture decision that shaped this build, and the decisions t
 
 **Consequences.** "De-identified" on this site means not named, no patient or staff detail, no figure from the unit. It does not mean anonymous: the author is named, and an author's employer is a search away (`docs/WORKFLOW_INTAKE.md` says this to the reviewer in full). Whether to publish on those terms is the owner's decision, recorded when the two pages are attested.
 
+## ADR-003 · An adaptation page with fixed choices, and a review that covers its script (2026-11-17)
+
+**Context.** The owner asked for the page proposed the day before: a reader names who does each job on their own unit and how often, the workflow is rewritten in the browser with nothing stored, and it prints as that unit's version. A step with no owner is still refused. If every unit that adopts the workflow describes itself in the same structure, units can be compared.
+
+**Options.**
+
+| Option | For | Against |
+|---|---|---|
+| A. Let the reader type each role's title | Any title a unit uses | A text field is where a colleague's name gets typed, on a site whose rule is no free-text capture. Typed words cannot be fitted into a sentence ("the charge nurse's calendar") or checked, so no printed version could be said to have been tested |
+| B. Fixed lists, plus a link that carries the choices | A unit could send its version to a colleague | A link that restores choices is stored state under another name, and the brief says a refresh starts over. It needs the address bar, which the site's scripts are forbidden to write |
+| **C. Fixed lists, and a version code printed on the sheet** | Nothing can be typed. Every sentence the page can print is known in advance, and every combination is tested. The code records a unit's choices in one structure | A unit whose title is not on a list picks the nearest one, or asks for the title to be added, which is a reviewed change |
+
+**Decision.** C, with four parts.
+
+1. **Rules anchored in the workflow's own words.** Each rule in `workflows/unit-family-meeting.adapt.json` names a field, the exact words it replaces and what replaces them. The build refuses a rule whose words are not in that field exactly once, or whose replacement, with nothing changed, is not those same words. So the workflow as written is reproduced word for word, and an edit to the workflow that a rule no longer fits stops the build.
+2. **Six jobs and two intervals.** The procedure has one person lead rounds, the meeting and the note. The page asks who leads rounds separately from who leads the meeting, because on other units those differ. A job can be left as "No one yet"; the step is then marked and the version does not print.
+3. **The review covers the script.** What a reader sees is computed, so the page's hash covers three files: the rules, the workflow and `src/assets/adapt.js`. Changing any of them reopens the page. A rehearsal is different: all of its text is in the case file, and its script only moves between positions.
+4. **An attestation is of the workflow as written.** A changed version prints a line saying it is a local adaptation that neither the workflow's author nor the reader's institution has reviewed, and in print the attestation banner is dropped from it.
+
+**Consequences.** The reviewer attests a set of rules, not each of the 544,320 sheets those rules can print; the tests are what stand between the two (`docs/ACCEPTANCE.md`, A18). The page is under the release gate, because it prints the unit's procedure. The script can read a version code back into choices, and no page uses that yet. Adding a title or an interval is a content change, and D15 to D18 below are the judgments in the current lists.
+
 ## Open decisions
 
 | # | Decision | Default in effect | Why it is yours | To change it |
@@ -51,6 +72,10 @@ Two parts: the architecture decision that shaped this build, and the decisions t
 | D12 | **Product names.** The procedure names the documentation and health-record products in use. The pages say "an ambient documentation tool", "an AI tool" and "the drafting tools" | Generic wording; the product names are on the protected list | Naming a vendor on a public page is an endorsement question and an identification question | Reword the page, and remove the name's hash from `governance/protected-terms.json` |
 | D13 | **How the workflow was introduced.** The pages give the workflow and the constraints it answers. No source says in what order the steps were adopted, which was hardest to hand over, or what the first month looked like | Not written | Only you know it | Add a section to `content/pages/system-set-it-up.md` |
 | D14 | **Search engines.** The site is public and asks not to be indexed: a header, a meta tag and `robots.txt` | Not indexed | Public and findable are different decisions | `"indexable": true` in `site.config.json` and delete the `X-Robots-Tag` line in `netlify.toml`. A test fails if the two disagree |
+| D15 | **Who may hold each job.** The adaptation page offers, for each job, a list of roles: for example a psychologist or social work may lead the meeting and sign the note, and a peer specialist may bring the family up | Claude's lists, in review | Which role may hold which job is a clinical and scope-of-practice judgment, and a list on your site reads as your view | Edit `slots[].options` in `workflows/unit-family-meeting.adapt.json` |
+| D16 | **What a unit may change.** Six owners and two intervals. Everything else is fixed: the private check, the formats and their gates, the reasons for no joint meeting, the guardrails, the measures, and four intervals (no major decisions in the first 72 hours, revisiting a declined involvement at 72 h, repairing the alliance within 24 h, and booking within 24 h of known availability) | As built | Where logistics end and clinical rule begins is yours to say | Add or remove a rule or an interval in the same file |
+| D17 | **The intervals on offer.** First contact within 24, 48 or 72 h; updates every 48 h, 72 h or week. Only 24 and 72 are the procedure's own | As built | "Every week" may be too slack for an acute unit, and you may prefer to offer the procedure's numbers alone | Edit `timings[].options`; a test records every interval that is not the procedure's |
+| D18 | **Rounds has its own owner.** The procedure has the psychiatrist lead rounds and the meeting. The page asks the two separately | Separate | You may hold that the person who leads the meeting must be the one who sets the format at rounds | Remove the `rounds` job and point its rule at `lead` |
 
 ## Decided
 
@@ -65,3 +90,6 @@ Two parts: the architecture decision that shaped this build, and the decisions t
 | 2026-11-16 | The list of protected names is kept as hashes, and the build refuses to write a page that prints one (ADR-002). |
 | 2026-11-16 | A page about a real unit needs a recorded release confirmation as well as a clinical attestation (ADR-002). |
 | 2026-11-16 | The site carries a tenth section, "Build the system": the unit workflow and how to set it up. |
+| 2026-11-17 | The adaptation page offers fixed lists only: nothing can be typed, nothing is stored, and there is no link that carries a version (ADR-003). |
+| 2026-11-17 | The adaptation page's review covers its rules, the workflow and its script (ADR-003). |
+| 2026-11-17 | A script ships only with a page that loads it, so the public build with nothing attested carries the site script and no other. |

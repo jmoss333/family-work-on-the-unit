@@ -52,7 +52,8 @@ test('A9 · with nothing attested, the public build is an empty shell: no teachi
   const shippable = state.pages.filter((page) => page.state === 'attested');
   assert.equal(report.counts.shipped, shippable.length);
   if (shippable.length === 0) {
-    assert.deepEqual(walk(dir).sort(), ['404.html', 'about/governance.html', 'assets/site.css', 'assets/site.js', 'assets/studio.js', 'assets/tokens.css', 'build-report.json', 'index.html', 'robots.txt']);
+    // No rehearsal and no adaptation page, so neither of their scripts.
+    assert.deepEqual(walk(dir).sort(), ['404.html', 'about/governance.html', 'assets/site.css', 'assets/site.js', 'assets/tokens.css', 'build-report.json', 'index.html', 'robots.txt']);
     assert.match(read(dir, 'index.html'), /Nothing is published yet/);
   }
   const text = htmlFiles(dir).map((file) => visibleText(read(dir, file))).join(' ');

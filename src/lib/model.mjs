@@ -5,8 +5,9 @@ import { join } from 'node:path';
 import { HEX40, PENDING_SENTINEL, blobSha, pageDigest, reviewedMeta, upstreamDigest } from './hash.mjs';
 import { validateCase } from './casegraph.mjs';
 import { validateWorkflow } from './workflow.mjs';
+import { ADAPT_SCRIPT, validateAdaptation } from './adapt.mjs';
 
-export const KINDS = new Set(['page', 'card', 'studio', 'register', 'workflow']);
+export const KINDS = new Set(['page', 'card', 'studio', 'register', 'workflow', 'adapt']);
 // A page that describes how a real unit works needs more than a clinical read before it is
 // public. The attest command asks the reviewer to confirm each line below, and a reviewed
 // row without that record is refused.
@@ -135,6 +136,23 @@ export function loadSite(root) {
         const workflowFile = readJson(root, page.workflow);
         for (const error of validateWorkflow(workflowFile)) problems.push(`${page.workflow}: ${error}`);
         page.workflowFile = workflowFile;
+      }
+    }
+    if (page.kind === 'adapt') {
+      // What a reader sees on this page is computed: the script applies the rules to the
+      // workflow. So the review covers all three files, and a change to any of them makes the
+      // page "changed since review". (A rehearsal's script only moves between positions whose
+      // text is all in the case file, so that review covers the case file alone.)
+      const expected = [page.adapt, page.workflow, ADAPT_SCRIPT];
+      const complete = page.adapt && page.workflow && page.sources.length === 3 && expected.every((file) => page.sources.includes(file));
+      if (!complete) problems.push(`${at}: an adaptation page's sources are its rules, the workflow they rewrite, and ${ADAPT_SCRIPT}`);
+      else if (existsSync(join(root, page.adapt)) && existsSync(join(root, page.workflow))) {
+        const workflowFile = readJson(root, page.workflow);
+        const adaptFile = readJson(root, page.adapt);
+        // A broken workflow is reported once, by its own page.
+        if (!validateWorkflow(workflowFile).length) for (const error of validateAdaptation(adaptFile, workflowFile)) problems.push(`${page.adapt}: ${error}`);
+        page.workflowFile = workflowFile;
+        page.adaptFile = adaptFile;
       }
     }
 

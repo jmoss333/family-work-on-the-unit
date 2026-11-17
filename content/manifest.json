@@ -8,7 +8,8 @@
     "stated-practice": "Drafted by Claude (2026-11-15) from Dr. Moss's own description of his practice. The wording is not yet his.",
     "new-draft": "Written by Claude for the review build (2026-11-15).",
     "unit-procedure": "De-identified by Claude (2026-11-16) from the author's own one-page unit procedure, version 2.0 (November 2026). The unit, its institution and the products it uses are not named; docs/WORKFLOW_INTAKE.md lists every other change.",
-    "author-materials": "Assembled by Claude (2026-11-16) from Dr. Moss's own teaching materials: his November 2026 resident reference and slides, and his July 2026 handbook for attending psychiatrists. The sentences are his unless docs/WORKFLOW_INTAKE.md says otherwise."
+    "author-materials": "Assembled by Claude (2026-11-16) from Dr. Moss's own teaching materials: his November 2026 resident reference and slides, and his July 2026 handbook for attending psychiatrists. The sentences are his unless docs/WORKFLOW_INTAKE.md says otherwise.",
+    "adaptation-tool": "Built by Claude (2026-11-17). The sheet is the unit workflow's own text. The questions, the roles offered for each job, the intervals offered, and the line between what can change and what stays fixed are Claude's."
   },
   "pages": [
     {
@@ -274,6 +275,24 @@
         "G3"
       ],
       "origin": "author-materials",
+      "release": "unit-practice"
+    },
+    {
+      "slug": "system/adapt-it",
+      "title": "Adapt it for your unit",
+      "section": "system",
+      "kind": "adapt",
+      "printable": true,
+      "sources": [
+        "workflows/unit-family-meeting.adapt.json",
+        "workflows/unit-family-meeting.workflow.json",
+        "src/assets/adapt.js"
+      ],
+      "adapt": "workflows/unit-family-meeting.adapt.json",
+      "workflow": "workflows/unit-family-meeting.workflow.json",
+      "summary": "Choose who does each job on your unit and how often, and print the workflow as your version. A version with a step nobody owns does not print.",
+      "minutes": 4,
+      "origin": "adaptation-tool",
       "release": "unit-practice"
     },
     {

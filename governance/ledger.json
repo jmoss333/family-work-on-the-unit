@@ -5,7 +5,7 @@
       "kind": "general",
       "level": "low"
     },
-    "reason": "Orientation page written by Claude for the review build (2026-11-15); a third use, the unit workflow, was added 2026-11-16. Awaiting faculty review.",
+    "reason": "Orientation page written by Claude for the review build (2026-11-15); a third use, the unit workflow, was added 2026-11-16 and a link to the adaptation page 2026-11-17. Awaiting faculty review.",
     "at": "2026-11-16",
     "by": "Pending faculty review"
   },
@@ -165,8 +165,18 @@
       "kind": "local-policy",
       "level": "moderate"
     },
-    "reason": "Assembled by Claude (2026-11-16) from the author's November 2026 slides and July 2026 attending handbook, product names removed. Describes a real unit's practice; awaiting faculty review and release.",
+    "reason": "Assembled by Claude (2026-11-16) from the author's November 2026 slides and July 2026 attending handbook, product names removed; a link to the adaptation page was added 2026-11-17. Awaiting faculty review and release.",
     "at": "2026-11-16",
+    "by": "Pending faculty review"
+  },
+  "system/adapt-it": {
+    "status": "pending",
+    "risk": {
+      "kind": "local-policy",
+      "level": "high"
+    },
+    "reason": "Built by Claude (2026-11-17). It rewrites the unit workflow with a reader's own owners and intervals. Which roles are offered for each job, and what is fixed, are Claude's judgment. Needs clinical review and release.",
+    "at": "2026-11-17",
     "by": "Pending faculty review"
   },
   "evidence/register": {

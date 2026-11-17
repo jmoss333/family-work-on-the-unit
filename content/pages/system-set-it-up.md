@@ -26,6 +26,8 @@ The workflow names owners and records. It leaves these to your unit.
 
 Where the workflow and your unit’s policy differ, policy wins.
 
+When those are settled, [Adapt it for your unit](page:system/adapt-it) rewrites the workflow with your own owners and intervals and prints it.
+
 ## Measure before you target
 
 The workflow proposes four monthly measures, read from the chart and the calendar. Set the baseline for one month before setting targets.

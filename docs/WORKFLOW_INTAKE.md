@@ -54,6 +54,14 @@ Each addition is listed in the workflow file under `additions`, and the page mar
 
 **Time, format and stance.** The three formats, the gates, the decision rule, the list of reasons for no joint meeting, the five parts and the four PACE lines are the resident reference's. "Format and purpose are separate decisions" and the three sentences after it are from the speaker notes. "When a family can meet more than once, high expressed emotion becomes the target of the later meetings" is from the author's earlier description of his practice. The sleep-figure sentence is the addition described above.
 
+## The adaptation page (added 2026-11-17)
+
+"Adapt it for your unit" prints the same workflow with another unit's owners and intervals. It adds no sentence to the workflow. Its rules (`workflows/unit-family-meeting.adapt.json`) replace fifteen phrases, each of which names a role or an interval, and the build checks that each phrase is in the workflow exactly once and that, with nothing changed, the result is the workflow word for word.
+
+What the page does add, and what the reviewer is asked to judge, is in that file: the eight questions, the roles offered for each job, the intervals offered, and the two lists headed "You can change" and "What stays fixed". All of it is Claude's (`docs/DECISIONS.md`, ADR-003 and D15 to D18).
+
+The page is under the same release gate as the workflow, because it prints the unit's procedure.
+
 ## What "de-identified" means here
 
 The pages do not name the unit, the institution, its affiliates or the products in use, and a test fails if any of those names appears in any file or built page (`governance/protected-terms.json`, kept as hashes). They contain no patient, no staff member and no figure from the unit.

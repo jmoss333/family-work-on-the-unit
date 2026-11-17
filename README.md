@@ -3,7 +3,7 @@
 A companion for residents and attending physicians doing family work on adult inpatient psychiatry units.
 Joshua Moss, MD · started 2026-11-15
 
-It is a small static site: short cards to read before a meeting, one fictional rehearsal to practice with a supervisor, a workflow that puts family meetings on a unit's calendar, the evidence behind them, and a ledger that says who reviewed what. It is modelled on the [Psychiatry Clerkship Library](https://github.com/jmoss333/psychiatry-clerkship) and reuses that library's review rule: an attestation is bound to the exact text it covers.
+It is a small static site: short cards to read before a meeting, one fictional rehearsal to practice with a supervisor, a workflow that puts family meetings on a unit's calendar, a page that rewrites that workflow for another unit, the evidence behind them, and a ledger that says who reviewed what. It is modelled on the [Psychiatry Clerkship Library](https://github.com/jmoss333/psychiatry-clerkship) and reuses that library's review rule: an attestation is bound to the exact text it covers.
 
 **Status: no page has been attested for this site yet.** The repository is public, and two sites are built from it. The published site, <https://family-work-on-the-unit.netlify.app>, comes from `main` and shows nothing but its shell and the governance page until a page is attested. The review site, <https://review--family-work-on-the-unit.netlify.app>, comes from `review` and shows every page, each one marked. `docs/DEPLOY.md` explains the two and how they are set up.
 
@@ -14,7 +14,7 @@ Node 20 or later. There is nothing to install.
 ```bash
 npm run build          # review build into dist/ : every page, each one marked
 open dist/index.html   # works straight from the file system
-npm test               # 85 checks, about two seconds
+npm test               # 98 checks, about seven seconds
 npm run queue          # what is waiting for faculty review, highest risk first
 npm run build:public   # what the public would get: attested pages only
 ```
@@ -24,7 +24,7 @@ npm run build:public   # what the public would get: attested pages only
 **The public site ships a page only if a faculty attestation is bound to that page's exact text.**
 
 - Every teaching page has a row in `governance/ledger.json`: `pending` or `reviewed`.
-- A reviewed row carries the reviewer's name, the date and a `contentHash`. The hash covers the page's source file and its title and summary. Change any of them and the page reads "changed since review" and leaves the public build until it is attested again.
+- A reviewed row carries the reviewer's name, the date and a `contentHash`. The hash covers the page's source file and its title and summary; for the adaptation page, whose text is computed, it also covers the script that computes it. Change any of them and the page reads "changed since review" and leaves the public build until it is attested again.
 - Only a person attests: `npm run attest -- <slug>` at a terminal. The command refuses to run from a script, a CI job or an AI assistant. Nothing else writes a reviewed row.
 - `SITE_CHANNEL=public` (Netlify production) builds attested pages only. `SITE_CHANNEL=review` (previews, branch deploys, local) builds everything with a banner on each page.
 
@@ -39,7 +39,7 @@ With nothing attested, the public build is the empty shell and the governance pa
 | `content/pages/` | Other pages written for this site |
 | `content/upstream/` | Files copied byte for byte from the Psychiatry Clerkship Library. **Never edited here** |
 | `cases/` | Rehearsals as versioned JSON. Position ids are stable |
-| `workflows/` | The unit workflow as data: steps, owners, records, completion tests, measures |
+| `workflows/` | The unit workflow as data: steps, owners, records, completion tests, measures. Beside it, the rules that rewrite it for another unit |
 | `evidence/register.json` | Every study and guideline cited, with identifiers and a dated source check |
 | `governance/ledger.json` | The review ledger |
 | `governance/sources.lock.json` | Commit and blob pins for imported files, with the upstream attestation they carry |
@@ -53,13 +53,13 @@ With nothing attested, the public build is the empty shell and the governance pa
 
 ## Review status today
 
-20 teaching pages, about 9,100 words.
+21 teaching pages.
 
 | State | Pages | What it means |
 |---|---|---|
 | Attested for this site | 0 | Nobody has run `attest` yet |
 | Attested upstream | 2 | The playbook and the modalities guide: byte-identical to text reviewed in the Clerkship Library on 2026-09-26 |
-| In review | 18 | Six cards, the rehearsal, the boundaries page, the evidence register, the pocket card, the unit workflow and its setup page, the formats page, and five pages written for this build |
+| In review | 19 | Six cards, the rehearsal, the boundaries page, the evidence register, the pocket card, the unit workflow with its setup page and its adaptation page, the formats page, and five pages written for this build |
 
 `npm run queue` prints the list with the reason for each.
 
@@ -81,6 +81,8 @@ With nothing attested, the public build is the empty shell and the governance pa
 
 **Change the unit workflow.** Edit `workflows/unit-family-meeting.workflow.json`. The build refuses a step nobody owns, a role with no step, and a measure that checks no step. A sentence that is not in the source procedure goes under `additions`, so a reviewer can find it.
 
+**Change what a unit may adapt.** Edit `workflows/unit-family-meeting.adapt.json`: the roles offered for each job, the intervals, and the rules that write them into the workflow. The build refuses a rule that no longer matches the workflow's words. Editing that file, the workflow or `src/assets/adapt.js` reopens the adaptation page's review.
+
 **Protect another name.** `node tools/protect-term.mjs add -`, type one name per line, then Ctrl-D. Only a hash is stored. `node tools/protect-term.mjs scan` checks every file and file name.
 
 ## What is never named
@@ -89,7 +91,7 @@ The unit the workflow comes from, its institution and affiliates, and the produc
 
 ## What the site never does
 
-No login, no analytics, no fonts or scripts from another host, no form, no storage, no network request after the page loads, no microphone, no AI endpoint. The Content-Security-Policy in `netlify.toml` forbids all of it and `tests/csp.test.mjs` and `tests/no-capture.test.mjs` check the built files against that policy.
+No login, no analytics, no fonts or scripts from another host, no form, no storage, no network request after the page loads, no microphone, no AI endpoint. One page has menus, each a fixed list; nothing can be typed into them and nothing chosen is kept. The Content-Security-Policy in `netlify.toml` forbids all of it and `tests/csp.test.mjs` and `tests/no-capture.test.mjs` check the built files against that policy.
 
 ## Design
 

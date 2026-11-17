@@ -427,6 +427,54 @@ a.ev-ref:hover { border-color: var(--rc-accent); text-decoration: none; }
 .wf-note { color: var(--rc-text-mid); font-size: var(--rc-type-small); }
 .wf-closing { margin-top: var(--rc-space-xl); padding-top: var(--rc-space-md); border-top: 1px solid var(--rc-border-light); color: var(--rc-text-mid); font-size: var(--rc-type-small); }
 
+/* ─── Adapt it for your unit ─── */
+.adapt-rules { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: var(--rc-space-lg); margin: 0 0 var(--rc-space-xl); }
+.adapt-rules h2 { font-size: var(--rc-type-h4); margin-bottom: var(--rc-space-xs); }
+.adapt-rules ul { margin: 0; padding-left: 1.35rem; }
+.adapt-rules li { margin-bottom: var(--rc-space-2xs); }
+.adapt-controls {
+  padding: var(--rc-space-lg);
+  border: 1px solid var(--rc-border-light);
+  border-radius: var(--rc-radius);
+  background: var(--rc-surface);
+}
+.adapt-controls > h2 { margin-bottom: var(--rc-space-md); }
+.adapt-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: var(--rc-space-md) var(--rc-space-lg); }
+/* A question may wrap; the menus in a row still line up. */
+.adapt-field { display: flex; flex-direction: column; }
+.adapt-field label { flex: 1 0 auto; font-weight: var(--rc-font-weight-semibold); margin-bottom: var(--rc-space-2xs); }
+.adapt-field select {
+  width: 100%;
+  min-height: 2.75rem;
+  padding: var(--rc-space-xs) var(--rc-space-sm);
+  border: 1px solid var(--rc-text-light);
+  border-radius: var(--rc-radius-sm);
+  background: var(--rc-surface);
+  color: var(--rc-text);
+}
+.adapt-field--gap select { border: 2px solid var(--rc-warning-strong); }
+.adapt-field__hint { margin: var(--rc-space-2xs) 0 0; font-size: var(--rc-type-small); color: var(--rc-text-mid); }
+.adapt-actions { display: flex; flex-wrap: wrap; gap: var(--rc-space-sm); margin-top: var(--rc-space-lg); }
+.adapt-actions .rc-btn:disabled { cursor: not-allowed; opacity: 0.55; }
+.adapt-status { margin: var(--rc-space-md) 0 var(--rc-space-xl); padding-left: var(--rc-space-sm); border-left: 4px solid var(--rc-accent); font-weight: var(--rc-font-weight-semibold); }
+.adapt[data-refused="true"] .adapt-status { border-left-color: var(--rc-warning-strong); }
+.adapt-sheet > h2 { margin-bottom: var(--rc-space-sm); }
+.adapt-mark {
+  margin-bottom: var(--rc-space-lg);
+  padding: var(--rc-space-md);
+  border: 1px solid var(--rc-border-light);
+  border-left: 4px solid var(--rc-accent);
+  border-radius: var(--rc-radius-sm);
+  background: var(--rc-surface);
+}
+.adapt-mark p { margin: 0 0 var(--rc-space-xs); }
+.adapt-mark p:last-child { margin-bottom: 0; }
+.adapt-mark__line { font-weight: var(--rc-font-weight-semibold); }
+.adapt-mark__choices { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); gap: var(--rc-space-2xs) var(--rc-space-md); margin: var(--rc-space-sm) 0 0; font-size: var(--rc-type-small); }
+.adapt-mark__choices dt { color: var(--rc-text-mid); }
+.adapt-mark__choices dd { margin: 0; font-weight: var(--rc-font-weight-semibold); }
+.wf-step--gap { border-color: var(--rc-warning-strong); }
+
 /* ─── Governance ─── */
 .gov-rules { max-width: var(--rc-measure); padding-left: 1.35rem; }
 .gov-rules li { margin-bottom: var(--rc-space-xs); }
@@ -454,6 +502,9 @@ a.ev-ref:hover { border-color: var(--rc-accent); text-decoration: none; }
   .record__facts { grid-template-columns: 1fr; }
   .record__facts dt { margin-top: var(--rc-space-2xs); }
   .wf-step { padding: var(--rc-space-md); gap: var(--rc-space-sm); }
+  .adapt-controls { padding: var(--rc-space-md); }
+  .adapt-mark__choices { grid-template-columns: 1fr; }
+  .adapt-mark__choices dt { margin-top: var(--rc-space-2xs); }
   .wf-facts { grid-template-columns: 1fr; }
   .wf-facts dt { margin-top: var(--rc-space-2xs); }
 }
@@ -507,4 +558,17 @@ a.ev-ref:hover { border-color: var(--rc-accent); text-decoration: none; }
   .kind-workflow .wf-list li { margin-bottom: 0; }
   .kind-workflow .wf-exceptions dt { margin-top: 2pt; }
   .kind-workflow .wf-closing { margin-top: 3pt; padding-top: 2pt; }
+
+  /* The adaptation page prints only the sheet: no title of its own, no menus, no
+   * instructions. A version with a step nobody owns prints the reason and not the sheet. */
+  .kind-adapt .page__title, .kind-adapt .page__meta, .adapt-rules, .adapt-controls, .kind-adapt .adapt-status { display: none; }
+  .kind-adapt .adapt-sheet > h2 { font-size: 15pt; margin-bottom: 3pt; }
+  .adapt-mark { margin-bottom: 4pt; padding: 3pt 6pt; border-left-width: 2px; }
+  .adapt-mark p { margin-bottom: 1pt; }
+  .adapt-mark__choices { grid-template-columns: auto 1fr; gap: 0 8pt; margin-top: 2pt; font-size: inherit; }
+  .adapt-mark__choices dt { margin-top: 0; }
+  .adapt[data-refused="true"] .adapt-sheet { display: none; }
+  .kind-adapt .adapt[data-refused="true"] .adapt-status { display: block; font-size: 12pt; }
+  /* An attestation is of the workflow as written. It must not travel on a changed version. */
+  .adapt[data-changed="true"][data-state="attested"] .status-banner { display: none; }
 }
