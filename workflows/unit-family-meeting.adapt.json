@@ -6,7 +6,8 @@
   "canChange": [
     "Who owns each step.",
     "How soon after admission the support person is called.",
-    "How often the support person is updated."
+    "How often the support person is updated.",
+    "Whether an ambient documentation tool drafts the note."
   ],
   "cannotChange": [
     "The private check, the formats and their gates, the reasons for no joint meeting, and the guardrails. Those are clinical rules, not logistics.",
@@ -210,6 +211,36 @@
       ]
     }
   ],
+  "switches": [
+    {
+      "id": "drafting",
+      "code": "D",
+      "question": "Is the note drafted by an ambient documentation tool?",
+      "default": "yes",
+      "options": [
+        {
+          "id": "yes",
+          "label": "Yes",
+          "text": "An ambient documentation tool drafts during the meeting → review, edit, sign."
+        },
+        {
+          "id": "no",
+          "label": "No",
+          "text": "Write the note after the meeting; sign.",
+          "basis": "Not in the procedure. Wording approved by the author in November 2026, for a unit that has no such tool."
+        }
+      ]
+    }
+  ],
+  "notes": {
+    "resident-supervision": {
+      "slot": "lead",
+      "among": [
+        "psy-app-res",
+        "resident"
+      ]
+    }
+  },
   "owners": {
     "ask": [
       "ask"
@@ -260,22 +291,15 @@
     },
     {
       "at": "steps.book.action",
-      "find": "(psychiatrist’s calendar shared with the unit secretary)",
-      "replace": "({lead.person}’s calendar shared with {scheduler.phrase})",
+      "find": "(the meeting lead’s calendar shared with the unit secretary)",
+      "replace": "(the meeting lead’s calendar shared with {scheduler.phrase})",
       "variants": [
         {
           "same": [
             "lead",
             "scheduler"
           ],
-          "replace": "({lead.person}’s calendar)"
-        },
-        {
-          "is": {
-            "lead": "psy-app-res"
-          },
-          "replace": "(psychiatrist’s calendar shared with {scheduler.phrase})",
-          "note": "As written: the procedure names the psychiatrist here, whoever leads the meeting."
+          "replace": "(the meeting lead’s calendar)"
         }
       ]
     },
@@ -317,8 +341,8 @@
     },
     {
       "at": "steps.bring-up.action",
-      "find": "; let the psychiatrist know they have arrived.",
-      "replace": "; let {lead.phrase} know they have arrived.",
+      "find": "; let the meeting lead know they have arrived.",
+      "replace": "; let the meeting lead know they have arrived.",
       "variants": [
         {
           "same": [
@@ -326,13 +350,6 @@
             "lead"
           ],
           "replace": "."
-        },
-        {
-          "is": {
-            "lead": "psy-app-res"
-          },
-          "replace": "; let the psychiatrist know they have arrived.",
-          "note": "As written: the procedure names the psychiatrist here, whoever leads the meeting."
         }
       ]
     },
@@ -374,6 +391,11 @@
       "at": "steps.note.ownerLabel",
       "find": "Psychiatrist / APP / resident",
       "replace": "{lead.label}"
+    },
+    {
+      "at": "steps.note.action",
+      "find": "An ambient documentation tool drafts during the meeting → review, edit, sign.",
+      "replace": "{drafting}"
     },
     {
       "at": "steps.note.action",

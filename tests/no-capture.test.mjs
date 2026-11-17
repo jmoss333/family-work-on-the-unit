@@ -41,7 +41,7 @@ test('A5 · the only thing a reader can type into is the home page’s find box,
   const { dir } = built('review');
   // A menu offers a fixed list and takes no typing. Menus are allowed on an adaptation page
   // only, one for each choice its rules declare, and never with a name to submit.
-  const menusAllowed = new Map(loadSite(ROOT).pages.filter((page) => page.kind === 'adapt').map((page) => [`${page.slug}.html`, page.adaptFile.slots.length + page.adaptFile.timings.length]));
+  const menusAllowed = new Map(loadSite(ROOT).pages.filter((page) => page.kind === 'adapt').map((page) => [`${page.slug}.html`, page.adaptFile.slots.length + page.adaptFile.timings.length + (page.adaptFile.switches || []).length]));
   assert.deepEqual([...menusAllowed.keys()], ['system/adapt-it.html']);
   let inputs = 0;
   for (const file of htmlFiles(dir)) {

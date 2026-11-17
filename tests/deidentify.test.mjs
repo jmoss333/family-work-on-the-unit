@@ -102,6 +102,7 @@ function adaptText(spec) {
     ...Object.values(spec.titles).flatMap((title) => Object.values(title)), ...Object.values(spec.none),
     ...spec.slots.map((slot) => slot.question),
     ...spec.timings.flatMap((timing) => [timing.question, timing.prefix]),
+    ...(spec.switches || []).flatMap((item) => [item.question, ...item.options.flatMap((option) => [option.label, option.text])]),
     ...spec.rules.flatMap((rule) => [rule.find, rule.replace, ...(rule.variants || []).map((variant) => variant.replace)]),
     ...Object.values(spec.messages), ...Object.values(spec.board),
   ].join('\n');

@@ -15,6 +15,9 @@
     "unit-secretary": "Unit secretary",
     "team": "Treatment team"
   },
+  "terms": {
+    "the meeting lead": "meet"
+  },
   "steps": [
     {
       "id": "ask",
@@ -65,11 +68,11 @@
         "unit-secretary"
       ],
       "support": [
-        "psychiatrist",
+        "psy-app-res",
         "social-work",
         "nursing"
       ],
-      "action": "Enter the meeting on the shared calendar (psychiatrist’s calendar shared with the unit secretary) like any other appointment: patient, support person and phone, format and length (5-min phone update · 30-min structured · optional 60–90-min alliance repair) as set in rounds. Notify social work and the charge nurse.",
+      "action": "Enter the meeting on the shared calendar (the meeting lead’s calendar shared with the unit secretary) like any other appointment: patient, support person and phone, format and length (5-min phone update · 30-min structured · optional 60–90-min alliance repair) as set in rounds. Notify social work and the charge nurse.",
       "record": "Calendar entry",
       "doneWhen": "Meeting on the calendar"
     },
@@ -103,9 +106,9 @@
         "techs"
       ],
       "support": [
-        "psychiatrist"
+        "psy-app-res"
       ],
-      "action": "Meet the support person at the entrance and bring them to the unit; set up the room; let the psychiatrist know they have arrived.",
+      "action": "Meet the support person at the entrance and bring them to the unit; set up the room; let the meeting lead know they have arrived.",
       "record": null,
       "doneWhen": "Family in the room on time"
     },
@@ -144,6 +147,7 @@
         "psy-app-res"
       ],
       "action": "See the patient alone afterwards (how it landed; new safety concerns). An ambient documentation tool drafts during the meeting → review, edit, sign. Record purpose and permission, what was worked on, what they tried, next step and who reviews, and the plan row: need · named person · date or trigger · verified · contingency. Update the support person every 72 h.",
+      "note": "resident-supervision",
       "record": "Family-meeting note; discharge-summary draft",
       "doneWhen": "Note signed; next owner and review point named",
       "links": [
@@ -257,6 +261,11 @@
       "id": "no-results",
       "text": "These measures are proposed. This page reports no results.",
       "basis": "Not in the procedure. Added so that a reader does not take the workflow as evaluated."
+    },
+    {
+      "id": "resident-supervision",
+      "text": "A resident leads and signs under the attending psychiatrist’s supervision; the attending co-signs the note.",
+      "basis": "Not in the procedure. Added on the author’s instruction in November 2026, when an APP or a resident became able to lead the meeting and sign the note."
     }
   ],
   "closing": "Clinical judgment, supervision, and hospital policy govern; this page describes the workflow, not the clinical decision."

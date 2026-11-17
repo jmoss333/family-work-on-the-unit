@@ -1,5 +1,5 @@
-// The adaptation page. A reader chooses who does each job on their unit and how often, and
-// the workflow is rewritten for them. What has to hold:
+// The adaptation page. A reader chooses who does each job on their unit, how often, and
+// whether a tool drafts the note, and the workflow is rewritten for them. What has to hold:
 //   - with nothing changed, the sheet is the workflow, word for word;
 //   - every combination of choices reads as prose, with no leftover placeholder;
 //   - a version with a step nobody owns is refused, and says which step;
@@ -60,9 +60,11 @@ function* everyOwnerChoice() {
 
 test('A18 · the adaptation rules fit the workflow they rewrite', () => {
   assert.deepEqual(validateAdaptation(spec, workflow), []);
-  // Six jobs and two intervals. If a job is added or dropped, this line says so.
+  // Six jobs, two intervals and one question. If a choice is added or dropped, this line says so.
   assert.deepEqual(spec.slots.map((slot) => slot.id), ['ask', 'partner', 'scheduler', 'rounds', 'escort', 'lead']);
   assert.deepEqual(spec.timings.map((timing) => timing.id), ['contact', 'update']);
+  assert.deepEqual(spec.switches.map((item) => [item.id, item.options.map((option) => option.id), item.default]), [['drafting', ['yes', 'no'], 'yes']]);
+  assert.deepEqual(spec.notes, { 'resident-supervision': { slot: 'lead', among: ['psy-app-res', 'resident'] } });
 });
 
 test('A18 · the validator refuses the defects it exists to catch', () => {
@@ -75,7 +77,7 @@ test('A18 · the validator refuses the defects it exists to catch', () => {
   assert.match(broken((s) => { s.workflowVersion = '1.9'; }), /written for workflow version 1\.9; the workflow is at 2\.0/);
   assert.match(broken((s) => { s.workflow = 'another-workflow'; }), /written for workflow "another-workflow"/);
   assert.match(broken((s) => { rule(s, 'steps.book.ownerLabel').find = 'Ward clerk'; }), /"Ward clerk" occurs 0 times in the field; it must occur once/);
-  assert.match(broken((s) => { rule(s, 'steps.note.action').find = 'e'; }), /"e" occurs \d+ times in the field; it must occur once/);
+  assert.match(broken((s) => { s.rules.find((item) => item.find === 'every 72 h').find = 'e'; }), /"e" occurs \d+ times in the field; it must occur once/);
   assert.match(broken((s) => { rule(s, 'steps.book.ownerLabel').at = 'steps.nowhere.ownerLabel'; }), /no such text in the workflow/);
   assert.match(broken((s) => { rule(s, 'steps.book.ownerLabel').replace = '{scheduler.bare}'; }), /with nothing changed it would write "unit secretary" over "Unit secretary"/);
   assert.match(broken((s) => { rule(s, 'steps.book.ownerLabel').replace = '{clerk.label}'; }), /\{clerk\.label\} names no slot or interval/);
@@ -101,8 +103,21 @@ test('A18 · the validator refuses the defects it exists to catch', () => {
   assert.match(drift((w) => { w.steps.find((item) => item.id === 'note').owner = ['social-work']; }), /step "note": the workflow says it is owned by social-work; these rules, with nothing changed, say psy-app-res/);
   assert.match(drift((w) => { w.steps.find((item) => item.id === 'bridge').owner = ['psychiatrist']; }), /step "bridge": the workflow says it is owned by psychiatrist; these rules, with nothing changed, say psy-app-res and social-work/);
   assert.match(drift((w) => { w.roles = { nursing: w.roles.nursing, ...w.roles }; }), /the workflow lists its roles in a different order from the titles here/);
-  // With nothing changed, the variant that applies is the one held to the workflow's words.
-  assert.match(broken((s) => { rule(s, 'steps.bring-up.action').variants.at(-1).replace = '; tell the psychiatrist.'; }), /with nothing changed it would write "; tell the psychiatrist\." over "; let the psychiatrist know they have arrived\."/);
+  // With nothing changed, the replacement that applies is held to the workflow's words, whether
+  // it is the rule's own or a variant that fits the workflow as written.
+  assert.match(broken((s) => { rule(s, 'steps.bring-up.action').replace = '; tell the meeting lead.'; }), /with nothing changed it would write "; tell the meeting lead\." over "; let the meeting lead know they have arrived\."/);
+  assert.match(broken((s) => { rule(s, 'steps.note.ownerLabel').variants = [{ is: { lead: 'psy-app-res' }, replace: 'Whoever leads' }]; }), /with nothing changed it would write "Whoever leads" over "Psychiatrist \/ APP \/ resident"/);
+  // A question: its default answer is the workflow's own sentence, and any other answer says where it came from.
+  assert.match(broken((s) => { s.switches[0].options[0].text = 'A tool drafts the note.'; }), /with nothing changed it would write "A tool drafts the note\." over "An ambient documentation tool drafts during the meeting → review, edit, sign\."/);
+  assert.match(broken((s) => { delete s.switches[0].options[1].basis; }), /question "drafting", answer "no": a sentence that is not the workflow's needs its basis/);
+  assert.match(broken((s) => { s.switches[0].default = 'maybe'; }), /"drafting": its default is not one of its options/);
+  assert.match(broken((s) => { s.switches[0].code = 'T'; }), /"drafting": its code is one capital letter, used once/);
+  assert.match(broken((s) => { s.rules.find((item) => item.replace === '{drafting}').replace = '{drafting.label}'; }), /\{drafting\.label\} is a question and takes no form/);
+  // A sentence that prints for some leads only must print on the workflow as written.
+  assert.match(broken((s) => { s.notes['resident-supervision'].among = ['resident']; }), /notes: "resident-supervision" would not print on the workflow as written/);
+  assert.match(broken((s) => { s.notes['resident-supervision'].among = ['psy-app-res', 'nursing']; }), /notes: "resident-supervision" lists a title that slot "lead" does not offer/);
+  assert.match(broken((s) => { s.notes['resident-supervision'].slot = 'chair'; }), /notes: "resident-supervision" depends on unknown slot "chair"/);
+  assert.match(broken((s) => { s.notes.elsewhere = { slot: 'lead', among: ['psy-app-res'] }; }), /notes: "elsewhere" is not one of the workflow's added sentences/);
   assert.match(broken((s) => { delete s.board.count; }), /board: "count" is required/);
   assert.match(drift((w) => { w.steps.find((item) => item.id === 'rounds').support = []; }), /step "rounds": a step the team owns names who leads it as also involved \(psychiatrist\)/);
   assert.match(drift((w) => { w.roles.psychiatrist = 'Attending'; }), /role "psychiatrist": the workflow calls it "Attending"; these rules call it "Psychiatrist"/);
@@ -112,7 +127,8 @@ test('A18 · the validator refuses the defects it exists to catch', () => {
 test('A18 · with nothing changed, the sheet is the workflow word for word', () => {
   const result = adapt({});
   assert.equal(result.changed, 0);
-  assert.equal(result.total, spec.slots.length + spec.timings.length);
+  assert.equal(result.total, spec.slots.length + spec.timings.length + spec.switches.length);
+  assert.equal(result.total, 9);
   assert.deepEqual(result.refused, []);
   assert.equal(core.status(result, given.spec), spec.messages.same);
   // The rewritten workflow is the workflow: every field, not only the ones a rule touches.
@@ -172,6 +188,12 @@ test('A18 · every combination of owners reads as prose, and a step is refused e
       });
       for (const slot of spec.slots) if (choices[slot.id] !== 'none') assert.ok(drawn.some((row) => row.id === choices[slot.id]), `${label}: no row for ${choices[slot.id]}`);
       for (const row of drawn) assert.ok([...row.cells].some(Boolean) && row.owned === [...row.cells].filter((cell) => cell === 'owns').length, `${label}: row ${row.id}`);
+      // "The meeting lead" names whoever owns the meeting: where a step's words say it, that role is marked.
+      const meeting = given.workflow.steps.findIndex((item) => item.id === workflow.terms['the meeting lead']);
+      const leads = drawn.filter((row) => row.cells[meeting] === 'owns');
+      result.workflow.steps.forEach((item, index) => {
+        if (item.action.includes('the meeting lead')) for (const row of leads) assert.ok(row.cells[index], `${label}: step ${index + 1} names the meeting lead, and ${row.id} is not marked there`);
+      });
     }
     assert.ok(!leftovers.test(text), `${label}: a leftover placeholder or a stray space`);
     assert.ok(!twice.test(text), `${label}: the same role named twice in one phrase`);
@@ -209,7 +231,7 @@ test('A18 · every combination of owners reads as prose, and a step is refused e
     }
     return [...found].sort();
   };
-  assert.ok(sentences.size > 200, `only ${sentences.size} different sentences were seen`);
+  assert.ok(sentences.size > 100, `only ${sentences.size} different sentences were seen`);
   for (const sentence of sentences) assert.deepEqual([...core.named(given.spec, sentence)].sort(), reads(sentence), `the roles named in: “${sentence.slice(0, 120)}”`);
   assert.deepEqual(reads('enter the meeting like any other appointment. the apprentice applies.'), [], '"app" is not in "appointment"');
   assert.deepEqual(reads('nursing assistants. let the app know'), ['app', 'nursing-assistants'], '"nursing" is not in "nursing assistants"');
@@ -229,7 +251,7 @@ test('A20 · the board follows the choices: who owns, who is also involved, how 
     const picture = local(core.rows(adapt(choices), given.spec));
     return Object.fromEntries(picture.rows.map((row) => [row.label, `${row.cells.map((cell) => (cell === 'owns' ? '●' : cell === 'involved' ? '○' : '·')).join('')} ${row.owned}`]));
   };
-  // One role leads: the calendar and the word that the family has arrived go to that role.
+  // One role leads. Steps 3 and 5 say "the meeting lead", so that role is marked at both.
   assert.deepEqual(draw({ lead: 'app' }), {
     'Psychiatrist / APP / resident': '●······· 1', Psychiatrist: '···○···· 0', APP: '··○·○●●● 3', 'Social work': '·●○··○·● 2', Nursing: '··○··○·· 0',
     'Mental health technicians': '····●··· 1', 'Unit secretary': '··●····· 1', 'Treatment team': '···●···· 1',
@@ -240,8 +262,10 @@ test('A20 · the board follows the choices: who owns, who is also involved, how 
   });
   // Nursing as the collateral contact, nursing assistants as escorts: two different rows.
   assert.deepEqual(draw({ partner: 'nursing', escort: 'nursing-assistants' }), {
-    'Psychiatrist / APP / resident': '●····●●● 4', Psychiatrist: '··○○○··· 0', Nursing: '·●○··○·● 2', 'Nursing assistants': '····●··· 1', 'Unit secretary': '··●····· 1', 'Treatment team': '···●···· 1',
+    'Psychiatrist / APP / resident': '●·○·○●●● 4', Psychiatrist: '···○···· 0', Nursing: '·●○··○·● 2', 'Nursing assistants': '····●··· 1', 'Unit secretary': '··●····· 1', 'Treatment team': '···●···· 1',
   });
+  // With nobody to lead the meeting, "the meeting lead" names nobody.
+  assert.equal(draw({ lead: 'none' })['Psychiatrist / APP / resident'], '●······· 1');
   // The team owns rounds whoever leads them; with nobody to lead, nobody owns the step.
   assert.equal(draw({ rounds: 'nursing' }).Nursing, '··○○·○·· 0');
   assert.equal(draw({ rounds: 'nursing' })['Treatment team'], '···●···· 1');
@@ -261,24 +285,39 @@ test('A20 · the board follows the choices: who owns, who is also involved, how 
   assert.equal(core.board(adapt({}), given.spec).includes('adapt-board__gap'), false);
 });
 
-test('A18 · every combination of intervals is written into the step, the note and the exception that depend on it', () => {
+test('A18 · every combination of intervals and answers is written into the step, the note and the exception that depend on it', () => {
   const samples = [{}, { lead: 'social-work', partner: 'case-management', scheduler: 'unit-clerk' }, { partner: 'none' }];
+  const [asked] = spec.switches;
+  const codes = new Set();
   let count = 0;
   for (const contact of spec.timings[0].options) {
     for (const update of spec.timings[1].options) {
-      for (const owners of samples) {
-        count += 1;
-        const result = adapt({ ...owners, contact, update });
-        assert.equal(step(result, 'invite').trigger, `Within ${contact} of admission`);
-        assert.equal(result.workflow.exceptions[0].when, `Support person not reached in ${contact}.`);
-        assert.ok(step(result, 'note').action.includes(`every ${update}`), `every ${update}`);
-        assert.ok(!/[{}]/.test(prose(result)));
-        assert.deepEqual(decode(result.code), { ...base, ...owners, contact, update });
-        assert.equal(result.changed, Object.keys(owners).length + (contact !== base.contact) + (update !== base.update));
+      for (const answer of asked.options) {
+        for (const owners of samples) {
+          count += 1;
+          const result = adapt({ ...owners, contact, update, drafting: answer.id });
+          assert.equal(step(result, 'invite').trigger, `Within ${contact} of admission`);
+          assert.equal(result.workflow.exceptions[0].when, `Support person not reached in ${contact}.`);
+          const note = step(result, 'note').action;
+          assert.ok(note.includes(`every ${update}`), `every ${update}`);
+          for (const option of asked.options) assert.equal(note.includes(option.text), option.id === answer.id, `the note says “${option.text}” when the answer is ${answer.id}`);
+          assert.ok(!/[{}]/.test(prose(result)));
+          assert.deepEqual(decode(result.code), { ...base, ...owners, contact, update, drafting: answer.id });
+          assert.equal(result.changed, Object.keys(owners).length + (contact !== base.contact) + (update !== base.update) + (answer.id !== base.drafting));
+          codes.add(result.code);
+        }
       }
     }
   }
-  assert.equal(count, 27);
+  assert.equal(count, 54);
+  assert.equal(codes.size, 54, 'two different versions share a version code');
+  // Without the tool the step still reads as one paragraph, and only that sentence differs.
+  const plain = adapt({ drafting: 'no' });
+  assert.equal(step(plain, 'note').action, workflow.steps.find((item) => item.id === 'note').action.replace(asked.options[0].text, asked.options[1].text));
+  assert.ok(step(plain, 'note').action.includes('(how it landed; new safety concerns). Write the note after the meeting; sign. Record purpose and permission'));
+  assert.equal(core.status(plain, given.spec), 'Changed from the workflow as written: 1 of 9 choices.');
+  assert.ok(squash(visibleText(core.sheet(plain, given.spec))).includes(`${asked.question} No`), 'a changed version lists the answer with the other choices');
+  assert.deepEqual(plain.workflow.guardrails, workflow.guardrails, 'the guardrail on AI drafts stays, tool or no tool');
   // The intervals the rules leave alone are the clinical ones: they read the same in every version.
   const far = adapt({ contact: '72 h', update: 'week' });
   assert.deepEqual(far.workflow.guardrails, workflow.guardrails);
@@ -300,21 +339,31 @@ test('A18 · one person holding two jobs is written once, and a job nobody holds
   assert.equal(result.workflow.exceptions[0].then.split(' ')[0], 'Nursing');
   // The person who books is the person who would be notified.
   result = adapt({ scheduler: 'social-work' });
-  assert.ok(step(result, 'book').action.includes('(psychiatrist’s calendar shared with social work)'));
+  assert.ok(step(result, 'book').action.includes('(the meeting lead’s calendar shared with social work)'));
   assert.ok(step(result, 'book').action.endsWith('Notify the charge nurse.'));
   // The lead books their own meetings, and walks the family up.
   result = adapt({ scheduler: 'social-work', lead: 'social-work', escort: 'social-work' });
-  assert.ok(step(result, 'book').action.includes('(social worker’s calendar)'));
+  assert.ok(step(result, 'book').action.includes('(the meeting lead’s calendar)'));
   assert.ok(step(result, 'bring-up').action.endsWith('set up the room.'));
-  // As written an APP or a resident may lead, and the procedure still names the psychiatrist for
-  // the calendar and for who is told. Choose one role to lead, and those two sentences follow it.
-  result = adapt({});
-  assert.ok(step(result, 'book').action.includes('(psychiatrist’s calendar shared with the unit secretary)'));
-  assert.ok(step(result, 'bring-up').action.endsWith('; let the psychiatrist know they have arrived.'));
-  result = adapt({ lead: 'app' });
-  assert.equal(step(result, 'meet').ownerLabel, 'APP (+ social work or nursing when available)');
-  assert.ok(step(result, 'book').action.includes('(APP’s calendar shared with the unit secretary)'));
-  assert.ok(step(result, 'bring-up').action.endsWith('; let the APP know they have arrived.'));
+  // The calendar and the word that the family has arrived go to whoever leads the meeting
+  // (the author's decision, 2026-11-17). The two sentences say so by role, in every version.
+  for (const lead of ['psy-app-res', 'app', 'psychologist']) {
+    result = adapt({ lead });
+    assert.ok(step(result, 'book').action.includes('(the meeting lead’s calendar shared with the unit secretary)'), lead);
+    assert.ok(step(result, 'bring-up').action.endsWith('; let the meeting lead know they have arrived.'), lead);
+  }
+  assert.equal(step(adapt({ lead: 'app' }), 'meet').ownerLabel, 'APP (+ social work or nursing when available)');
+  assert.ok(!prose(adapt({})).includes('psychiatrist’s calendar') && !prose(adapt({})).includes('let the psychiatrist know'));
+  // The line on a resident's supervision prints while a resident can lead, and not otherwise.
+  const supervision = workflow.additions.find((note) => note.id === 'resident-supervision').text;
+  assert.equal(workflow.steps.find((item) => item.id === 'note').note, 'resident-supervision');
+  for (const [lead, printed] of [['psy-app-res', true], ['resident', true], ['psychiatrist', false], ['app', false], ['psychologist', false], ['social-work', false], ['none', false]]) {
+    result = adapt({ lead });
+    assert.equal(squash(visibleText(core.sheet(result, given.spec))).includes(supervision), printed, `lead ${lead}: the supervision line`);
+    assert.equal(result.workflow.additions.some((note) => note.id === 'resident-supervision'), printed, `lead ${lead}`);
+    assert.equal(result.workflow.additions.length, workflow.additions.length - (printed ? 0 : 1), `lead ${lead}: the other added sentences stay`);
+  }
+  assert.match(core.sheet(adapt({}), given.spec), new RegExp(`id="step-note">.*?</p><p class="wf-note">${supervision}</p><dl class="wf-facts">`), 'the line sits under step 7');
   // The lead's title already names the resident, so a resident as collateral contact is not named again.
   result = adapt({ partner: 'resident' });
   assert.equal(step(result, 'meet').ownerLabel, 'Psychiatrist / APP / resident (+ nursing when available)');
@@ -325,7 +374,8 @@ test('A18 · one person holding two jobs is written once, and a job nobody holds
   result = adapt({ lead: 'none' });
   assert.equal(step(result, 'bridge').ownerLabel, 'Social work');
   assert.deepEqual(result.refused.map((item) => item.number), [6, 7]);
-  assert.ok(step(result, 'bring-up').action.includes('let [no one yet] know'), 'the gap shows in the sentence that depends on it');
+  assert.ok(step(result, 'bring-up').action.includes('let the meeting lead know'), 'the sentence names the role, filled or not');
+  assert.ok(step(adapt({ partner: 'none' }), 'exceptions') === undefined && adapt({ partner: 'none' }).workflow.exceptions[0].then.startsWith('[no one yet] documents'), 'a gap shows in the sentence that depends on it');
 });
 
 test('A18 · a version with a step nobody owns is refused, says which step, and marks it on the sheet', () => {
@@ -344,12 +394,13 @@ test('A18 · a version with a step nobody owns is refused, says which step, and 
 
   // A changed version that can print says it is local, and carries its code and its choices.
   result = adapt({ lead: 'app', contact: '48 h' });
-  assert.equal(core.status(result, given.spec), 'Changed from the workflow as written: 2 of 8 choices.');
+  assert.equal(core.status(result, given.spec), 'Changed from the workflow as written: 2 of 9 choices.');
   sheet = squash(visibleText(core.sheet(result, given.spec)));
   assert.ok(sheet.includes(`Adapted from Family Work on the Unit, unit workflow version 2.0. Version code ${result.code}.`));
   assert.ok(sheet.includes(spec.messages.local));
   for (const slot of spec.slots) assert.ok(sheet.includes(`${slot.question} ${spec.titles[result.choices[slot.id]].label}`), slot.id);
   assert.ok(sheet.includes(`${spec.timings[0].question} Within 48 h`));
+  assert.ok(sheet.includes(`${spec.switches[0].question} Yes`));
   assert.ok(!sheet.includes(squash(workflow.scope)), 'the source unit’s list of roles would contradict the choices above it');
 });
 
@@ -361,14 +412,25 @@ test('A18 · only the choices on offer are accepted, and the sheet escapes every
   // A code carries the revision of the lists it was made from, and is read against no others.
   assert.equal(REV, revision(workflow, spec));
   assert.match(REV, /^[0-9a-f]{3}$/);
-  assert.deepEqual(decode(`2.0-${REV}/A0C0S0R0E0L0/T0U1`), base);
+  assert.deepEqual(decode(`2.0-${REV}/A0C0S0R0E0L0/T0U1/D0`), base);
+  assert.equal(adapt({}).code, `2.0-${REV}/A0C0S0R0E0L0/T0U1/D0`);
+  assert.deepEqual(decode(`2.0-${REV}/A0C0S0R0E0L0/T0U1/D1`), { ...base, drafting: 'no' });
   const longer = load(RULES);
   longer.slots[0].options.push('psychologist');
   assert.notEqual(revision(workflow, longer), REV, 'a list changed and the revision did not');
   const other = REV === '000' ? '001' : '000';
-  for (const text of ['', '2.0', `2.0-${REV}`, `2.0-${REV}/A0/T0U1`, `2.0-${REV}/A9C0S0R0E0L0/T0U1`, `2.0-${REV}/A0C0S0R0E0L0/TxU1`, `1.0-${REV}/A0C0S0R0E0L0/T0U1`, `2.0-${REV}/L0E0R0S0C0A0/T0U1`, '2.0/A0C0S0R0E0L0/T0U1', `2.0-${other}/A0C0S0R0E0L0/T0U1`, 'x'.repeat(2000)]) {
-    assert.equal(decode(text), null, `“${text.slice(0, 30)}” is not a version code`);
+  for (const text of ['', '2.0', `2.0-${REV}`, `2.0-${REV}/A0/T0U1/D0`, `2.0-${REV}/A9C0S0R0E0L0/T0U1/D0`, `2.0-${REV}/A0C0S0R0E0L0/TxU1/D0`, `1.0-${REV}/A0C0S0R0E0L0/T0U1/D0`, `2.0-${REV}/L0E0R0S0C0A0/T0U1/D0`, '2.0/A0C0S0R0E0L0/T0U1/D0', `2.0-${other}/A0C0S0R0E0L0/T0U1/D0`,
+    `2.0-${REV}/A0C0S0R0E0L0/T0U1`, `2.0-${REV}/A0C0S0R0E0L0/T0U1/D2`, `2.0-${REV}/A0C0S0R0E0L0/T0U1/Dx`, `2.0-${REV}/A0C0S0R0E0L0/T0U1/N0`, `2.0-${REV}/A0C0S0R0E0L0/T0U1/D0D0`, 'x'.repeat(2000)]) {
+    assert.equal(decode(text), null, `“${text.slice(0, 40)}” is not a version code`);
   }
+  // Rules that ask no question make, and read, codes with no third part.
+  const unasked = JSON.parse(JSON.stringify(given.spec));
+  unasked.switches = [];
+  unasked.rules = unasked.rules.filter((item) => item.replace !== '{drafting}');
+  const short = core.adapt(given.workflow, unasked, core.defaults(unasked)).code;
+  assert.equal(short, `2.0-${REV}/A0C0S0R0E0L0/T0U1`);
+  assert.deepEqual({ ...core.decode(unasked, short, workflow.version) }, { ...core.defaults(unasked) });
+  assert.equal(core.decode(unasked, `${short}/D0`, workflow.version), null);
 
   // The script writes the sheet into the page, so nothing in the data may reach it as markup.
   const hostile = JSON.parse(JSON.stringify(given));
@@ -379,14 +441,17 @@ test('A18 · only the choices on offer are accepted, and the sheet escapes every
   hostile.spec.messages.local = '"><u>local</u>';
   hostile.spec.slots[0].question = '<s>who</s>';
   hostile.spec.board.count = '<em>{n}</em>';
+  hostile.spec.switches[0].options[0].text = '<img src=y onerror=boom()>';
+  hostile.spec.switches[0].options[0].label = '<b>Yes</b>';
+  hostile.workflow.additions.find((note) => note.id === 'resident-supervision').text = '<script>boom()</script>';
   hostile.workflow.roles.team = '<strong>Team</strong>';
-  const result = core.adapt(hostile.workflow, hostile.spec, { ...base, lead: 'app' });
+  const result = core.adapt(hostile.workflow, hostile.spec, { ...base, ask: 'app' });
   const html = core.sheet(result, hostile.spec);
   assert.ok(!/<(?:img|script|b|i|u|s)[\s>]/.test(html), 'markup from the data reached the sheet');
   const drawn = core.board(result, hostile.spec);
   assert.ok(!/<(?:img|script|b|i|u|s|em|strong)[\s>]/.test(drawn), 'markup from the data reached the board');
-  for (const shown of ['&lt;img src=x onerror=boom()&gt;', '&lt;i&gt;APP&lt;/i&gt;', '&lt;em&gt;3&lt;/em&gt;', '&lt;strong&gt;Team&lt;/strong&gt;']) assert.ok(drawn.includes(shown), `not shown as text on the board: ${shown}`);
-  for (const shown of ['&lt;img src=x onerror=boom()&gt;', '&lt;/li&gt;&lt;script&gt;boom()&lt;/script&gt;', '&lt;i&gt;APP&lt;/i&gt;', '&quot;&gt;&lt;u&gt;local&lt;/u&gt;', '&lt;s&gt;who&lt;/s&gt;', 'href="#step-&quot;&gt;&lt;b&gt;"']) {
+  for (const shown of ['&lt;img src=x onerror=boom()&gt;', '&lt;i&gt;APP&lt;/i&gt;', '&lt;em&gt;1&lt;/em&gt;', '&lt;strong&gt;Team&lt;/strong&gt;']) assert.ok(drawn.includes(shown), `not shown as text on the board: ${shown}`);
+  for (const shown of ['&lt;img src=x onerror=boom()&gt;', '&lt;/li&gt;&lt;script&gt;boom()&lt;/script&gt;', '&lt;i&gt;APP&lt;/i&gt;', '&quot;&gt;&lt;u&gt;local&lt;/u&gt;', '&lt;s&gt;who&lt;/s&gt;', 'href="#step-&quot;&gt;&lt;b&gt;"', '&lt;img src=y onerror=boom()&gt;', '&lt;b&gt;Yes&lt;/b&gt;', '<p class="wf-note">&lt;script&gt;boom()&lt;/script&gt;</p>']) {
     assert.ok(html.includes(shown), `not shown as text: ${shown}`);
   }
 });
@@ -405,7 +470,9 @@ test('A18 · the page as built: fixed menus that are off until the script runs, 
   const offered = [
     ...spec.slots.map((slot) => ({ id: slot.id, question: slot.question, fallback: slot.default, options: [...slot.options.map((id) => [id, spec.titles[id].label]), ['none', spec.none.label]] })),
     ...spec.timings.map((timing) => ({ id: timing.id, question: timing.question, fallback: timing.default, options: timing.options.map((value) => [value, `${timing.prefix} ${value}`]) })),
+    ...spec.switches.map((item) => ({ id: item.id, question: item.question, fallback: item.default, options: item.options.map((option) => [option.id, option.label]) })),
   ];
+  assert.equal(offered.length, 9);
   assert.deepEqual(menus.map((menu) => menu.id), offered.map((item) => item.id));
   for (const [index, menu] of menus.entries()) {
     const want = offered[index];
@@ -425,6 +492,8 @@ test('A18 · the page as built: fixed menus that are off until the script runs, 
   const data = JSON.parse(html.match(/<script type="application\/json" id="adapt-data">([\s\S]*?)<\/script>/)[1]);
   assert.deepEqual(data, given);
   assert.ok(data.workflow.additions.every((note) => !('basis' in note)) && data.workflow.steps.every((item) => !('links' in item) && !('support' in item)), 'the page carries fields the script does not read');
+  assert.ok(data.spec.switches.every((item) => item.options.every((option) => !('basis' in option))), 'where an answer came from is for the reviewer, not the page');
+  assert.ok(html.includes('id="adapt-drafting-hint">Step 7</p>'));
   assert.equal(data.spec.rev, REV);
   assert.ok(html.includes(`<div data-adapt-sheet>\n${core.sheet(adapt({}), given.spec)}\n</div>`));
   assert.ok(html.includes(`<p class="adapt-status" id="adapt-status" role="status">${spec.messages.same}</p>`));

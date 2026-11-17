@@ -1,4 +1,4 @@
-/* adapt.js — rewrites the unit workflow with a reader's own owners and intervals.
+/* adapt.js — rewrites the unit workflow with a reader's own owners, intervals and answers.
  *
  * What it does: reads the workflow and the adaptation rules from the page, applies the
  * choices made in the page's menus, and redraws two things: the sheet, and a board of who
@@ -30,8 +30,14 @@
     var choices = {};
     spec.slots.forEach(function (slot) { choices[slot.id] = slot.default; });
     spec.timings.forEach(function (timing) { choices[timing.id] = timing.default; });
+    asked(spec).forEach(function (item) { choices[item.id] = item.default; });
     return choices;
   }
+
+  /** The questions with a fixed set of answers, each answer a sentence the sheet prints. */
+  function asked(spec) { return spec.switches || []; }
+  function answer(item, id) { return item.options.filter(function (option) { return option.id === id; })[0]; }
+  function answerIds(item) { return item.options.map(function (option) { return option.id; }); }
 
   /** Keep only choices the page offers; anything else falls back to the default. */
   function clean(spec, chosen) {
@@ -44,16 +50,22 @@
       var value = chosen ? chosen[timing.id] : undefined;
       if (timing.options.indexOf(value) !== -1) choices[timing.id] = value;
     });
+    asked(spec).forEach(function (item) {
+      var value = chosen ? chosen[item.id] : undefined;
+      if (answerIds(item).indexOf(value) !== -1) choices[item.id] = value;
+    });
     return choices;
   }
 
   function title(spec, id) { return id === 'none' ? spec.none : spec.titles[id]; }
 
-  /** Fill {slot.form} and {interval} in a rule's replacement text. */
+  /** Fill {slot.form}, {interval} and {question} in a rule's replacement text. */
   function fill(spec, choices, template) {
     return template.replace(/\{([a-z-]+)(?:\.([A-Za-z]+))?\}/g, function (whole, id, form) {
       var isTiming = spec.timings.some(function (timing) { return timing.id === id; });
       if (isTiming) return choices[id];
+      var question = asked(spec).filter(function (item) { return item.id === id; })[0];
+      if (question) return answer(question, choices[id]).text;
       var chosen = title(spec, choices[id]);
       if (form === 'Phrase') return cap(chosen.phrase);
       return chosen[form || 'label'];
@@ -95,16 +107,21 @@
         return item.code + (value === 'none' ? 'x' : item.options.indexOf(value));
       }).join('');
     }
-    return version + (spec.rev ? '-' + spec.rev : '') + '/' + part(spec.slots) + '/' + part(spec.timings);
+    var text = version + (spec.rev ? '-' + spec.rev : '') + '/' + part(spec.slots) + '/' + part(spec.timings);
+    if (asked(spec).length) {
+      text += '/' + asked(spec).map(function (item) { return item.code + answerIds(item).indexOf(choices[item.id]); }).join('');
+    }
+    return text;
   }
 
   /** Read a version code back into choices, or null when it was not made from these lists. */
   function decode(spec, text, version) {
-    var match = /^([0-9.]+)(?:-([0-9a-f]+))?\/((?:[A-Z](?:x|[0-9]+))+)\/((?:[A-Z][0-9]+)+)$/.exec(String(text));
+    var match = /^([0-9.]+)(?:-([0-9a-f]+))?\/((?:[A-Z](?:x|[0-9]+))+)\/((?:[A-Z][0-9]+)+)(?:\/((?:[A-Z][0-9]+)+))?$/.exec(String(text));
     if (!match || match[1] !== version || (match[2] || '') !== (spec.rev || '')) return null;
-    match = [match[0], match[1], match[3], match[4]];
+    // A code has its third part exactly when these rules ask a question.
+    if ((match[5] !== undefined) !== (asked(spec).length > 0)) return null;
     var choices = {};
-    function read(list, packed, allowNone) {
+    function read(list, packed, allowNone, values) {
       var found = packed.match(/[A-Z](?:x|[0-9]+)/g) || [];
       if (found.length !== list.length) return false;
       return list.every(function (item, index) {
@@ -112,13 +129,15 @@
         var rest = found[index].slice(1);
         if (letter !== item.code) return false;
         if (rest === 'x') { if (!allowNone) return false; choices[item.id] = 'none'; return true; }
-        var value = item.options[Number(rest)];
+        var value = values(item)[Number(rest)];
         if (value === undefined) return false;
         choices[item.id] = value;
         return true;
       });
     }
-    return read(spec.slots, match[2], true) && read(spec.timings, match[3], false) ? choices : null;
+    function listed(item) { return item.options; }
+    return read(spec.slots, match[3], true, listed) && read(spec.timings, match[4], false, listed) &&
+      (!asked(spec).length || read(asked(spec), match[5], false, answerIds)) ? choices : null;
   }
 
   /**
@@ -134,6 +153,13 @@
     spec.rules.forEach(function (rule) {
       var place = locate(out, rule.at);
       place.holder[place.key] = place.holder[place.key].split(rule.find).join(fill(spec, choices, pick(rule, choices)));
+    });
+
+    // An added sentence about one title prints only while that title can hold the job.
+    var conditions = spec.notes || {};
+    out.additions = (out.additions || []).filter(function (note) {
+      var when = conditions[note.id];
+      return !when || when.among.indexOf(choices[when.slot]) !== -1;
     });
 
     var changed = 0;
@@ -202,6 +228,9 @@
       spec.timings.forEach(function (timing) {
         html += '<dt>' + esc(timing.question) + '</dt><dd>' + esc(timing.prefix + ' ' + result.choices[timing.id]) + '</dd>';
       });
+      asked(spec).forEach(function (item) {
+        html += '<dt>' + esc(item.question) + '</dt><dd>' + esc(answer(item, result.choices[item.id]).label) + '</dd>';
+      });
       html += '</dl>';
     }
     html += '</div>';
@@ -217,7 +246,7 @@
         '<span class="wf-step__n" aria-hidden="true">' + step.number + '</span><div class="wf-step__body">' +
         '<h3><span class="sr-only">Step ' + step.number + ': </span>' + esc(step.title) + '</h3>' +
         '<p class="wf-step__who"><span class="rc-badge ' + (step.unowned ? 'rc-badge--warning' : 'rc-badge--neutral') + '">' + esc(step.ownerLabel) + '</span><span>' + esc(step.trigger) + '</span></p>' +
-        '<p>' + esc(step.action) + '</p>' +
+        '<p>' + esc(step.action) + '</p>' + note(step.note) +
         '<dl class="wf-facts"><dt>Written in</dt><dd>' +
         (step.record === null ? '<span aria-hidden="true">—</span><span class="sr-only">Nothing is written at this step</span>' : esc(step.record)) +
         '</dd><dt>Done when</dt><dd>' + esc(step.doneWhen) + '</dd></dl></div></li>';
@@ -323,13 +352,25 @@
       if (!cells[id]) cells[id] = w.steps.map(function () { return null; });
       return cells[id];
     }
+    var owners = w.steps.map(function (step) {
+      if (step.unowned) return [];
+      // A step the team owns is the team's, and whoever leads it is named in its words.
+      if ((step.owner || []).indexOf(TEAM) !== -1) return [TEAM];
+      return (spec.owners[step.id] || []).map(function (slot) { return result.choices[slot]; }).filter(function (id) { return id !== 'none'; });
+    });
+    var terms = w.terms || {};
     w.steps.forEach(function (step, index) {
-      if (!step.unowned) {
-        // A step the team owns is the team's, and whoever leads it is named in its words.
-        if ((step.owner || []).indexOf(TEAM) !== -1) of(TEAM)[index] = 'owns';
-        else (spec.owners[step.id] || []).forEach(function (slot) { if (result.choices[slot] !== 'none') of(result.choices[slot])[index] = 'owns'; });
-      }
-      namedIn(spec, (step.ownerLabel + '. ' + step.action).toLowerCase()).forEach(function (id) {
+      owners[index].forEach(function (id) { of(id)[index] = 'owns'; });
+      var words = (step.ownerLabel + '. ' + step.action).toLowerCase();
+      var named = namedIn(spec, words).slice();
+      // A phrase such as "the meeting lead" names whoever owns the step it points at.
+      Object.keys(terms).forEach(function (phrase) {
+        if (takeOut(words, phrase) === null) return;
+        w.steps.forEach(function (other, at) {
+          if (other.id === terms[phrase]) owners[at].forEach(function (id) { if (named.indexOf(id) === -1) named.push(id); });
+        });
+      });
+      named.forEach(function (id) {
         if (of(id)[index] !== 'owns') of(id)[index] = 'involved';
       });
     });

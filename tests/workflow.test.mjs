@@ -48,6 +48,9 @@ test('A15 · the validator refuses the defects it exists to catch', () => {
   assert.match(broken((w) => { w.measures.list[0].checksStep = 'admit'; }), /checks step "admit", which does not exist/);
   assert.match(broken((w) => { w.steps[3].id = 'ask'; }), /duplicate id/);
   assert.match(broken((w) => { w.additions = []; }), /note "sleep-figure" is not listed under "additions"/);
+  assert.match(broken((w) => { w.steps[6].note = 'not-listed'; }), /note "not-listed" is not listed under "additions"/);
+  assert.match(broken((w) => { w.terms['the meeting lead'] = 'huddle'; }), /term "the meeting lead": points at step "huddle", which does not exist/);
+  assert.match(broken((w) => { w.terms['the family liaison'] = 'meet'; }), /term "the family liaison": no step uses it/);
   assert.match(broken((w) => { w.exceptions[0].then = ''; }), /exception 1: needs "when" and "then"/);
 });
 
@@ -71,7 +74,9 @@ test('A15 · the page shows each step with its owner, its record and its complet
 
 test('A15 · sentences that are not in the source procedure are listed, and marked while the page is in review', () => {
   const review = read(built('review').dir, `${SLUG}.html`);
-  assert.equal(workflow.additions.length, 2);
+  assert.equal(workflow.additions.length, 3);
+  // The third is under the step it is about.
+  assert.match(review, /id="step-note">[\s\S]*?<\/p>\n<p class="wf-note">A resident leads and signs under the attending psychiatrist’s supervision; the attending co-signs the note\. <span class="rc-badge rc-badge--info">Added in adaptation<\/span><\/p>\n<dl class="wf-facts">/);
   for (const note of workflow.additions) assert.ok(visibleText(review).includes(note.text), `addition not shown: ${note.id}`);
   assert.equal((review.match(/Added in adaptation/g) || []).length, workflow.additions.length);
 });

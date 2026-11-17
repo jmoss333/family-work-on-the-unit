@@ -40,24 +40,30 @@ export function payload(workflow, spec) {
   const pick = (object, keys) => Object.fromEntries(keys.filter((key) => object[key] !== undefined).map((key) => [key, object[key]]));
   return {
     workflow: {
-      ...pick(workflow, ['version', 'purpose', 'scope', 'principle', 'basis', 'guardrails', 'closing', 'roles']),
-      steps: workflow.steps.map((step) => pick(step, ['id', 'title', 'trigger', 'ownerLabel', 'owner', 'action', 'record', 'doneWhen'])),
+      ...pick(workflow, ['version', 'purpose', 'scope', 'principle', 'basis', 'guardrails', 'closing', 'roles', 'terms']),
+      steps: workflow.steps.map((step) => pick(step, ['id', 'title', 'trigger', 'ownerLabel', 'owner', 'action', 'note', 'record', 'doneWhen'])),
       formats: { ...pick(workflow.formats, ['decisionRule', 'noJointMeeting', 'note']), menu: workflow.formats.menu.map((format) => pick(format, ['name', 'focus', 'when'])) },
       exceptions: workflow.exceptions.map((exception) => pick(exception, ['when', 'then'])),
       measures: { ...pick(workflow.measures, ['cadence', 'baseline', 'note']), list: workflow.measures.list.map((measure) => pick(measure, ['name', 'checksStep'])) },
       additions: (workflow.additions || []).map((note) => pick(note, ['id', 'text'])),
     },
-    spec: { ...pick(spec, ['titles', 'none', 'slots', 'timings', 'owners', 'rules', 'messages', 'board']), rev: revision(workflow, spec) },
+    spec: {
+      ...pick(spec, ['titles', 'none', 'slots', 'timings', 'owners', 'rules', 'notes', 'messages', 'board']),
+      // Where an answer's wording came from is for the reviewer, not the reader.
+      switches: (spec.switches || []).map((item) => ({ ...pick(item, ['id', 'code', 'question', 'default']), options: item.options.map((option) => pick(option, ['id', 'label', 'text'])) })),
+      rev: revision(workflow, spec),
+    },
   };
 }
 
 /**
  * Three characters that change whenever a list a version code indexes changes: the workflow's
- * version, and each job's and each interval's options in order. A code carries them, so a
- * code made from one set of lists is never read against another.
+ * version, and each job's, each interval's and each question's options in order. A code
+ * carries them, so a code made from one set of lists is never read against another.
  */
 export function revision(workflow, spec) {
   const lists = [workflow.version, spec.slots.map((slot) => [slot.id, slot.code, slot.options]), spec.timings.map((timing) => [timing.id, timing.code, timing.options])];
+  if (spec.switches?.length) lists.push(spec.switches.map((item) => [item.id, item.code, item.options.map((option) => option.id)]));
   return createHash('sha256').update(JSON.stringify(lists)).digest('hex').slice(0, 3);
 }
 
@@ -92,10 +98,11 @@ export function validateAdaptation(spec, workflow) {
 
   const slots = Array.isArray(spec.slots) ? spec.slots : [];
   const timings = Array.isArray(spec.timings) ? spec.timings : [];
+  const switches = Array.isArray(spec.switches) ? spec.switches : [];
   if (!slots.length) errors.push('no slots');
   const ids = new Set();
   const codes = new Set();
-  for (const item of [...slots, ...timings]) {
+  for (const item of [...slots, ...timings, ...switches]) {
     if (!ID.test(item?.id || '')) errors.push(`"${item?.id}": bad id`);
     if (ids.has(item.id)) errors.push(`"${item.id}": duplicate id`);
     ids.add(item.id);
@@ -103,8 +110,17 @@ export function validateAdaptation(spec, workflow) {
     codes.add(item.code);
     if (!text(item.question)) errors.push(`"${item.id}": no question`);
     if (!Array.isArray(item.options) || item.options.length < 2) errors.push(`"${item.id}": at least two options`);
-    else if (!item.options.includes(item.default)) errors.push(`"${item.id}": its default is not one of its options`);
-    if (new Set(item.options || []).size !== (item.options || []).length) errors.push(`"${item.id}": an option is listed twice`);
+    else if (!item.options.map((option) => option?.id ?? option).includes(item.default)) errors.push(`"${item.id}": its default is not one of its options`);
+    if (new Set((item.options || []).map((option) => option?.id ?? option)).size !== (item.options || []).length) errors.push(`"${item.id}": an option is listed twice`);
+  }
+  // A question's answers are sentences. The default answer is the workflow's own words (the
+  // rule that uses it is held to that below); any other answer is new text, and says where
+  // it came from so that a reviewer can find it.
+  for (const item of switches) {
+    for (const option of item.options || []) {
+      if (!ID.test(option?.id || '') || !text(option?.label) || !text(option?.text)) errors.push(`question "${item.id}": an answer needs an id, a label and the sentence it prints`);
+      else if (option.id !== item.default && !text(option.basis)) errors.push(`question "${item.id}", answer "${option.id}": a sentence that is not the workflow's needs its basis`);
+    }
   }
   for (const slot of slots) for (const option of slot.options || []) if (!titles[option]) errors.push(`slot "${slot.id}": unknown title "${option}"`);
   for (const timing of timings) {
@@ -113,6 +129,17 @@ export function validateAdaptation(spec, workflow) {
   }
   const slotIds = new Set(slots.map((slot) => slot.id));
   const timingIds = new Set(timings.map((timing) => timing.id));
+  const switchIds = new Set(switches.map((item) => item.id));
+
+  // An added sentence that is about one title prints only while that title can hold the job.
+  // As written it must print, or the sheet would not be the workflow.
+  for (const [id, when] of Object.entries(spec.notes || {})) {
+    const slot = slots.find((item) => item.id === when?.slot);
+    if (!(workflow.additions || []).some((note) => note.id === id)) errors.push(`notes: "${id}" is not one of the workflow's added sentences`);
+    if (!slot) errors.push(`notes: "${id}" depends on unknown slot "${when?.slot}"`);
+    else if (!Array.isArray(when.among) || !when.among.length || !when.among.every((title) => slot.options.includes(title))) errors.push(`notes: "${id}" lists a title that slot "${slot.id}" does not offer`);
+    else if (!when.among.includes(slot.default)) errors.push(`notes: "${id}" would not print on the workflow as written`);
+  }
 
   // Every step has owner slots, and every slot owns a step outright, so that leaving any
   // job unfilled leaves a step with no owner.
@@ -165,6 +192,8 @@ export function validateAdaptation(spec, workflow) {
     for (const [whole, id, form] of tokens(template)) {
       if (timingIds.has(id)) {
         if (form) errors.push(`${where}: ${whole} is an interval and takes no form`);
+      } else if (switchIds.has(id)) {
+        if (form) errors.push(`${where}: ${whole} is a question and takes no form`);
       } else if (!slotIds.has(id)) errors.push(`${where}: ${whole} names no slot or interval`);
       else if (form && ![...FORMS, 'Phrase'].includes(form)) errors.push(`${where}: ${whole} uses an unknown form`);
     }

@@ -314,13 +314,13 @@ function addedNote(w, id, ctx) {
 }
 
 /** One step of the workflow as a card. The workflow page and the map both print it. */
-function stepCard(step, number, ctx, { id, classes = '', attributes = '', facts = '' }) {
+function stepCard(step, number, ctx, { id, classes = '', attributes = '', facts = '', note = '' }) {
   return `<li class="wf-step rc-card${classes}" id="${escAttr(id)}"${attributes}>
 <span class="wf-step__n" aria-hidden="true">${number}</span>
 <div class="wf-step__body">
 <h3><span class="sr-only">Step ${number}: </span>${esc(step.title)}</h3>
 <p class="wf-step__who"><span class="rc-badge rc-badge--neutral">${esc(step.ownerLabel)}</span><span>${esc(step.trigger)}</span></p>
-<p>${esc(step.action)}</p>
+<p>${esc(step.action)}</p>${note ? `\n${note}` : ''}
 <dl class="wf-facts">
 <dt>Written in</dt><dd>${step.record === null ? '<span aria-hidden="true">—</span><span class="sr-only">Nothing is written at this step</span>' : esc(step.record)}</dd>
 <dt>Done when</dt><dd>${esc(step.doneWhen)}</dd>${facts}
@@ -338,7 +338,7 @@ export function workflowPage(page, ctx) {
   const added = (id) => addedNote(w, id, ctx);
   const numberOf = new Map(w.steps.map((step, index) => [step.id, index + 1]));
   const titleOf = new Map(w.steps.map((step) => [step.id, step.title]));
-  const steps = w.steps.map((step, index) => stepCard(step, index + 1, ctx, { id: `step-${step.id}` })).join('\n');
+  const steps = w.steps.map((step, index) => stepCard(step, index + 1, ctx, { id: `step-${step.id}`, note: added(step.note) })).join('\n');
   const formats = formatCards(w);
   const measures = w.measures.list
     .map((measure) => `<tr><td>${esc(measure.name)}</td><td><a href="#step-${escAttr(measure.checksStep)}">Step ${numberOf.get(measure.checksStep)}: ${esc(titleOf.get(measure.checksStep))}</a></td></tr>`)
@@ -459,6 +459,7 @@ export function mapPage(page, ctx) {
         classes: ' map-detail',
         attributes: ` data-map-detail="${escAttr(step.id)}"`,
         facts: `\n<dt>Measured by</dt><dd>${measureOf.has(step.id) ? esc(measureOf.get(step.id)) : 'No proposed measure'}</dd>`,
+        note: addedNote(w, step.note, ctx),
       }),
     )
     .join('\n');
@@ -577,11 +578,13 @@ ${options.map(([value, label]) => `<option value="${escAttr(value)}"${value === 
   const fields = [
     ...spec.slots.map((slot) => field(slot.id, slot.question, list(stepsOwnedBy(slot.id)), [...slot.options.map((id) => [id, spec.titles[id].label]), ['none', spec.none.label]], slot.default)),
     ...spec.timings.map((timing) => field(timing.id, timing.question, list(stepsTimedBy(timing.id)), timing.options.map((value) => [value, `${timing.prefix} ${value}`]), timing.default)),
+    ...(spec.switches || []).map((item) => field(item.id, item.question, list(stepsTimedBy(item.id)), item.options.map((option) => [option.id, option.label]), item.default)),
   ].join('\n');
+  const choices = spec.slots.length + spec.timings.length + (spec.switches || []).length;
   const data = JSON.stringify(given).replace(/</g, '\\u003c');
   const legend = [['owns', spec.board.owns], ['involved', spec.board.involved]].map(([kind, says]) => `<li><span class="map-mark map-mark--${kind}" aria-hidden="true"></span>${esc(says)}</li>`).join('');
   return `<article class="page page--wide adapt" data-adapt-root data-refused="false" data-changed="false" data-state="${escAttr(page.state)}">
-${pageHeader(page, ctx, { eyebrow: sectionEyebrow(page, ctx), meta: `${spec.slots.length} jobs and ${spec.timings.length} intervals to choose · Workflow version ${w.version}` })}
+${pageHeader(page, ctx, { eyebrow: sectionEyebrow(page, ctx), meta: `${choices} choices, each from a fixed list · Workflow version ${w.version}` })}
 <p class="hero__lead no-print">${esc(spec.intro)}</p>
 <div class="adapt-rules">
 <div><h2>You can change</h2><ul>${spec.canChange.map((line) => `<li>${esc(line)}</li>`).join('')}</ul></div>

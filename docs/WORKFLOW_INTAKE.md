@@ -31,7 +31,8 @@ The procedure's wording is kept. These are all the departures.
 | Expanded | "5-min phone update", "30-min structured", "60–90-min alliance repair (optional)" as the names of the formats | "5-minute phone update", "30-minute structured meeting", "60–90-minute alliance repair (optional)". Step 3 keeps the short forms |
 | Rendered | A dash under "Where it is written" (steps 5 and 6) | A dash, read to a screen reader as "Nothing is written at this step" |
 | Restructured | One table, and four blocks of running text | Eight step cards, three format cards, two lists and a table |
-| Changed on the author's instruction, 2026-11-17 | "Psychiatrist" as the owner of steps 6, 7 and 8 (the meeting, the note, the discharge bridge) | "Psychiatrist / APP / resident", the form step 1 already uses. The author said that an APP or a resident may lead the meeting and sign the note. Steps 3, 4 and 5 still name the psychiatrist, as the procedure does: whose calendar the meeting goes on, who leads rounds, and who is told the family has arrived |
+| Changed on the author's instruction, 2026-11-17 | "Psychiatrist" as the owner of steps 6, 7 and 8 (the meeting, the note, the discharge bridge) | "Psychiatrist / APP / resident", the form step 1 already uses. The author said that an APP or a resident may lead the meeting and sign the note. Step 4 still reads "Team — psychiatrist leads" |
+| Changed on the author's instruction, 2026-11-17 | "psychiatrist's calendar shared with the unit secretary" (step 3) and "let the psychiatrist know they have arrived" (step 5) | "the meeting lead's calendar shared with the unit secretary" and "let the meeting lead know they have arrived". The author said both follow whoever leads the meeting |
 
 ## What was added
 
@@ -41,6 +42,7 @@ Each addition is listed in the workflow file under `additions`, and the page mar
 |---|---|---|
 | "The sleep figure is a local pacing convention, not an evidence-derived threshold: the number is there so the team makes the same call twice." | The gate "sleep is restored (5–6 h)" reads as a clinical threshold | The July handbook says this of a similar sleep rule with different cut points. Applying it to the November figure is the assistant's step, not the author's |
 | "These measures are proposed. This page reports no results." | So that a reader does not take the workflow as evaluated | The procedure calls the measures "proposed" |
+| "A resident leads and signs under the attending psychiatrist's supervision; the attending co-signs the note." (under step 7) | Steps 6 to 8 now let a resident lead and sign, and the procedure said nothing about supervision | The author's instruction, 2026-11-17; the wording was put to him and approved |
 | "Checks: Step N" beside each measure | Ties each measure to the step whose completion it counts | The assistant's reading of the "Done when" column |
 | "See also" links under six steps | Connects the workflow to the cards and pages of this site | None needed |
 
@@ -57,11 +59,13 @@ Each addition is listed in the workflow file under `additions`, and the page mar
 
 ## The adaptation page (added 2026-11-17)
 
-"Adapt it for your unit" prints the same workflow with another unit's owners and intervals. It adds no sentence to the workflow. Its rules (`workflows/unit-family-meeting.adapt.json`) replace fifteen phrases, each of which names a role or an interval, and the build checks that each phrase is in the workflow exactly once and that, with nothing changed, the result is the workflow word for word.
+"Adapt it for your unit" prints the same workflow with another unit's owners and intervals. Its rules (`workflows/unit-family-meeting.adapt.json`) replace sixteen phrases, each of which names a role, an interval or the tool that drafts the note, and the build checks that each phrase is in the workflow exactly once and that, with nothing changed, the result is the workflow word for word.
 
 The page also draws a board of who owns each step in the reader's version and who is also involved. It reads "also involved" off the rewritten words, by the rule the map follows, so with nothing changed the two boards are the same.
 
-What the page does add, and what the reviewer is asked to judge, is in that file: the eight questions, the roles offered for each job, the intervals offered, the board's heading and one line under it, and the two lists headed "You can change" and "What stays fixed". All of it is Claude's (`docs/DECISIONS.md`, ADR-003 and D15 to D18).
+One sentence on the page is in no version of the procedure. A unit that answers "No" to "Is the note drafted by an ambient documentation tool?" has step 7's sentence about the tool replaced by "Write the note after the meeting; sign." The author approved that wording on 2026-11-17, and the rules file records its basis beside it. The line on a resident's supervision prints only on versions in which a resident can lead.
+
+What the page does add, and what the reviewer is asked to judge, is in that file: the nine questions, the roles offered for each job, the intervals offered, the board's heading and one line under it, and the two lists headed "You can change" and "What stays fixed". All of it is Claude's (`docs/DECISIONS.md`, ADR-003 and D15 to D18).
 
 The page is under the same release gate as the workflow, because it prints the unit's procedure.
 
@@ -69,8 +73,8 @@ The page is under the same release gate as the workflow, because it prints the u
 
 "How it fits together" draws the workflow as a board and adds no sentence to it. Two things about the workflow file changed to make the board true to the procedure.
 
-- **The roles are named as the owner labels name them.** The file had one role, "Psychiatrist, APP or resident", wherever the procedure said either "Psychiatrist / APP / resident" or "Psychiatrist". The file now has both roles, and each step lists the one its own label names. Since the author's instruction of 2026-11-17 (the table above), steps 1, 6, 7 and 8 belong to "Psychiatrist / APP / resident", and "Psychiatrist" is named at steps 3, 4 and 5.
-- **A role is listed as also involved wherever a step's words name it.** That added the psychiatrist at booking (the meeting goes on the psychiatrist's calendar) and when the family is brought up (the psychiatrist is told they have arrived). A test compares every mark with the step's words, in both directions.
+- **The roles are named as the owner labels name them.** The file had one role, "Psychiatrist, APP or resident", wherever the procedure said either "Psychiatrist / APP / resident" or "Psychiatrist". The file now has both roles, and each step lists the one its own label names. Since the author's instructions of 2026-11-17 (the table above), steps 1, 6, 7 and 8 belong to "Psychiatrist / APP / resident", and "Psychiatrist" is named at step 4 alone, as leading rounds.
+- **A role is listed as also involved wherever a step's words name it.** Steps 3 and 5 name "the meeting lead"; the file says that phrase means whoever owns step 6 (`terms`), so the board marks that role at booking and when the family is brought up. A test compares every mark with the step's words, in both directions.
 
 What the map adds of its own is in `content/maps/how-it-fits.map.json`: an introduction, three headings and four short lines, about 100 words (`docs/DECISIONS.md`, ADR-004, D19 and D20).
 

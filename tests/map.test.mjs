@@ -92,6 +92,12 @@ test('A19 · every mark on the board is in the procedure’s own words: a role i
     // inside "psychiatrist / app / resident".
     let words = `${step.ownerLabel}. ${step.action}`.toLowerCase();
     const named = [];
+    // A phrase that names a role by what it does names the owner of the step it points at.
+    for (const [phrase, target] of Object.entries(workflow.terms)) {
+      if (!words.includes(phrase)) continue;
+      for (const role of workflow.steps.find((item) => item.id === target).owner) if (!named.includes(role)) named.push(role);
+      words = words.split(phrase).join(' ');
+    }
     for (const role of longestFirst) {
       for (const name of names(role)) {
         if (words.includes(name)) {
@@ -108,11 +114,11 @@ test('A19 · every mark on the board is in the procedure’s own words: a role i
   // What that comes to. If the procedure's words change, this picture changes with them.
   const picture = Object.fromEntries(board(workflow).map((role) => [role.label, role.cells.map((cell) => (cell === 'owns' ? '●' : cell === 'involved' ? '○' : '·')).join('')]));
   assert.deepEqual(picture, {
-    // 2026-11-17: the owner said an APP or a resident may lead the meeting, sign the note
-    // and work the discharge bridge. The procedure still names the psychiatrist for the
-    // calendar, for rounds and for who is told the family has arrived.
-    'Psychiatrist / APP / resident': '●····●●●',
-    Psychiatrist: '··○○○···',
+    // 2026-11-17: the author said an APP or a resident may lead the meeting, sign the note
+    // and work the discharge bridge, and that the calendar and the word that the family has
+    // arrived go to whoever leads. The psychiatrist is still named as leading rounds.
+    'Psychiatrist / APP / resident': '●·○·○●●●',
+    Psychiatrist: '···○····',
     'Social work': '·●○··○·●',
     Nursing: '··○··○··',
     'Mental health technicians': '····●···',

@@ -44,6 +44,15 @@ export function validateWorkflow(w) {
       if (!text(link?.label) || !text(link?.to)) errors.push(`${at}: a link needs a label and a target`);
     }
   });
+
+  // A phrase that names a role by what it does ("the meeting lead") says which step's owner
+  // it means, so the pages that draw a board can mark that owner wherever the phrase is used.
+  const words = steps.map((step) => `${step?.ownerLabel}. ${step?.action}`.toLowerCase());
+  for (const [phrase, target] of Object.entries(w.terms || {})) {
+    if (!text(phrase) || phrase !== phrase.toLowerCase()) errors.push(`term "${phrase}": written in lower case`);
+    if (!stepIds.has(target)) errors.push(`term "${phrase}": points at step "${target}", which does not exist`);
+    if (!words.some((line) => line.includes(phrase))) errors.push(`term "${phrase}": no step uses it`);
+  }
   for (const role of Object.keys(roles)) {
     if (!working.has(role)) errors.push(`role "${role}" is in scope but owns and supports no step`);
   }
@@ -74,7 +83,7 @@ export function validateWorkflow(w) {
     if (!text(note?.id) || !text(note?.text) || !text(note?.basis)) errors.push(`addition ${index + 1}: needs an id, the text and its basis`);
   }
   const additionIds = new Set((w.additions || []).map((note) => note.id));
-  for (const id of [formats.note, measures.note].filter(Boolean)) {
+  for (const id of [formats.note, measures.note, ...steps.map((step) => step?.note)].filter(Boolean)) {
     if (!additionIds.has(id)) errors.push(`note "${id}" is not listed under "additions"`);
   }
   return errors;
