@@ -428,6 +428,17 @@ a.ev-ref:hover { border-color: var(--rc-accent); text-decoration: none; }
 .wf-closing { margin-top: var(--rc-space-xl); padding-top: var(--rc-space-md); border-top: 1px solid var(--rc-border-light); color: var(--rc-text-mid); font-size: var(--rc-type-small); }
 
 /* ─── Adapt it for your unit ─── */
+/* The page is wide so that the eight menus sit in two rows with the board they redraw
+ * straight under them. What is read as prose, and the sheet, keep the reading width. */
+.adapt > .hero__lead, .adapt-rules, .adapt-status, .adapt-sheet, .adapt-board-section > p { max-width: var(--rc-layout-reading-max); }
+.adapt-board-section { margin: 0 0 var(--rc-space-xl); }
+.adapt-board-section > h2 { margin-bottom: var(--rc-space-xs); }
+.adapt-board__step { display: flex; flex-direction: column; align-items: center; gap: var(--rc-space-2xs); padding: var(--rc-space-xs) var(--rc-space-2xs); font-weight: var(--rc-font-weight-semibold); line-height: var(--rc-line-height-tight); }
+.adapt-board thead .adapt-board__count { width: 5.5rem; vertical-align: bottom; padding-bottom: var(--rc-space-xs); font-size: var(--rc-type-caption); font-weight: var(--rc-font-weight-semibold); color: var(--rc-text-mid); }
+.adapt-board tbody .adapt-board__count { font-weight: var(--rc-font-weight-semibold); white-space: nowrap; }
+/* A step nobody owns: its whole column is marked, and its heading says so in words. */
+.adapt-board .adapt-board__gap { background: var(--rc-warning-light); }
+.adapt-board thead .adapt-board__gap { border-bottom-color: var(--rc-warning-strong); }
 .adapt-rules { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: var(--rc-space-lg); margin: 0 0 var(--rc-space-xl); }
 .adapt-rules h2 { font-size: var(--rc-type-h4); margin-bottom: var(--rc-space-xs); }
 .adapt-rules ul { margin: 0; padding-left: 1.35rem; }
@@ -439,7 +450,7 @@ a.ev-ref:hover { border-color: var(--rc-accent); text-decoration: none; }
   background: var(--rc-surface);
 }
 .adapt-controls > h2 { margin-bottom: var(--rc-space-md); }
-.adapt-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: var(--rc-space-md) var(--rc-space-lg); }
+.adapt-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: var(--rc-space-md) var(--rc-space-lg); }
 /* A question may wrap; the menus in a row still line up. */
 .adapt-field { display: flex; flex-direction: column; }
 .adapt-field label { flex: 1 0 auto; font-weight: var(--rc-font-weight-semibold); margin-bottom: var(--rc-space-2xs); }
@@ -451,6 +462,7 @@ a.ev-ref:hover { border-color: var(--rc-accent); text-decoration: none; }
   border-radius: var(--rc-radius-sm);
   background: var(--rc-surface);
   color: var(--rc-text);
+  font-size: var(--rc-type-small);
 }
 .adapt-field--gap select { border: 2px solid var(--rc-warning-strong); }
 .adapt-field__hint { margin: var(--rc-space-2xs) 0 0; font-size: var(--rc-type-small); color: var(--rc-text-mid); }

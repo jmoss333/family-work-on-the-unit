@@ -113,9 +113,9 @@
       "id": "meet",
       "title": "Run the meeting",
       "trigger": "In the room",
-      "ownerLabel": "Psychiatrist (+ social work or nursing when available)",
+      "ownerLabel": "Psychiatrist / APP / resident (+ social work or nursing when available)",
       "owner": [
-        "psychiatrist"
+        "psy-app-res"
       ],
       "support": [
         "social-work",
@@ -139,9 +139,9 @@
       "id": "note",
       "title": "Note and handoff",
       "trigger": "Same day",
-      "ownerLabel": "Psychiatrist",
+      "ownerLabel": "Psychiatrist / APP / resident",
       "owner": [
-        "psychiatrist"
+        "psy-app-res"
       ],
       "action": "See the patient alone afterwards (how it landed; new safety concerns). An ambient documentation tool drafts during the meeting → review, edit, sign. Record purpose and permission, what was worked on, what they tried, next step and who reviews, and the plan row: need · named person · date or trigger · verified · contingency. Update the support person every 72 h.",
       "record": "Family-meeting note; discharge-summary draft",
@@ -157,9 +157,9 @@
       "id": "bridge",
       "title": "Discharge bridge",
       "trigger": "Discharge planning",
-      "ownerLabel": "Psychiatrist + social work",
+      "ownerLabel": "Psychiatrist / APP / resident + social work",
       "owner": [
-        "psychiatrist",
+        "psy-app-res",
         "social-work"
       ],
       "action": "Verify every “family will help” item: owner, date, verified, contingency. First appointment confirmed, not “being arranged.” Means-safety tasks closed and checked. A referral is not access; family willingness is not a discharge plan.",

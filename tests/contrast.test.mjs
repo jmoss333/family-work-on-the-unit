@@ -47,6 +47,8 @@ const BOTH = [
   // The map: a step as a control (resting, under the pointer, open) and the column of the open step.
   ['text', 'surface-alt', 'map step'], ['primary-dark', 'surface-alt', 'map step number'], ['text', 'surface-hover', 'map step under the pointer'], ['primary-dark', 'surface-hover', 'map step number under the pointer'],
   ['primary-dark', 'accent-light>surface', 'number on the open map step'], ['text', 'accent-bg>surface', 'open column on the map'], ['text-mid', 'accent-bg>surface', 'open column on the map, secondary text'],
+  // The adaptation page's board: the heading of a step nobody owns.
+  ['text', 'warning-light>surface', 'step nobody owns'], ['primary-dark', 'warning-light>surface', 'number of a step nobody owns'],
 ];
 const LIGHT_ONLY = [
   ['success-strong', 'success-light>surface', 'attested badge and banner'], ['success-strong', 'success-light>bg', 'attested banner'],
@@ -85,7 +87,7 @@ test('A11 · the map’s five marks are at least 3:1 in both palettes, on the bo
   const marks = [['primary-dark', 'owns, also involved'], ['text-mid', 'written down'], ['accent-dark', 'measured, more to read']];
   for (const mode of ['light', 'dark']) {
     for (const [mark, what] of marks) {
-      for (const ground of ['surface', 'accent-bg>surface']) assert.ok(ratio(mark, ground, mode) >= 3, `${mode}: ${mark} on ${ground} (${what}) is ${ratio(mark, ground, mode).toFixed(2)}:1`);
+      for (const ground of ['surface', 'accent-bg>surface', 'warning-light>surface']) assert.ok(ratio(mark, ground, mode) >= 3, `${mode}: ${mark} on ${ground} (${what}) is ${ratio(mark, ground, mode).toFixed(2)}:1`);
     }
   }
   for (const kind of ['owns', 'involved', 'written', 'measured', 'more']) assert.ok(site.includes(`.map-mark--${kind} {`), `no shape for the mark "${kind}"`);

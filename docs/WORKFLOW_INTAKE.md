@@ -31,6 +31,7 @@ The procedure's wording is kept. These are all the departures.
 | Expanded | "5-min phone update", "30-min structured", "60–90-min alliance repair (optional)" as the names of the formats | "5-minute phone update", "30-minute structured meeting", "60–90-minute alliance repair (optional)". Step 3 keeps the short forms |
 | Rendered | A dash under "Where it is written" (steps 5 and 6) | A dash, read to a screen reader as "Nothing is written at this step" |
 | Restructured | One table, and four blocks of running text | Eight step cards, three format cards, two lists and a table |
+| Changed on the author's instruction, 2026-11-17 | "Psychiatrist" as the owner of steps 6, 7 and 8 (the meeting, the note, the discharge bridge) | "Psychiatrist / APP / resident", the form step 1 already uses. The author said that an APP or a resident may lead the meeting and sign the note. Steps 3, 4 and 5 still name the psychiatrist, as the procedure does: whose calendar the meeting goes on, who leads rounds, and who is told the family has arrived |
 
 ## What was added
 
@@ -58,7 +59,9 @@ Each addition is listed in the workflow file under `additions`, and the page mar
 
 "Adapt it for your unit" prints the same workflow with another unit's owners and intervals. It adds no sentence to the workflow. Its rules (`workflows/unit-family-meeting.adapt.json`) replace fifteen phrases, each of which names a role or an interval, and the build checks that each phrase is in the workflow exactly once and that, with nothing changed, the result is the workflow word for word.
 
-What the page does add, and what the reviewer is asked to judge, is in that file: the eight questions, the roles offered for each job, the intervals offered, and the two lists headed "You can change" and "What stays fixed". All of it is Claude's (`docs/DECISIONS.md`, ADR-003 and D15 to D18).
+The page also draws a board of who owns each step in the reader's version and who is also involved. It reads "also involved" off the rewritten words, by the rule the map follows, so with nothing changed the two boards are the same.
+
+What the page does add, and what the reviewer is asked to judge, is in that file: the eight questions, the roles offered for each job, the intervals offered, the board's heading and one line under it, and the two lists headed "You can change" and "What stays fixed". All of it is Claude's (`docs/DECISIONS.md`, ADR-003 and D15 to D18).
 
 The page is under the same release gate as the workflow, because it prints the unit's procedure.
 
@@ -66,7 +69,7 @@ The page is under the same release gate as the workflow, because it prints the u
 
 "How it fits together" draws the workflow as a board and adds no sentence to it. Two things about the workflow file changed to make the board true to the procedure.
 
-- **The roles are named as the owner labels name them.** The file had one role, "Psychiatrist, APP or resident", for the first step and for the meeting, the note and the discharge bridge. The procedure gives the first step to "Psychiatrist / APP / resident" and the other three to "Psychiatrist". The file now has both roles. No reader-facing sentence changed.
+- **The roles are named as the owner labels name them.** The file had one role, "Psychiatrist, APP or resident", wherever the procedure said either "Psychiatrist / APP / resident" or "Psychiatrist". The file now has both roles, and each step lists the one its own label names. Since the author's instruction of 2026-11-17 (the table above), steps 1, 6, 7 and 8 belong to "Psychiatrist / APP / resident", and "Psychiatrist" is named at steps 3, 4 and 5.
 - **A role is listed as also involved wherever a step's words name it.** That added the psychiatrist at booking (the meeting goes on the psychiatrist's calendar) and when the family is brought up (the psychiatrist is told they have arrived). A test compares every mark with the step's words, in both directions.
 
 What the map adds of its own is in `content/maps/how-it-fits.map.json`: an introduction, three headings and four short lines, about 100 words (`docs/DECISIONS.md`, ADR-004, D19 and D20).

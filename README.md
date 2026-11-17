@@ -14,7 +14,7 @@ Node 20 or later. There is nothing to install.
 ```bash
 npm run build          # review build into dist/ : every page, each one marked
 open dist/index.html   # works straight from the file system
-npm test               # 108 checks, about eight seconds
+npm test               # 110 checks, about twelve seconds
 npm run queue          # what is waiting for faculty review, highest risk first
 npm run build:public   # what the public would get: attested pages only
 ```

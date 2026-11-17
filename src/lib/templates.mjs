@@ -579,7 +579,8 @@ ${options.map(([value, label]) => `<option value="${escAttr(value)}"${value === 
     ...spec.timings.map((timing) => field(timing.id, timing.question, list(stepsTimedBy(timing.id)), timing.options.map((value) => [value, `${timing.prefix} ${value}`]), timing.default)),
   ].join('\n');
   const data = JSON.stringify(given).replace(/</g, '\\u003c');
-  return `<article class="page adapt" data-adapt-root data-refused="false" data-changed="false" data-state="${escAttr(page.state)}">
+  const legend = [['owns', spec.board.owns], ['involved', spec.board.involved]].map(([kind, says]) => `<li><span class="map-mark map-mark--${kind}" aria-hidden="true"></span>${esc(says)}</li>`).join('');
+  return `<article class="page page--wide adapt" data-adapt-root data-refused="false" data-changed="false" data-state="${escAttr(page.state)}">
 ${pageHeader(page, ctx, { eyebrow: sectionEyebrow(page, ctx), meta: `${spec.slots.length} jobs and ${spec.timings.length} intervals to choose · Workflow version ${w.version}` })}
 <p class="hero__lead no-print">${esc(spec.intro)}</p>
 <div class="adapt-rules">
@@ -598,6 +599,12 @@ ${fields}
 </div>
 </section>
 <p class="adapt-status" id="adapt-status" role="status">${esc(core.status(result, given.spec))}</p>
+<section class="adapt-board-section no-print" aria-labelledby="adapt-board-title">
+<h2 id="adapt-board-title">${esc(spec.board.title)}</h2>
+<p>${esc(spec.board.intro)}</p>
+<div class="rc-table-wrap map-board-wrap" role="region" aria-labelledby="adapt-board-title" tabindex="0" data-adapt-board>${core.board(result, given.spec)}</div>
+<ul class="map-legend">${legend}</ul>
+</section>
 <section class="adapt-sheet" aria-labelledby="adapt-sheet-title">
 <h2 id="adapt-sheet-title">The unit workflow</h2>
 <div data-adapt-sheet>

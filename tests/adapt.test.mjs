@@ -4,7 +4,8 @@
 //   - every combination of choices reads as prose, with no leftover placeholder;
 //   - a version with a step nobody owns is refused, and says which step;
 //   - a reader chooses from fixed lists: nothing can be typed, stored or sent;
-//   - the review of the page covers the rules, the workflow and the script that applies them.
+//   - the review of the page covers the rules, the workflow and the script that applies them;
+//   - the board says who owns each step in the reader's version, and as written it is the map's board.
 // The functions under test are the browser's own (src/assets/adapt.js), loaded without a browser.
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -12,7 +13,8 @@ import { appendFileSync, existsSync, mkdtempSync, readFileSync, writeFileSync } 
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { build } from '../src/build.mjs';
-import { ADAPT_SCRIPT, adaptCore, payload, validateAdaptation } from '../src/lib/adapt.mjs';
+import { ADAPT_SCRIPT, adaptCore, payload, revision, validateAdaptation } from '../src/lib/adapt.mjs';
+import { board as mapBoard } from '../src/lib/map.mjs';
 import { RELEASES, SiteError, loadSite } from '../src/lib/model.mjs';
 import { ROOT, built, headings, read, scratchRepo, visibleText } from './helpers.mjs';
 
@@ -25,12 +27,13 @@ const spec = load(RULES);
 const core = adaptCore();
 const given = payload(workflow, spec);
 const base = { ...core.defaults(spec) };
+const REV = given.spec.rev;
 // The script runs in its own context, so what it returns is copied into plain objects before
 // it is compared. (The loop over every combination compares piece by piece instead.)
 const local = (value) => JSON.parse(JSON.stringify(value));
 const adapt = (choices) => local(core.adapt(given.workflow, given.spec, { ...base, ...choices }));
 const decode = (text) => {
-  const found = core.decode(spec, text, workflow.version);
+  const found = core.decode(given.spec, text, workflow.version);
   return found && { ...found };
 };
 const step = (result, id) => result.workflow.steps.find((item) => item.id === id);
@@ -95,8 +98,12 @@ test('A18 · the validator refuses the defects it exists to catch', () => {
     edit(flow);
     return validateAdaptation(load(RULES), flow).join(' | ');
   };
-  assert.match(drift((w) => { w.steps.find((item) => item.id === 'note').owner = ['social-work']; }), /step "note": the workflow says it is owned by social-work; these rules, with nothing changed, say psychiatrist/);
-  assert.match(drift((w) => { w.steps.find((item) => item.id === 'bridge').owner = ['psychiatrist']; }), /step "bridge": the workflow says it is owned by psychiatrist; these rules, with nothing changed, say psychiatrist and social-work/);
+  assert.match(drift((w) => { w.steps.find((item) => item.id === 'note').owner = ['social-work']; }), /step "note": the workflow says it is owned by social-work; these rules, with nothing changed, say psy-app-res/);
+  assert.match(drift((w) => { w.steps.find((item) => item.id === 'bridge').owner = ['psychiatrist']; }), /step "bridge": the workflow says it is owned by psychiatrist; these rules, with nothing changed, say psy-app-res and social-work/);
+  assert.match(drift((w) => { w.roles = { nursing: w.roles.nursing, ...w.roles }; }), /the workflow lists its roles in a different order from the titles here/);
+  // With nothing changed, the variant that applies is the one held to the workflow's words.
+  assert.match(broken((s) => { rule(s, 'steps.bring-up.action').variants.at(-1).replace = '; tell the psychiatrist.'; }), /with nothing changed it would write "; tell the psychiatrist\." over "; let the psychiatrist know they have arrived\."/);
+  assert.match(broken((s) => { delete s.board.count; }), /board: "count" is required/);
   assert.match(drift((w) => { w.steps.find((item) => item.id === 'rounds').support = []; }), /step "rounds": a step the team owns names who leads it as also involved \(psychiatrist\)/);
   assert.match(drift((w) => { w.roles.psychiatrist = 'Attending'; }), /role "psychiatrist": the workflow calls it "Attending"; these rules call it "Psychiatrist"/);
   assert.match(drift((w) => { w.roles.pharmacist = 'Pharmacist'; w.steps[0].support = ['pharmacist']; }), /role "pharmacist": the workflow uses it, and it is not one of the titles these rules know/);
@@ -136,7 +143,7 @@ test('A18 · with nothing changed, the sheet is the workflow word for word', () 
 
 test('A18 · every combination of owners reads as prose, and a step is refused exactly when nobody owns it', () => {
   const expected = spec.slots.reduce((count, slot) => count * (slot.options.length + 1), 1);
-  assert.equal(expected, 60480, 'the number of ways to fill the jobs changed; update the documents that quote it');
+  assert.equal(expected, 70560, 'the number of ways to fill the jobs changed; update the documents that quote it');
   const forms = [...new Set(Object.values(spec.titles).flatMap((title) => [title.label, title.bare, title.phrase, title.person]).map((form) => form.toLowerCase()))];
   const escaped = forms.sort((a, b) => b.length - a.length).map((form) => form.replace(/[.*+?^${}()|[\]\\/]/g, '\\$&'));
   const twice = new RegExp(`(?:^|[^a-z])(${escaped.join('|')}) (?:or|and|\\+|with) \\1(?:$|[^a-z])`, 'i');
@@ -144,12 +151,28 @@ test('A18 · every combination of owners reads as prose, and a step is refused e
   assert.ok(!leftovers.test(prose(adapt({}))) && !twice.test(prose(adapt({}))), 'the workflow as written trips the checks below');
 
   const codes = new Set();
+  const sentences = new Set();
   let count = 0;
   for (const choices of everyOwnerChoice()) {
     count += 1;
     const result = core.adapt(given.workflow, given.spec, { ...base, ...choices });
     const text = prose(result);
     const label = result.code;
+    for (const item of result.workflow.steps) sentences.add(`${item.ownerLabel}. ${item.action}`.toLowerCase());
+    if (count % 13 === 0) {
+      // A20, on every thirteenth version: the board gives each step to the roles the choices
+      // give it to, to nobody when nobody holds the job, and has a row for every role chosen.
+      const picture = core.rows(result, given.spec);
+      const drawn = [...picture.rows];
+      given.workflow.steps.forEach((item, index) => {
+        const slots = spec.owners[item.id];
+        const owners = slots.every((slot) => choices[slot] === 'none') ? [] : item.owner.includes('team') ? ['team'] : [...new Set(slots.map((slot) => choices[slot]).filter((id) => id !== 'none'))].sort();
+        assert.deepEqual(drawn.filter((row) => row.cells[index] === 'owns').map((row) => row.id).sort(), owners, `${label}: who the board says owns step ${index + 1}`);
+        assert.equal(picture.steps[index].unowned, owners.length === 0, `${label}: step ${index + 1} flagged`);
+      });
+      for (const slot of spec.slots) if (choices[slot.id] !== 'none') assert.ok(drawn.some((row) => row.id === choices[slot.id]), `${label}: no row for ${choices[slot.id]}`);
+      for (const row of drawn) assert.ok([...row.cells].some(Boolean) && row.owned === [...row.cells].filter((cell) => cell === 'owns').length, `${label}: row ${row.id}`);
+    }
     assert.ok(!leftovers.test(text), `${label}: a leftover placeholder or a stray space`);
     assert.ok(!twice.test(text), `${label}: the same role named twice in one phrase`);
     const empty = spec.slots.filter((slot) => choices[slot.id] === 'none').map((slot) => slot.id);
@@ -170,6 +193,72 @@ test('A18 · every combination of owners reads as prose, and a step is refused e
   }
   assert.equal(count, expected);
   assert.equal(codes.size, expected, 'two different versions share a version code');
+
+  // A20: "also involved" is read off the words. For every sentence any version can print, the
+  // roles the board finds in it are the roles a second, separately written reading finds.
+  const names = [['team', 'team'], ...Object.entries(spec.titles).flatMap(([id, title]) => [...new Set(Object.values(title).map((form) => form.toLowerCase()))].map((name) => [id, name]))].sort((a, b) => b[1].length - a[1].length);
+  const reads = (sentence) => {
+    let left = sentence;
+    const found = new Set();
+    for (const [id, name] of names) {
+      const whole = new RegExp(`(?<![a-z])${name.replace(/[.*+?^${}()|[\]\\/]/g, '\\$&')}(?![a-z])`, 'g');
+      if (whole.test(left)) {
+        found.add(id);
+        left = left.replace(whole, (match) => ' '.repeat(match.length));
+      }
+    }
+    return [...found].sort();
+  };
+  assert.ok(sentences.size > 200, `only ${sentences.size} different sentences were seen`);
+  for (const sentence of sentences) assert.deepEqual([...core.named(given.spec, sentence)].sort(), reads(sentence), `the roles named in: “${sentence.slice(0, 120)}”`);
+  assert.deepEqual(reads('enter the meeting like any other appointment. the apprentice applies.'), [], '"app" is not in "appointment"');
+  assert.deepEqual(reads('nursing assistants. let the app know'), ['app', 'nursing-assistants'], '"nursing" is not in "nursing assistants"');
+});
+
+test('A20 · as written, the board on the adaptation page is the map’s board', () => {
+  const picture = local(core.rows(adapt({}), given.spec));
+  assert.deepEqual(picture.rows.map((row) => [row.label, row.cells]), mapBoard(workflow).map((row) => [row.label, row.cells]));
+  assert.deepEqual(picture.steps.map((item) => [item.number, item.title, item.unowned]), workflow.steps.map((item, index) => [index + 1, item.title, false]));
+  assert.deepEqual(Object.fromEntries(picture.rows.map((row) => [row.label, row.owned])), {
+    'Psychiatrist / APP / resident': 4, Psychiatrist: 0, 'Social work': 2, Nursing: 0, 'Mental health technicians': 1, 'Unit secretary': 1, 'Treatment team': 1,
+  });
+});
+
+test('A20 · the board follows the choices: who owns, who is also involved, how much each role carries, and which step nobody owns', () => {
+  const draw = (choices) => {
+    const picture = local(core.rows(adapt(choices), given.spec));
+    return Object.fromEntries(picture.rows.map((row) => [row.label, `${row.cells.map((cell) => (cell === 'owns' ? '●' : cell === 'involved' ? '○' : '·')).join('')} ${row.owned}`]));
+  };
+  // One role leads: the calendar and the word that the family has arrived go to that role.
+  assert.deepEqual(draw({ lead: 'app' }), {
+    'Psychiatrist / APP / resident': '●······· 1', Psychiatrist: '···○···· 0', APP: '··○·○●●● 3', 'Social work': '·●○··○·● 2', Nursing: '··○··○·· 0',
+    'Mental health technicians': '····●··· 1', 'Unit secretary': '··●····· 1', 'Treatment team': '···●···· 1',
+  });
+  // One role carrying most of it shows as one long row.
+  assert.deepEqual(draw({ lead: 'social-work', scheduler: 'social-work', escort: 'social-work' }), {
+    'Psychiatrist / APP / resident': '●······· 1', Psychiatrist: '···○···· 0', 'Social work': '·●●·●●●● 6', Nursing: '··○··○·· 0', 'Treatment team': '···●···· 1',
+  });
+  // Nursing as the collateral contact, nursing assistants as escorts: two different rows.
+  assert.deepEqual(draw({ partner: 'nursing', escort: 'nursing-assistants' }), {
+    'Psychiatrist / APP / resident': '●····●●● 4', Psychiatrist: '··○○○··· 0', Nursing: '·●○··○·● 2', 'Nursing assistants': '····●··· 1', 'Unit secretary': '··●····· 1', 'Treatment team': '···●···· 1',
+  });
+  // The team owns rounds whoever leads them; with nobody to lead, nobody owns the step.
+  assert.equal(draw({ rounds: 'nursing' }).Nursing, '··○○·○·· 0');
+  assert.equal(draw({ rounds: 'nursing' })['Treatment team'], '···●···· 1');
+  assert.ok(!('Treatment team' in draw({ rounds: 'none' })));
+
+  // As drawn: a step nobody owns is marked down its whole column and says so in words.
+  const result = adapt({ scheduler: 'none' });
+  const html = core.board(result, given.spec);
+  const picture = local(core.rows(result, given.spec));
+  assert.deepEqual(picture.steps.filter((item) => item.unowned).map((item) => item.number), [3]);
+  assert.equal(html.match(/class="adapt-board__gap"/g).length, 1 + picture.rows.length);
+  assert.equal(html.match(/<span class="rc-badge rc-badge--warning">No owner yet<\/span>/g).length, 1);
+  assert.ok(!html.includes('●') && html.includes('<caption class="sr-only">'));
+  assert.match(html, /<th scope="row">Social work<\/th>.*?<td class="adapt-board__count">2 of 8<\/td><\/tr>/);
+  assert.equal(html.match(/<td class="adapt-board__count">/g).length, picture.rows.length);
+  assert.ok(html.includes('<th scope="col" class="adapt-board__count">Steps owned</th>'));
+  assert.equal(core.board(adapt({}), given.spec).includes('adapt-board__gap'), false);
 });
 
 test('A18 · every combination of intervals is written into the step, the note and the exception that depend on it', () => {
@@ -206,7 +295,7 @@ test('A18 · one person holding two jobs is written once, and a job nobody holds
   assert.equal(step(result, 'rounds').ownerLabel, 'Team — psychiatrist leads', 'who leads the meeting does not decide who leads rounds');
   // The collateral contact is nursing: no "nursing or nursing", and the charge nurse is not told twice.
   result = adapt({ partner: 'nursing' });
-  assert.equal(step(result, 'meet').ownerLabel, 'Psychiatrist (+ nursing when available)');
+  assert.equal(step(result, 'meet').ownerLabel, 'Psychiatrist / APP / resident (+ nursing when available)');
   assert.ok(step(result, 'book').action.endsWith('Notify the charge nurse.'));
   assert.equal(result.workflow.exceptions[0].then.split(' ')[0], 'Nursing');
   // The person who books is the person who would be notified.
@@ -217,6 +306,19 @@ test('A18 · one person holding two jobs is written once, and a job nobody holds
   result = adapt({ scheduler: 'social-work', lead: 'social-work', escort: 'social-work' });
   assert.ok(step(result, 'book').action.includes('(social worker’s calendar)'));
   assert.ok(step(result, 'bring-up').action.endsWith('set up the room.'));
+  // As written an APP or a resident may lead, and the procedure still names the psychiatrist for
+  // the calendar and for who is told. Choose one role to lead, and those two sentences follow it.
+  result = adapt({});
+  assert.ok(step(result, 'book').action.includes('(psychiatrist’s calendar shared with the unit secretary)'));
+  assert.ok(step(result, 'bring-up').action.endsWith('; let the psychiatrist know they have arrived.'));
+  result = adapt({ lead: 'app' });
+  assert.equal(step(result, 'meet').ownerLabel, 'APP (+ social work or nursing when available)');
+  assert.ok(step(result, 'book').action.includes('(APP’s calendar shared with the unit secretary)'));
+  assert.ok(step(result, 'bring-up').action.endsWith('; let the APP know they have arrived.'));
+  // The lead's title already names the resident, so a resident as collateral contact is not named again.
+  result = adapt({ partner: 'resident' });
+  assert.equal(step(result, 'meet').ownerLabel, 'Psychiatrist / APP / resident (+ nursing when available)');
+  assert.equal(step(result, 'bridge').ownerLabel, 'Psychiatrist / APP / resident');
   // Rounds has its own owner.
   assert.equal(step(adapt({ rounds: 'nursing' }), 'rounds').ownerLabel, 'Team — nurse leads');
   // A step two jobs share is owned while either is filled.
@@ -256,7 +358,15 @@ test('A18 · only the choices on offer are accepted, and the sheet escapes every
   const odd = local(core.adapt(given.workflow, given.spec, { lead: '<script>', partner: 'psychologist', contact: '1 h', update: 72, nobody: 'x', scheduler: null }));
   assert.deepEqual(odd.choices, base);
   assert.equal(odd.changed, 0);
-  for (const text of ['', '2.0', '2.0/A0/T0U1', '2.0/A9C0S0R0E0L0/T0U1', '2.0/A0C0S0R0E0L0/TxU1', '1.0/A0C0S0R0E0L0/T0U1', '2.0/L0E0R0S0C0A0/T0U1', 'x'.repeat(2000)]) {
+  // A code carries the revision of the lists it was made from, and is read against no others.
+  assert.equal(REV, revision(workflow, spec));
+  assert.match(REV, /^[0-9a-f]{3}$/);
+  assert.deepEqual(decode(`2.0-${REV}/A0C0S0R0E0L0/T0U1`), base);
+  const longer = load(RULES);
+  longer.slots[0].options.push('psychologist');
+  assert.notEqual(revision(workflow, longer), REV, 'a list changed and the revision did not');
+  const other = REV === '000' ? '001' : '000';
+  for (const text of ['', '2.0', `2.0-${REV}`, `2.0-${REV}/A0/T0U1`, `2.0-${REV}/A9C0S0R0E0L0/T0U1`, `2.0-${REV}/A0C0S0R0E0L0/TxU1`, `1.0-${REV}/A0C0S0R0E0L0/T0U1`, `2.0-${REV}/L0E0R0S0C0A0/T0U1`, '2.0/A0C0S0R0E0L0/T0U1', `2.0-${other}/A0C0S0R0E0L0/T0U1`, 'x'.repeat(2000)]) {
     assert.equal(decode(text), null, `“${text.slice(0, 30)}” is not a version code`);
   }
 
@@ -268,8 +378,14 @@ test('A18 · only the choices on offer are accepted, and the sheet escapes every
   hostile.spec.titles.app.label = '<i>APP</i>';
   hostile.spec.messages.local = '"><u>local</u>';
   hostile.spec.slots[0].question = '<s>who</s>';
-  const html = core.sheet(core.adapt(hostile.workflow, hostile.spec, { ...base, lead: 'app' }), hostile.spec);
+  hostile.spec.board.count = '<em>{n}</em>';
+  hostile.workflow.roles.team = '<strong>Team</strong>';
+  const result = core.adapt(hostile.workflow, hostile.spec, { ...base, lead: 'app' });
+  const html = core.sheet(result, hostile.spec);
   assert.ok(!/<(?:img|script|b|i|u|s)[\s>]/.test(html), 'markup from the data reached the sheet');
+  const drawn = core.board(result, hostile.spec);
+  assert.ok(!/<(?:img|script|b|i|u|s|em|strong)[\s>]/.test(drawn), 'markup from the data reached the board');
+  for (const shown of ['&lt;img src=x onerror=boom()&gt;', '&lt;i&gt;APP&lt;/i&gt;', '&lt;em&gt;3&lt;/em&gt;', '&lt;strong&gt;Team&lt;/strong&gt;']) assert.ok(drawn.includes(shown), `not shown as text on the board: ${shown}`);
   for (const shown of ['&lt;img src=x onerror=boom()&gt;', '&lt;/li&gt;&lt;script&gt;boom()&lt;/script&gt;', '&lt;i&gt;APP&lt;/i&gt;', '&quot;&gt;&lt;u&gt;local&lt;/u&gt;', '&lt;s&gt;who&lt;/s&gt;', 'href="#step-&quot;&gt;&lt;b&gt;"']) {
     assert.ok(html.includes(shown), `not shown as text: ${shown}`);
   }
@@ -308,9 +424,12 @@ test('A18 · the page as built: fixed menus that are off until the script runs, 
   // What the page is built with is what the browser is given, and the sheet in the file is the workflow as written.
   const data = JSON.parse(html.match(/<script type="application\/json" id="adapt-data">([\s\S]*?)<\/script>/)[1]);
   assert.deepEqual(data, given);
-  assert.ok(!('roles' in data.workflow) && data.workflow.additions.every((note) => !('basis' in note)), 'the page carries review-only fields');
+  assert.ok(data.workflow.additions.every((note) => !('basis' in note)) && data.workflow.steps.every((item) => !('links' in item) && !('support' in item)), 'the page carries fields the script does not read');
+  assert.equal(data.spec.rev, REV);
   assert.ok(html.includes(`<div data-adapt-sheet>\n${core.sheet(adapt({}), given.spec)}\n</div>`));
   assert.ok(html.includes(`<p class="adapt-status" id="adapt-status" role="status">${spec.messages.same}</p>`));
+  assert.ok(html.includes(`<div class="rc-table-wrap map-board-wrap" role="region" aria-labelledby="adapt-board-title" tabindex="0" data-adapt-board>${core.board(adapt({}), given.spec)}</div>`), 'the board in the page as built is not the board as written');
+  assert.ok(html.includes(`<h2 id="adapt-board-title">${spec.board.title}</h2>`) && html.includes('<section class="adapt-board-section no-print"'));
   const levels = headings(html);
   for (let i = 1; i < levels.length; i += 1) assert.ok(levels[i] - levels[i - 1] <= 1, 'a heading level is skipped');
 
@@ -373,7 +492,7 @@ test('A18 · the review of the page covers the rules, the workflow and the scrip
   assert.ok(css.slice(css.indexOf('@media print')).includes('.adapt[data-changed="true"][data-state="attested"] .status-banner { display: none; }'));
   dir = signed();
   const attested = read(publicBuild(dir).target, `${SLUG}.html`);
-  assert.match(attested, /<article class="page adapt" data-adapt-root data-refused="false" data-changed="false" data-state="attested">/);
+  assert.match(attested, /<article class="page page--wide adapt" data-adapt-root data-refused="false" data-changed="false" data-state="attested">/);
   assert.match(attested, /<strong>Attested\.<\/strong> Reviewed by Test Reviewer, MD on November 17, 2026\./);
 
   // A manifest that leaves the script out of the page's sources is refused.

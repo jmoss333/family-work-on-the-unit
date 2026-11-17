@@ -108,8 +108,11 @@ test('A19 · every mark on the board is in the procedure’s own words: a role i
   // What that comes to. If the procedure's words change, this picture changes with them.
   const picture = Object.fromEntries(board(workflow).map((role) => [role.label, role.cells.map((cell) => (cell === 'owns' ? '●' : cell === 'involved' ? '○' : '·')).join('')]));
   assert.deepEqual(picture, {
-    'Psychiatrist / APP / resident': '●·······',
-    Psychiatrist: '··○○○●●●',
+    // 2026-11-17: the owner said an APP or a resident may lead the meeting, sign the note
+    // and work the discharge bridge. The procedure still names the psychiatrist for the
+    // calendar, for rounds and for who is told the family has arrived.
+    'Psychiatrist / APP / resident': '●····●●●',
+    Psychiatrist: '··○○○···',
     'Social work': '·●○··○·●',
     Nursing: '··○··○··',
     'Mental health technicians': '····●···',

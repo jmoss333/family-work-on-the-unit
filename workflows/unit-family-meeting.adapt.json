@@ -64,18 +64,6 @@
       "phrase": "nursing",
       "person": "nurse"
     },
-    "unit-secretary": {
-      "label": "Unit secretary",
-      "bare": "unit secretary",
-      "phrase": "the unit secretary",
-      "person": "unit secretary"
-    },
-    "unit-clerk": {
-      "label": "Unit clerk",
-      "bare": "unit clerk",
-      "phrase": "the unit clerk",
-      "person": "unit clerk"
-    },
     "techs": {
       "label": "Mental health technicians",
       "bare": "mental health technicians",
@@ -93,6 +81,18 @@
       "bare": "peer specialist",
       "phrase": "the peer specialist",
       "person": "peer specialist"
+    },
+    "unit-secretary": {
+      "label": "Unit secretary",
+      "bare": "unit secretary",
+      "phrase": "the unit secretary",
+      "person": "unit secretary"
+    },
+    "unit-clerk": {
+      "label": "Unit clerk",
+      "bare": "unit clerk",
+      "phrase": "the unit clerk",
+      "person": "unit clerk"
     }
   },
   "none": {
@@ -173,8 +173,9 @@
       "id": "lead",
       "code": "L",
       "question": "Who leads the meeting and signs the note?",
-      "default": "psychiatrist",
+      "default": "psy-app-res",
       "options": [
+        "psy-app-res",
         "psychiatrist",
         "app",
         "resident",
@@ -268,6 +269,13 @@
             "scheduler"
           ],
           "replace": "({lead.person}’s calendar)"
+        },
+        {
+          "is": {
+            "lead": "psy-app-res"
+          },
+          "replace": "(psychiatrist’s calendar shared with {scheduler.phrase})",
+          "note": "As written: the procedure names the psychiatrist here, whoever leads the meeting."
         }
       ]
     },
@@ -318,12 +326,19 @@
             "lead"
           ],
           "replace": "."
+        },
+        {
+          "is": {
+            "lead": "psy-app-res"
+          },
+          "replace": "; let the psychiatrist know they have arrived.",
+          "note": "As written: the procedure names the psychiatrist here, whoever leads the meeting."
         }
       ]
     },
     {
       "at": "steps.meet.ownerLabel",
-      "find": "Psychiatrist (+ social work or nursing when available)",
+      "find": "Psychiatrist / APP / resident (+ social work or nursing when available)",
       "replace": "{lead.label} (+ {partner.bare} or nursing when available)",
       "variants": [
         {
@@ -344,12 +359,20 @@
             "partner": "nursing"
           },
           "replace": "{lead.label} (+ nursing when available)"
+        },
+        {
+          "is": {
+            "lead": "psy-app-res",
+            "partner": "resident"
+          },
+          "replace": "{lead.label} (+ nursing when available)",
+          "note": "The lead's title already names the resident."
         }
       ]
     },
     {
       "at": "steps.note.ownerLabel",
-      "find": "Psychiatrist",
+      "find": "Psychiatrist / APP / resident",
       "replace": "{lead.label}"
     },
     {
@@ -359,7 +382,7 @@
     },
     {
       "at": "steps.bridge.ownerLabel",
-      "find": "Psychiatrist + social work",
+      "find": "Psychiatrist / APP / resident + social work",
       "replace": "{lead.label} + {partner.bare}",
       "variants": [
         {
@@ -380,6 +403,14 @@
             "partner"
           ],
           "replace": "{lead.label}"
+        },
+        {
+          "is": {
+            "lead": "psy-app-res",
+            "partner": "resident"
+          },
+          "replace": "{lead.label}",
+          "note": "The lead's title already names the resident."
         }
       ]
     },
@@ -394,6 +425,15 @@
       "replace": "{partner.Phrase} documents"
     }
   ],
+  "board": {
+    "title": "Who carries what",
+    "intro": "One row for each role in your version, redrawn as you choose.",
+    "caption": "For each role in your version: the steps it owns, the steps that also involve it, and how many it owns",
+    "owns": "owns the step",
+    "involved": "also involved",
+    "owned": "Steps owned",
+    "count": "{n} of {total}"
+  },
   "messages": {
     "same": "This is the workflow as written. Nothing has been changed.",
     "changed": "Changed from the workflow as written: {count} of {total} choices.",

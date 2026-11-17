@@ -9,6 +9,7 @@
 // words it replaces, and what replaces them. validateAdaptation refuses a rule whose words
 // are not in the field exactly once, or whose replacement, filled with the defaults, is not
 // those same words. So with nothing changed, the adapted sheet is the workflow word for word.
+import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -39,15 +40,25 @@ export function payload(workflow, spec) {
   const pick = (object, keys) => Object.fromEntries(keys.filter((key) => object[key] !== undefined).map((key) => [key, object[key]]));
   return {
     workflow: {
-      ...pick(workflow, ['version', 'purpose', 'scope', 'principle', 'basis', 'guardrails', 'closing']),
-      steps: workflow.steps.map((step) => pick(step, ['id', 'title', 'trigger', 'ownerLabel', 'action', 'record', 'doneWhen'])),
+      ...pick(workflow, ['version', 'purpose', 'scope', 'principle', 'basis', 'guardrails', 'closing', 'roles']),
+      steps: workflow.steps.map((step) => pick(step, ['id', 'title', 'trigger', 'ownerLabel', 'owner', 'action', 'record', 'doneWhen'])),
       formats: { ...pick(workflow.formats, ['decisionRule', 'noJointMeeting', 'note']), menu: workflow.formats.menu.map((format) => pick(format, ['name', 'focus', 'when'])) },
       exceptions: workflow.exceptions.map((exception) => pick(exception, ['when', 'then'])),
       measures: { ...pick(workflow.measures, ['cadence', 'baseline', 'note']), list: workflow.measures.list.map((measure) => pick(measure, ['name', 'checksStep'])) },
       additions: (workflow.additions || []).map((note) => pick(note, ['id', 'text'])),
     },
-    spec: pick(spec, ['titles', 'none', 'slots', 'timings', 'owners', 'rules', 'messages']),
+    spec: { ...pick(spec, ['titles', 'none', 'slots', 'timings', 'owners', 'rules', 'messages', 'board']), rev: revision(workflow, spec) },
   };
+}
+
+/**
+ * Three characters that change whenever a list a version code indexes changes: the workflow's
+ * version, and each job's and each interval's options in order. A code carries them, so a
+ * code made from one set of lists is never read against another.
+ */
+export function revision(workflow, spec) {
+  const lists = [workflow.version, spec.slots.map((slot) => [slot.id, slot.code, slot.options]), spec.timings.map((timing) => [timing.id, timing.code, timing.options])];
+  return createHash('sha256').update(JSON.stringify(lists)).digest('hex').slice(0, 3);
 }
 
 const text = (value) => typeof value === 'string' && value.trim().length > 0;
@@ -67,6 +78,9 @@ export function validateAdaptation(spec, workflow) {
   }
   for (const key of ['same', 'changed', 'refusedOne', 'refusedMany', 'markSame', 'markChanged', 'local', 'noOwner', 'noScript']) {
     if (!text(spec.messages?.[key])) errors.push(`messages: "${key}" is required`);
+  }
+  for (const key of ['title', 'intro', 'caption', 'owns', 'involved', 'owned', 'count']) {
+    if (!text(spec.board?.[key])) errors.push(`board: "${key}" is required`);
   }
 
   const titles = spec.titles && typeof spec.titles === 'object' ? spec.titles : {};
@@ -136,6 +150,11 @@ export function validateAdaptation(spec, workflow) {
       errors.push(`step "${step.id}": the workflow says it is owned by ${owned.join(' and ') || 'nobody'}; these rules, with nothing changed, say ${written.join(' and ')}`);
     }
   }
+  // The workflow lists its roles in the order these rules list their titles, so that the
+  // board on the map and the board on the adaptation page list their rows alike.
+  const shared = Object.keys(workflow.roles || {}).filter((role) => role !== TEAM);
+  if (JSON.stringify(shared) !== JSON.stringify(Object.keys(titles).filter((id) => shared.includes(id)))) errors.push('the workflow lists its roles in a different order from the titles here');
+  if (Object.keys(workflow.roles || {}).includes(TEAM) && Object.keys(workflow.roles).at(-1) !== TEAM) errors.push('the workflow lists the team last among its roles');
   if (errors.length) return errors;
 
   const core = adaptCore();
@@ -166,7 +185,10 @@ export function validateAdaptation(spec, workflow) {
     const count = field.split(rule.find).length - 1;
     if (count !== 1) errors.push(`${where}: "${rule.find}" occurs ${count} times in the field; it must occur once`);
     checkTemplate(where, rule.replace);
-    if (!errors.length && core.fill(spec, base, rule.replace) !== rule.find) errors.push(`${where}: with nothing changed it would write "${core.fill(spec, base, rule.replace)}" over "${rule.find}"`);
+    // With nothing changed, the replacement that applies (the rule's own, or the first
+    // variant that fits the defaults) must be the very words it replaces.
+    const asWritten = errors.length ? null : core.fill(spec, base, core.pick(rule, base));
+    if (asWritten !== null && asWritten !== rule.find) errors.push(`${where}: with nothing changed it would write "${asWritten}" over "${rule.find}"`);
     for (const [v, variant] of (rule.variants || []).entries()) {
       const at = `${where}, variant ${v + 1}`;
       const kinds = ['none', 'same', 'is'].filter((kind) => variant[kind] !== undefined);

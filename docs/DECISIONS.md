@@ -53,7 +53,7 @@ Two parts: the architecture decision that shaped this build, and the decisions t
 3. **The review covers the script.** What a reader sees is computed, so the page's hash covers three files: the rules, the workflow and `src/assets/adapt.js`. Changing any of them reopens the page. A rehearsal is different: all of its text is in the case file, and its script only moves between positions.
 4. **An attestation is of the workflow as written.** A changed version prints a line saying it is a local adaptation that neither the workflow's author nor the reader's institution has reviewed, and in print the attestation banner is dropped from it.
 
-**Consequences.** The reviewer attests a set of rules, not each of the 544,320 sheets those rules can print; the tests are what stand between the two (`docs/ACCEPTANCE.md`, A18). The page is under the release gate, because it prints the unit's procedure. The script can read a version code back into choices, and no page uses that yet. Adding a title or an interval is a content change, and D15 to D18 below are the judgments in the current lists.
+**Consequences.** The reviewer attests a set of rules, not each of the 635,040 sheets those rules can print; the tests are what stand between the two (`docs/ACCEPTANCE.md`, A18). The page is under the release gate, because it prints the unit's procedure. The script can read a version code back into choices, and no page uses that yet. Adding a title or an interval is a content change, and D15 to D18 below are the judgments in the current lists.
 
 ## ADR-004 · A map drawn only from text other pages carry, and tests that survive an attestation (2026-11-17)
 
@@ -102,6 +102,7 @@ Two parts: the architecture decision that shaped this build, and the decisions t
 | D18 | **Rounds has its own owner.** The procedure has the psychiatrist lead rounds and the meeting. The page asks the two separately | Separate | You may hold that the person who leads the meeting must be the one who sets the format at rounds | Remove the `rounds` job and point its rule at `lead` |
 | D19 | **The map as a way in.** The home page has a third door, "See how it fits together", and the navigation a "Map" entry after Home | Both on | The front of the site is yours (D1) | Delete the third entry under `doors` in `site.config.json`; the navigation entry follows the page |
 | D20 | **Who counts as "also involved".** The board marks a role at a step when the step's words name it. So the psychiatrist is marked at booking (the meeting goes on the psychiatrist's calendar) and when the family is brought up (the psychiatrist is told), and nursing only where it is notified or may join | As the words have it | A reader will take the board as your account of who does what, and nursing owns no step on it | Change the step's wording in the workflow file; the marks follow the words, and a test fails if they do not |
+| D21 | **Whose calendar, and who is told.** An APP or a resident may now lead the meeting, and steps 3 and 5 still say the meeting goes on the psychiatrist's calendar and that the psychiatrist is told the family has arrived | As the procedure has it | Only you know whether those two follow whoever leads. On the adaptation page they already do, once a unit names one role to lead | Change the two sentences in `workflows/unit-family-meeting.workflow.json` and delete the two rule variants marked "As written" in the adaptation rules |
 
 ## Decided
 
@@ -121,4 +122,7 @@ Two parts: the architecture decision that shaped this build, and the decisions t
 | 2026-11-17 | A script ships only with a page that loads it, so the public build with nothing attested carries the site script and no other. |
 | 2026-11-17 | The map is drawn by the build from files other pages already use, and its script composes no text (ADR-004). |
 | 2026-11-17 | The workflow file names its roles as the procedure's owner labels do. "Psychiatrist" is a role of its own, and the build checks the file's owners against the adaptation rules (ADR-004). |
+| 2026-11-17 | An APP or a resident may lead the meeting, sign the note and work the discharge bridge; an APP does so independently. The owner labels of steps 6 to 8 now read "Psychiatrist / APP / resident" (the owner's answer; `docs/WORKFLOW_INTAKE.md` records the change). |
+| 2026-11-17 | The adaptation page draws the board, redrawn as the reader chooses, with a count of the steps each role owns and a mark on any step nobody owns. As written it is the map's board. It is not printed. |
+| 2026-11-17 | A version code carries three characters worked out from the lists it indexes (`2.0-1ba/…`), so a code made before a list changed is never read against the lists after. |
 | 2026-11-17 | A test's scratch copy starts from a ledger with nothing attested. An attested page may name a page still in review, as plain words marked "(in review)"; the pages the build writes itself may not (ADR-004). |

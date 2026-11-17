@@ -1,8 +1,9 @@
 /* adapt.js — rewrites the unit workflow with a reader's own owners and intervals.
  *
  * What it does: reads the workflow and the adaptation rules from the page, applies the
- * choices made in the page's menus, and redraws the sheet. A version with a step nobody
- * owns is marked and cannot be printed.
+ * choices made in the page's menus, and redraws two things: the sheet, and a board of who
+ * owns each step and who is also involved. A version with a step nobody owns is marked and
+ * cannot be printed.
  *
  * What it never does (tests/no-capture.test.mjs fails the build if any of these appear):
  * it stores nothing, sends nothing and puts nothing in the address bar. There is no text
@@ -81,7 +82,12 @@
     return { holder: workflow, key: parts[0] };
   }
 
-  /** A compact record of the choices, for comparing one unit's version with another's. */
+  /**
+   * A compact record of the choices, for comparing one unit's version with another's.
+   * Each choice is written as its place in its list, so a code means something only against
+   * the lists it was made from. `spec.rev`, worked out by the build from those lists, is
+   * part of the code for that reason: change a list and every code made after it says so.
+   */
   function code(spec, choices, version) {
     function part(list) {
       return list.map(function (item) {
@@ -89,13 +95,14 @@
         return item.code + (value === 'none' ? 'x' : item.options.indexOf(value));
       }).join('');
     }
-    return version + '/' + part(spec.slots) + '/' + part(spec.timings);
+    return version + (spec.rev ? '-' + spec.rev : '') + '/' + part(spec.slots) + '/' + part(spec.timings);
   }
 
-  /** Read a version code back into choices, or null when it is not one of this workflow's. */
+  /** Read a version code back into choices, or null when it was not made from these lists. */
   function decode(spec, text, version) {
-    var match = /^([0-9.]+)\/((?:[A-Z](?:x|[0-9]+))+)\/((?:[A-Z][0-9]+)+)$/.exec(String(text));
-    if (!match || match[1] !== version) return null;
+    var match = /^([0-9.]+)(?:-([0-9a-f]+))?\/((?:[A-Z](?:x|[0-9]+))+)\/((?:[A-Z][0-9]+)+)$/.exec(String(text));
+    if (!match || match[1] !== version || (match[2] || '') !== (spec.rev || '')) return null;
+    match = [match[0], match[1], match[3], match[4]];
     var choices = {};
     function read(list, packed, allowNone) {
       var found = packed.match(/[A-Z](?:x|[0-9]+)/g) || [];
@@ -244,7 +251,126 @@
     return html;
   }
 
-  global.FWUAdapt = { defaults: defaults, clean: clean, fill: fill, pick: pick, locate: locate, adapt: adapt, status: status, sheet: sheet, code: code, decode: decode };
+  // ── The board: who owns each step in this version, and who is also involved ─────────
+  var TEAM = 'team';
+  var FORMS = ['label', 'bare', 'phrase', 'person'];
+
+  var namesFor = null;
+  var namesList = null;
+  var namedCache = {};
+
+  /** Every name a title goes by, longest first, so a short name is never found inside a long one. */
+  function names(spec) {
+    if (namesFor === spec) return namesList;
+    namedCache = {};
+    var list = [{ id: TEAM, name: TEAM }];
+    Object.keys(spec.titles).forEach(function (id) {
+      FORMS.forEach(function (form) {
+        var name = spec.titles[id][form].toLowerCase();
+        if (!list.some(function (item) { return item.id === id && item.name === name; })) list.push({ id: id, name: name });
+      });
+    });
+    namesFor = spec;
+    namesList = list.sort(function (a, b) { return b.name.length - a.name.length; });
+    return namesList;
+  }
+
+  function isLetter(ch) { return ch >= 'a' && ch <= 'z'; }
+
+  /**
+   * Take a name out of some words wherever it stands as whole words ("app" is not in
+   * "appointment"). Returns the words without it, or null when it is not there.
+   */
+  function takeOut(words, name) {
+    var found = false;
+    for (var at = words.indexOf(name); at !== -1; at = words.indexOf(name, at + name.length)) {
+      var before = at === 0 ? ' ' : words.charAt(at - 1);
+      var after = at + name.length >= words.length ? ' ' : words.charAt(at + name.length);
+      if (isLetter(before) || isLetter(after)) continue;
+      found = true;
+      words = words.slice(0, at) + new Array(name.length + 1).join(' ') + words.slice(at + name.length);
+    }
+    return found ? words : null;
+  }
+
+  /** The roles some words name. The same sentence comes up in many versions, so the answer is kept. */
+  function namedIn(spec, words) {
+    var list = names(spec);
+    if (namedCache[words]) return namedCache[words];
+    var found = [];
+    var left = words;
+    list.forEach(function (item) {
+      var rest = takeOut(left, item.name);
+      if (rest === null) return;
+      left = rest;
+      if (found.indexOf(item.id) === -1) found.push(item.id);
+    });
+    namedCache[words] = found;
+    return found;
+  }
+
+  /**
+   * One row for each role this version names. A role owns a step when the choices give it
+   * the job, and is also involved wherever the step's words, as rewritten, name it. That is
+   * the rule the map's board follows for the workflow as written, so with nothing changed
+   * the two boards are the same.
+   * @returns {{steps: {number, title, unowned}[], rows: {id, label, cells: ('owns'|'involved'|null)[], owned: number}[]}}
+   */
+  function rows(result, spec) {
+    var w = result.workflow;
+    var cells = {};
+    function of(id) {
+      if (!cells[id]) cells[id] = w.steps.map(function () { return null; });
+      return cells[id];
+    }
+    w.steps.forEach(function (step, index) {
+      if (!step.unowned) {
+        // A step the team owns is the team's, and whoever leads it is named in its words.
+        if ((step.owner || []).indexOf(TEAM) !== -1) of(TEAM)[index] = 'owns';
+        else (spec.owners[step.id] || []).forEach(function (slot) { if (result.choices[slot] !== 'none') of(result.choices[slot])[index] = 'owns'; });
+      }
+      namedIn(spec, (step.ownerLabel + '. ' + step.action).toLowerCase()).forEach(function (id) {
+        if (of(id)[index] !== 'owns') of(id)[index] = 'involved';
+      });
+    });
+    var order = Object.keys(spec.titles).concat(TEAM);
+    return {
+      steps: w.steps.map(function (step) { return { number: step.number, title: step.title, unowned: step.unowned }; }),
+      rows: order.filter(function (id) { return cells[id] && cells[id].some(Boolean); }).map(function (id) {
+        return {
+          id: id,
+          label: id === TEAM ? (w.roles && w.roles[TEAM]) || 'Team' : spec.titles[id].label,
+          cells: cells[id],
+          owned: cells[id].filter(function (cell) { return cell === 'owns'; }).length,
+        };
+      }),
+    };
+  }
+
+  /** The board, as HTML. Every value is escaped. */
+  function board(result, spec) {
+    var data = rows(result, spec);
+    var text = spec.board;
+    var html = '<table class="map-board adapt-board"><caption class="sr-only">' + esc(text.caption) + '</caption><thead><tr><td></td>';
+    data.steps.forEach(function (step) {
+      html += '<th scope="col"' + (step.unowned ? ' class="adapt-board__gap"' : '') + '><span class="adapt-board__step">' +
+        '<span class="map-step__n" aria-hidden="true">' + step.number + '</span>' +
+        '<span class="map-step__title"><span class="sr-only">Step ' + step.number + ': </span>' + esc(step.title) + '</span>' +
+        (step.unowned ? '<span class="rc-badge rc-badge--warning">' + esc(spec.messages.noOwner) + '</span>' : '') + '</span></th>';
+    });
+    html += '<th scope="col" class="adapt-board__count">' + esc(text.owned) + '</th></tr></thead><tbody>';
+    data.rows.forEach(function (row) {
+      html += '<tr class="map-row map-row--role"><th scope="row">' + esc(row.label) + '</th>';
+      row.cells.forEach(function (cell, index) {
+        html += '<td' + (data.steps[index].unowned ? ' class="adapt-board__gap"' : '') + '>' +
+          (cell ? '<span class="map-answer"><span class="map-mark map-mark--' + (cell === 'owns' ? 'owns' : 'involved') + '" aria-hidden="true"></span><span class="sr-only">' + esc(cell === 'owns' ? text.owns : text.involved) + '</span></span>' : '') + '</td>';
+      });
+      html += '<td class="adapt-board__count">' + esc(text.count.replace('{n}', row.owned).replace('{total}', data.steps.length)) + '</td></tr>';
+    });
+    return html + '</tbody></table>';
+  }
+
+  global.FWUAdapt = { defaults: defaults, clean: clean, fill: fill, pick: pick, locate: locate, adapt: adapt, status: status, sheet: sheet, code: code, decode: decode, named: namedIn, rows: rows, board: board };
 
   // ── Page wiring ────────────────────────────────────────────────────────────────────
   if (typeof document === 'undefined') return;
@@ -254,6 +380,7 @@
 
   var data = JSON.parse(source.textContent);
   var target = root.querySelector('[data-adapt-sheet]');
+  var boardTarget = root.querySelector('[data-adapt-board]');
   var message = document.getElementById('adapt-status');
   var printButton = root.querySelector('[data-adapt-print]');
   var resetButton = root.querySelector('[data-adapt-reset]');
@@ -268,6 +395,7 @@
   function draw() {
     var result = adapt(data.workflow, data.spec, read());
     target.innerHTML = sheet(result, data.spec);
+    if (boardTarget) boardTarget.innerHTML = board(result, data.spec);
     message.textContent = status(result, data.spec);
     root.setAttribute('data-refused', result.refused.length ? 'true' : 'false');
     root.setAttribute('data-changed', result.changed ? 'true' : 'false');
