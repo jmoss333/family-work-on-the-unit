@@ -60,7 +60,7 @@ test('A23 · the packet holds every page of the review build, in order, and says
   const adaptPage = pages[shipped.findIndex((page) => page.slug === 'system/adapt-it')];
   assert.ok(adaptPage.includes('Is the note drafted by an ambient documentation tool?\n\n· Yes\n· No\n'));
   assert.ok(adaptPage.includes('[button: Social work]') && adaptPage.includes('Handoffs in this version: 5, after steps 1, 2, 3, 4 and 5.'));
-  assert.equal(adaptPage.split('Make the collateral call.').length - 1, 1, 'the role cards are repeated in the packet');
+  assert.equal(adaptPage.split('Suspected partner violence stops the joint invitation.').length - 1, 1, 'the role cards are repeated in the packet');
   // Every position of the rehearsal can be read.
   const studio = pages[shipped.findIndex((page) => page.slug === 'studio/when-a-friend-answers-first')];
   const positions = JSON.parse(readFileSync(join(ROOT, site.pages.find((page) => page.slug === 'studio/when-a-friend-answers-first').sources.find((file) => file.endsWith('.json'))), 'utf8'));
@@ -75,7 +75,7 @@ test('A23 · a finding is checked against the page it names: its words must be t
   const { text } = make();
   const pages = packetPages(text);
   const workflowIndex = pages.findIndex((page) => page.startsWith('The unit workflow\n')) + 1;
-  const good = { id: 'F1', reader: 'staff', page: workflowIndex, quote: 'Make the collateral call. In the same call, invite the support person', kind: 'unclear', severity: 'medium', what: 'The step does not say what to do when the number on file is wrong.', confidence: 'medium' };
+  const good = { id: 'F1', reader: 'staff', page: workflowIndex, quote: 'Listening is always permitted; disclose only within the documented scope.', kind: 'unclear', severity: 'medium', what: 'The step does not say what to do when the number on file is wrong.', confidence: 'medium' };
   const check = (findings, extra = {}) => checkFindings({ reviewer: 'A model, version 1', lens: 'five cold readers', findings, ...extra }, pages);
   assert.deepEqual(check([good]), { rows: [{ id: 'F1', page: workflowIndex, ok: true, problems: [] }], errors: [] });
 
@@ -84,11 +84,11 @@ test('A23 · a finding is checked against the page it names: its words must be t
   assert.ok(check([{ ...good, quote: '"Family" means the people the patient chooses' }]).rows[0].ok);
   assert.equal(plain('“a” — ‘b’ … c'), '"a" - \'b\' ... c');
   // A word is not.
-  assert.deepEqual(check([{ ...good, quote: 'Make the collateral call. In the same call, invite the family' }]).rows[0].problems, [`quote: those words are not on page ${workflowIndex}`]);
+  assert.deepEqual(check([{ ...good, quote: 'Listening is always permitted; disclose only within the presumed scope.' }]).rows[0].problems, [`quote: those words are not on page ${workflowIndex}`]);
   // The words exist, on another page.
   assert.deepEqual(check([{ ...good, page: 1 }]).rows[0].problems, ['quote: those words are not on page 1']);
   // A contradiction quotes both sides.
-  assert.ok(check([{ ...good, kind: 'contradiction', page2: workflowIndex, quote2: 'One call, not two.' }]).rows[0].ok);
+  assert.ok(check([{ ...good, kind: 'contradiction', page2: workflowIndex, quote2: 'Establish consent and scope.' }]).rows[0].ok);
   assert.deepEqual(check([{ ...good, kind: 'contradiction', page2: workflowIndex, quote2: 'Two calls, not one.' }]).rows[0].problems, [`second quote: those words are not on page ${workflowIndex}`]);
   // Incomplete or malformed findings.
   assert.deepEqual(check([{ ...good, quote: 'collateral call' }]).rows[0].problems, ['quote: quote at least four words from the page']);

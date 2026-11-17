@@ -48,6 +48,7 @@ The procedure's wording is kept. These are all the departures.
 | Recast (found by the script, 2026-11-17) | "Proposed measures (monthly, from the chart and the calendar): … · family meetings per day across the unit · …" in one line | A sentence, "Monthly, from the chart and the calendar.", and a table of the four measures, in which "Family meetings per day across the unit" begins with a capital |
 | Changed on the author's instruction, 2026-11-17 | "Psychiatrist" as the owner of steps 6, 7 and 8 (the meeting, the note, the discharge bridge) | "Psychiatrist / APP / resident", the form step 1 already uses. The author said that an APP or a resident may lead the meeting and sign the note. Step 4 still reads "Team — psychiatrist leads" |
 | Changed on the author's instruction, 2026-11-17 | "psychiatrist's calendar shared with the unit secretary" (step 3) and "let the psychiatrist know they have arrived" (step 5) | "the meeting lead's calendar shared with the unit secretary" and "let the meeting lead know they have arrived". The author said both follow whoever leads the meeting |
+| Changed after outside review, 2026-11-17 | Step 2 combines the collateral call and invitation. The safety exception names a positive private check or suspected coercion. | The owner selected suspected partner violence as the joint-meeting stopping rule. Step 2 applies it before an invitation and checks contact permission before dialing. The exception names it explicitly on printed role cards. |
 
 ## What was added
 

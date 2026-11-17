@@ -16,6 +16,17 @@ test('A15 · the workflow is structurally sound', () => {
   assert.deepEqual(validateWorkflow(workflow), []);
 });
 
+test('suspected partner violence stops the joint meeting on the pocket card and workflow', () => {
+  const { dir } = built('review');
+  const card = visibleText(read(dir, 'formats/pocket-card.html'));
+  assert.match(card, /STOP \/ DON(?:'|&#39;)T MEET suspected partner violence/i);
+  for (const slug of [SLUG, 'formats/time-format-stance', 'start/how-it-fits', 'system/adapt-it']) {
+    const text = visibleText(read(dir, `${slug}.html`));
+    assert.match(text, /No joint meeting today when: suspected partner violence/i, slug);
+  }
+  assert.match(workflow.steps.find((step) => step.id === 'invite').action, /Suspected partner violence stops the joint invitation/);
+});
+
 test('A15 · every step has an owner, a trigger and a completion test, and every role in scope has a step', () => {
   assert.equal(workflow.steps.length, 8);
   const working = new Set();

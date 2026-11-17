@@ -49,7 +49,7 @@
       "owner": [
         "social-work"
       ],
-      "action": "Make the collateral call. In the same call, invite the support person to a meeting and record their availability. One call, not two. Listening is always permitted; disclose only within the documented scope.",
+      "action": "Before dialing, check whether contact with this person by this route is safe and within the patient’s current permission. Suspected partner violence stops the joint invitation. If the call can go ahead, receive collateral. Invite the support person and record availability in the same call only if a joint meeting is safe and the patient has agreed to it. Listening is always permitted; disclose only within the documented scope.",
       "record": "Collateral note with availability",
       "doneWhen": "Family reached; availability recorded (or attempts documented)",
       "links": [
@@ -216,7 +216,7 @@
       "then": "Document; receive collateral if offered (no disclosure); revisit at 72 h and before discharge."
     },
     {
-      "when": "Private check positive, or coercion suspected.",
+      "when": "Suspected partner violence, a positive private check, or suspected coercion.",
       "then": "No conjoint meeting. Separate contacts or none; attending informed; safety frame, not cycle frame."
     },
     {

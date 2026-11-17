@@ -393,6 +393,10 @@ test('A22 · a card for one role holds its steps as the sheet prints them, the g
   assert.ok(!core.cards(adapt({ lead: 'app' }), given.spec).includes(supervision));
   assert.ok(!cardsOf(core.cards(adapt({}), given.spec)).find((card) => card.id === 'social-work').inner.includes(supervision), 'step 7 is not social work’s');
 
+  const nursingCard = cardsOf(core.cards(adapt({ partner: 'nursing' }), given.spec)).find((card) => card.id === 'nursing');
+  assert.match(nursingCard.inner, /Suspected partner violence stops the joint invitation/);
+  assert.match(nursingCard.inner, /Suspected partner violence[^<]*<\/dt><dd>No conjoint meeting/);
+
   // A version with a step nobody owns has no cards, and its buttons are off.
   const refused = adapt({ scheduler: 'none' });
   assert.equal(core.cards(refused, given.spec), '');
