@@ -99,7 +99,7 @@ test('A21 · the comparison finds a sentence only where the procedure has it, an
   result = compare(workflow, madeUp(workflow, { change: { 'steps.bring-up.action': workflow.steps[4].action.replace('the meeting lead', 'the psychiatrist') } }));
   const row = result.rows.find((item) => item.at === 'steps.bring-up.action');
   assert.equal(row.how, 'absent');
-  assert.ok(row.nearest.startsWith('Meet the support person at the entrance') && row.nearest.length > 60);
+  assert.ok(row.nearest.includes('Meet the support person at the entrance') && row.nearest.length > 60);
   assert.ok(result.residue.some((piece) => piece.includes('let the psychiatrist know they have arrived')), 'what the procedure says instead is listed as not carried');
   assert.notEqual(result.residueHash, asCopied);
 

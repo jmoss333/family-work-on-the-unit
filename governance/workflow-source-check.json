@@ -8,7 +8,7 @@
   "differs": {
     "basis": "The site’s own statement of where the workflow comes from. It stands in for the procedure’s title lines, which name the unit, its institution and its owner.",
     "steps.book.action": "Changed on the author’s instruction, 2026-11-17: the calendar is the meeting lead’s. The procedure names the psychiatrist.",
-    "steps.bring-up.action": "Changed on the author’s instruction, 2026-11-17: the meeting lead is told the family has arrived. The procedure names the psychiatrist.",
+    "steps.bring-up.action": "Changed on the author’s instruction, 2026-11-17: the meeting lead is told the family has arrived. The procedure names the psychiatrist. The escort checks the current handoff and reports an arrival while a hold is active.",
     "steps.meet.ownerLabel": "Changed on the author’s instruction, 2026-11-17: an APP or a resident may lead. The procedure names the psychiatrist.",
     "steps.note.ownerLabel": "Changed on the author’s instruction, 2026-11-17: an APP or a resident may lead and sign. The procedure names the psychiatrist.",
     "steps.bridge.ownerLabel": "Changed on the author’s instruction, 2026-11-17: an APP or a resident may lead. The procedure names the psychiatrist.",
@@ -21,7 +21,8 @@
     "additions.no-results.text": "Added. Listed under “additions” with its basis.",
     "additions.resident-supervision.text": "Added on the author’s instruction, 2026-11-17. Listed under “additions” with its basis.",
     "steps.invite.action": "Clarified at the point of the call after the owner selected suspected partner violence as the stopping rule. The existing contact permission and private safety check govern the invitation.",
-    "exceptions.2.when": "Names suspected partner violence explicitly alongside the existing triggers so the same stopping rule reaches each printed role card."
+    "exceptions.2.when": "Names suspected partner violence explicitly alongside the existing triggers so the same stopping rule reaches each printed role card.",
+    "exceptions.2.then": "The owner assigned reassessment and clearance to the covering attending and required private confirmation of the patient’s wishes before clearing a hold. The next shift receives the decision and its scope."
   },
   "verbatim": {
     "purpose": "047fc596365b",
@@ -84,7 +85,6 @@
     "exceptions.0.then": "e4d2ee0b9695",
     "exceptions.1.when": "2a8a3e79c389",
     "exceptions.1.then": "b8abcf954135",
-    "exceptions.2.then": "33ddb8439d3a",
     "exceptions.3.when": "5fd3b5d187a7",
     "exceptions.3.then": "fbef05f5f4a8",
     "exceptions.4.when": "638824eb5aaf",

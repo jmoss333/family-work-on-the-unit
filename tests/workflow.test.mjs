@@ -25,6 +25,8 @@ test('suspected partner violence stops the joint meeting on the pocket card and 
     assert.match(text, /No joint meeting today when: suspected partner violence/i, slug);
   }
   assert.match(workflow.steps.find((step) => step.id === 'invite').action, /Suspected partner violence stops the joint invitation/);
+  const escort = workflow.steps.find((step) => step.id === 'bring-up');
+  assert.match(escort.action, /If the escort is on hold, report the arrival, hand off the hold and stop here/);
 });
 
 test('A15 · every step has an owner, a trigger and a completion test, and every role in scope has a step', () => {
