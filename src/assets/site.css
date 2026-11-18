@@ -692,3 +692,62 @@ a.ev-ref:hover { border-color: var(--rc-accent); text-decoration: none; }
   .map-board [data-open="true"] { background: none; }
   .map-part, .map-rest__group { break-inside: avoid; }
 }
+
+/* The observer can compare endings on one device, or hand the printed card to a supervisor. */
+.observer-lab { margin-bottom: var(--rc-space-xl); }
+.observer-lab h2 { margin-top: 0; }
+.observer-lab blockquote { margin: var(--rc-space-md) 0; }
+.observer-versions, .observer-turns { display: flex; flex-wrap: wrap; gap: var(--rc-space-xs); }
+.observer-versions { margin: var(--rc-space-lg) 0 var(--rc-space-sm); }
+.observer-turns { margin-bottom: var(--rc-space-md); }
+.observer-instructions, .observer-prompts { font-size: var(--rc-type-small); }
+.observer-turn, .observer-versions button { min-height: 2.75rem; }
+.observer-turn {
+  padding: var(--rc-space-xs) var(--rc-space-sm);
+  border: 1px solid var(--rc-border-strong);
+  border-radius: var(--rc-radius-pill);
+  background: var(--rc-surface);
+  color: var(--rc-link);
+  font: inherit;
+  font-size: var(--rc-type-small);
+  font-weight: var(--rc-font-weight-semibold);
+  cursor: pointer;
+}
+.observer-lab button[aria-pressed="true"] {
+  background: var(--rc-accent-dark);
+  color: var(--rc-text-inverse);
+  border-color: var(--rc-accent-dark);
+  box-shadow: inset 0 0 0 1px currentColor;
+}
+.observer-transcript { padding-left: var(--rc-space-lg); }
+.observer-line { padding: var(--rc-space-md); border-radius: var(--rc-radius-sm); background: var(--rc-accent-light); }
+.observer-line strong { color: var(--rc-link); font-size: var(--rc-type-small); }
+.observer-line p { margin: var(--rc-space-xs) 0 0; font: var(--rc-type-h3)/var(--rc-line-height-normal) var(--rc-font-display); }
+.observer-prompts { padding-left: var(--rc-space-lg); }
+.observer-prompts li { margin-bottom: var(--rc-space-xs); }
+.observer-paper { padding-top: var(--rc-space-md); border-top: 1px solid var(--rc-border); }
+@media (prefers-color-scheme: dark) {
+  .observer-lab button[aria-pressed="true"] { color: var(--rc-bg); }
+}
+@media print {
+  .observer-lab, .kind-observer .page__meta { display: none; }
+  .kind-observer .observer-intro { font-size: 10pt; margin: 0 0 6pt; }
+  .kind-observer { font-size: 10pt; line-height: 1.3; }
+  .kind-observer .rc-eyebrow { display: none; }
+  .kind-observer .page__title { font-size: 17pt; margin-bottom: 3pt; }
+  .kind-observer .status-banner { padding: 3pt 6pt; margin-bottom: 5pt; }
+  .kind-observer .status-banner p { margin: 0; font-size: 8pt; }
+  .observer-paper { max-width: none; padding: 0; border: 0; }
+  .observer-paper h2 { font-size: 14pt; }
+  .observer-paper h3 { font-size: 11pt; margin: 7pt 0 2pt; }
+  .observer-paper p, .observer-paper ul { margin: 0 0 3pt; }
+  .observer-paper li { margin-bottom: 1pt; }
+  .observer-paper .write-in { min-height: 23pt; margin-bottom: 4pt; }
+  .observer-paper .write-in__label { font-size: 9pt; }
+}
+
+/* The same scene holds the resident's prompt and the supervisor's hand-back. */
+.studio__scene { min-width: 0; border-top: 3px solid var(--rc-accent-dark); }
+.studio__moments { display: grid; gap: var(--rc-space-2xs); }
+.studio__moments a { display: inline-flex; align-items: center; min-height: 2.75rem; }
+.studio__scene .rc-btn { min-height: 2.75rem; white-space: normal; }

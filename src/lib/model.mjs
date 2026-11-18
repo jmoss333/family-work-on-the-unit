@@ -3,12 +3,13 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { HEX40, PENDING_SENTINEL, blobSha, pageDigest, reviewedMeta, upstreamDigest } from './hash.mjs';
+import { observerSources, observerVersions } from './observer.mjs';
 import { validateCase } from './casegraph.mjs';
 import { validateWorkflow } from './workflow.mjs';
 import { ADAPT_SCRIPT, validateAdaptation } from './adapt.mjs';
 import { checkParts, readParts, validateMap } from './map.mjs';
 
-export const KINDS = new Set(['page', 'card', 'studio', 'register', 'workflow', 'adapt', 'map']);
+export const KINDS = new Set(['page', 'card', 'studio', 'register', 'workflow', 'adapt', 'map', 'observer']);
 // A page that describes how a real unit works needs more than a clinical read before it is
 // public. The attest command asks the reviewer to confirm each line below, and a reviewed
 // row without that record is refused.
@@ -126,9 +127,25 @@ export function loadSite(root) {
       if (!page.case || page.case !== page.sources[0]) problems.push(`${at}: a studio page's source is its case file`);
       else if (existsSync(join(root, page.case))) {
         const caseFile = readJson(root, page.case);
+        if (caseFile.supervision) {
+          for (const source of ['src/lib/studio.mjs', 'src/assets/studio.js']) {
+            if (!page.sources.includes(source)) problems.push(`${at}: studio review must cover ${source}`);
+          }
+        }
         for (const error of validateCase(caseFile)) problems.push(`${page.case}: ${error}`);
         cases.set(page.slug, caseFile);
         page.caseFile = caseFile;
+      }
+    }
+    if (page.kind === 'observer') {
+      if (!page.sources || page.sources.length !== observerSources.length || !observerSources.every((file, index) => page.sources[index] === file)) {
+        problems.push(`${at}: the observer page must cover its paper card, rehearsal case, text renderer and controls`);
+      } else if (sources.length === observerSources.length) {
+        try {
+          page.observerVersions = observerVersions(JSON.parse(sources[1].bytes));
+        } catch (error) {
+          problems.push(`${at}: ${error.message}`);
+        }
       }
     }
     if (page.kind === 'workflow') {

@@ -2,7 +2,7 @@
 // inline scripts, no event-handler attributes (the Content-Security-Policy in netlify.toml
 // forbids all three, and tests/csp.test.mjs checks the output).
 import { STALE_REASON, reviewQueue } from './model.mjs';
-import { reviewOrder } from './casegraph.mjs';
+import { studioContent } from './studio.mjs';
 import { adaptCore, payload } from './adapt.mjs';
 import { board } from './map.mjs';
 import { coverage } from './workflow.mjs';
@@ -123,7 +123,7 @@ function breadcrumb(page, ctx) {
   return `<nav class="breadcrumb" aria-label="Breadcrumb"><ol><li><a href="${escAttr(ctx.href('index.html'))}">Home</a></li><li><a href="${escAttr(ctx.href('index.html'))}#section-${escAttr(section.id)}">${esc(section.title)}</a></li></ol></nav>`;
 }
 
-function pageHeader(page, ctx, { eyebrow, meta }) {
+export function pageHeader(page, ctx, { eyebrow, meta }) {
   return `${breadcrumb(page, ctx)}
 <p class="rc-eyebrow">${esc(eyebrow)}</p>
 <h1 class="page__title">${esc(page.title)}</h1>
@@ -208,87 +208,9 @@ ${moveLink(next, 'Next move', 'move-nav__next')}
 }
 
 // ── Practice studio ───────────────────────────────────────────────────────────────────
-function scriptLine(line, learnerRole) {
-  return line.kind === 'speech'
-    ? `<p class="speech${line.speaker === learnerRole ? ' speech--learner' : ''}"><span class="speech__who">${esc(line.speaker)}</span>“${esc(line.text)}”</p>`
-    : `<p class="narration">${esc(line.text)}</p>`;
-}
-
 export function studioPage(page, ctx) {
-  const c = page.caseFile;
-  const order = reviewOrder(c);
-  const added = order.filter((id) => c.nodes[id].origin !== 'astra-prototype').length;
-  const observerCard = ctx.site.bySlug.get('teach/observer-card');
-  const observerLink = observerCard && ctx.outputs.has(observerCard.file)
-    ? `<p><a href="${escAttr(ctx.href(observerCard.file))}">Printable observer card</a></p>`
-    : '';
-  const script = order
-    .map((id) => {
-      const node = c.nodes[id];
-      const tag = node.origin !== 'astra-prototype' ? ' <span class="rc-badge rc-badge--info">Added in review build</span>' : '';
-      const choices = node.choices
-        .map((choice) => {
-          const mark = choice.origin && node.origin === 'astra-prototype' ? ' <span class="rc-badge rc-badge--info">Added</span>' : '';
-          return `<li>“${esc(choice.label)}” → <a href="#position-${escAttr(choice.next)}">${esc(c.nodes[choice.next].title)}</a>${mark}</li>`;
-        })
-        .join('\n');
-      const pause = node.joint ? `<p class="script__note">Joint conversation: “Pause the joint meeting” is available here.</p>` : '';
-      const debrief = node.debrief ? `<p class="script__note">This is a debrief position.</p>` : '';
-      return `<li class="script__node" id="position-${escAttr(id)}">
-<h3>${esc(node.title)} <code>${esc(id)}</code>${tag}</h3>
-${node.lines.map((line) => scriptLine(line, c.learnerRole)).join('\n')}
-<ul class="script__choices">
-${choices}
-</ul>
-${pause}${debrief}
-</li>`;
-    })
-    .join('\n');
-  // "<" is escaped so the data block can never close its own <script> element.
-  const data = JSON.stringify({
-    start: c.start,
-    pauseNode: c.pauseNode,
-    learnerRole: c.learnerRole,
-    nodes: Object.fromEntries(
-      Object.entries(c.nodes).map(([id, node]) => [id, { title: node.title, joint: node.joint, lines: node.lines, choices: node.choices.map(({ label, next }) => ({ label, next })) }]),
-    ),
-  }).replace(/</g, '\\u003c');
-
-  return `<article class="page page--wide">
-${pageHeader(page, ctx, { eyebrow: 'Practice studio · Fictional rehearsal', meta: `About ${page.minutes} minutes · Case version ${c.version}` })}
-<p class="hero__lead">${esc(c.intro)}</p>
-<div class="studio" data-studio data-static>
-<section class="studio__scene rc-card" aria-label="Practice scene">
-<h2 id="studio-heading" class="studio__title" tabindex="-1">${esc(c.nodes[c.start].title)}</h2>
-<div id="studio-body">
-${c.nodes[c.start].lines.map((line) => scriptLine(line, c.learnerRole)).join('\n')}
-<p class="narration"><em>The rehearsal runs in your browser and needs JavaScript. Without it, every branch can still be read in the reviewer’s script below.</em></p>
-</div>
-<div id="studio-choices" class="studio__choices"></div>
-<div id="studio-tools" class="studio__tools" hidden></div>
-</section>
-<aside class="studio__aside" aria-label="For the observer">
-<h2>What to listen for</h2>
-<p>${esc(c.observer.listenFor)}</p>
-<h3>Supervisor prompts</h3>
-<ul>
-${c.observer.prompts.map((prompt) => `<li>${esc(prompt)}</li>`).join('\n')}
-</ul>
-<h3>Who’s in the room?</h3>
-<p>${esc(c.observer.room)}</p>
-${observerLink}
-<p>Nothing is recorded or saved. Refreshing starts a new rehearsal.</p>
-</aside>
-</div>
-<details class="script rc-panel">
-<summary>Read every branch (reviewer’s script)</summary>
-<p>All ${order.length} positions in this rehearsal, in the order a reader meets them. ${added} were written for the review build to meet the brief’s own acceptance tests; they are marked.</p>
-<ol class="script__list">
-${script}
-</ol>
-</details>
-<script type="application/json" id="case-data">${data}</script>
-</article>`;
+  const header = pageHeader(page, ctx, { eyebrow: 'Practice studio · Fictional rehearsal', meta: `About ${page.minutes} minutes · Case version ${page.caseFile.version}` });
+  return studioContent(page, ctx, header);
 }
 
 // ── Unit workflow ─────────────────────────────────────────────────────────────────────

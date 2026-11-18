@@ -227,12 +227,15 @@
       "section": "studio",
       "kind": "studio",
       "sources": [
-        "cases/rowan-sal.case.json"
+        "cases/rowan-sal.case.json",
+        "src/lib/studio.mjs",
+        "src/assets/studio.js"
       ],
       "case": "cases/rowan-sal.case.json",
       "summary": "A fictional rehearsal: Rowan, an adult receiving inpatient care, and Sal, a longtime friend.",
       "minutes": 10,
-      "origin": "astra-prototype"
+      "origin": "astra-prototype",
+      "originNote": "Dialogue from the original fictional case. Six positions were added in the first review build. The November 18 supervision revision adds two debriefs, paired practice and exact-moment retries."
     },
     {
       "slug": "studio/check-a-draft",
@@ -249,17 +252,20 @@
     },
     {
       "slug": "teach/observer-card",
-      "title": "Observer card",
+      "title": "Who gets the next turn?",
       "section": "teach",
-      "kind": "page",
+      "kind": "observer",
       "printable": true,
       "sources": [
-        "content/pages/teach-observer-card.md"
+        "content/pages/teach-observer-card.md",
+        "cases/rowan-sal.case.json",
+        "src/lib/observer.mjs",
+        "src/assets/observer.js"
       ],
-      "summary": "What to listen for, what to quote, and how to debrief one rehearsal.",
+      "summary": "Compare two versions of Rowan and Sal’s conversation, then use the printable observer card to give the resident feedback.",
       "minutes": 2,
       "origin": "astra-brief",
-      "originNote": "Assembled from sentences in a design brief and prototype drafted with ChatGPT (November 15, 2026); the note lines and the closing sentence were added by Claude."
+      "originNote": "Assembled from sentences in a design brief and prototype drafted with ChatGPT (November 15, 2026); the note lines and the closing sentence were added by Claude. The turn comparison follows the November 17 design review and draws each spoken line from the fictional case."
     },
     {
       "slug": "system/unit-workflow",

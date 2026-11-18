@@ -17,6 +17,7 @@ import { fileURLToPath } from 'node:url';
 import { SiteError, loadSite, reviewQueue, ships } from './lib/model.mjs';
 import { describeHits, findProtected } from './lib/protect.mjs';
 import { relHref, renderMarkdown } from './lib/render.mjs';
+import { renderObserver } from './lib/observer.mjs';
 import * as T from './lib/templates.mjs';
 
 const GENERATED = { home: 'index.html', guide: 'guide.html', 'guide-print': 'guide-print.html', 'about/governance': 'about/governance.html' };
@@ -113,6 +114,9 @@ export function build({ root, outDir, channel = 'review', buildId = '' }) {
     if (page.kind === 'studio') {
       body = T.studioPage(page, ctx);
       scripts = ['assets/site.js', 'assets/studio.js'];
+    } else if (page.kind === 'observer') {
+      body = renderObserver(page, ctx, T.pageHeader);
+      scripts = ['assets/site.js', 'assets/observer.js'];
     } else if (page.kind === 'register') {
       body = T.registerPage(page, ctx);
     } else if (page.kind === 'workflow') {

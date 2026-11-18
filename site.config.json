@@ -17,14 +17,19 @@
   },
   "doors": [
     {
+      "label": "Rehearse with Rowan and Sal",
+      "hint": "About ten minutes for a resident and supervisor. Try a line, get feedback and retry the same moment.",
+      "target": "page:studio/when-a-friend-answers-first"
+    },
+    {
+      "label": "Take the observer seat",
+      "hint": "Follow who speaks, give one observation and hand the moment back to the resident.",
+      "target": "page:teach/observer-card"
+    },
+    {
       "label": "Prepare for a meeting",
       "hint": "A three-minute lookup: six moves, one card each.",
       "target": "guide"
-    },
-    {
-      "label": "Practice an exchange",
-      "hint": "A ten-minute rehearsal with a supervisor or a colleague.",
-      "target": "page:studio/when-a-friend-answers-first"
     },
     {
       "label": "See how it fits together",

@@ -107,3 +107,21 @@ test('A6 · every position written for the review build is marked, so a reviewer
   const page = read(built('review').dir, 'studio/when-a-friend-answers-first.html');
   assert.equal((page.match(/Added in review build/g) || []).length, added.length);
 });
+
+test('paired debriefs retry the spoken moment, and honoring a pause can end the joint practice', () => {
+  const { nodes } = load();
+  for (const result of ['bounded', 'slipRepair']) {
+    const debrief = nodes[result].choices.find(choice => choice.next === 'debriefBoundary');
+    assert.ok(debrief, result);
+    assert.equal(nodes[debrief.next].choices.find(choice => choice.label.startsWith('Retry')).next, 'boundary');
+  }
+  assert.equal(nodes.debrief.choices.find(choice => choice.label.startsWith('Retry')).next, 'heard');
+  assert.equal(nodes.pause.choices[0].next, 'debriefPause');
+  assert.equal(nodes.debriefPause.debrief, true);
+  assert.deepEqual(nodes.debriefPause.choices.map(choice => choice.next), ['start']);
+  for (const [stop, retry] of [['private','risk'], ['soloAccept','solo']]) {
+    const debrief = nodes[nodes[stop].choices[0].next];
+    assert.ok(debrief.debrief);
+    assert.equal(debrief.choices.find(choice => choice.label.startsWith('Retry')).next, retry);
+  }
+});

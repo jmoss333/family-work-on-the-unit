@@ -67,6 +67,18 @@ export function validateCase(caseFile) {
     (nodes[id].choices || []).forEach((choice) => refuse(choice, `${id} choice "${choice.label}"`));
   }
 
+  const practice = caseFile.supervision;
+  if (practice !== undefined && (!practice?.moments || !Array.isArray(practice.shortcuts) || !Array.isArray(practice.promptHere))) {
+    errors.push('paired practice needs its moments, shortcuts and local prompts');
+  } else if (practice) {
+    for (const id of [...Object.keys(practice.moments), ...practice.shortcuts, ...practice.promptHere]) {
+      if (!nodes[id]) errors.push(`supervision references missing node "${id}"`);
+    }
+    for (const id of practice.shortcuts) {
+      if (!practice.moments[id]) errors.push(`supervision shortcut "${id}" needs an observer prompt`);
+    }
+  }
+
   if (errors.length) return errors; // the graph checks below assume a well-formed case
 
   const fromStart = reachable(caseFile, caseFile.start);

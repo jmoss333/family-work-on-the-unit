@@ -32,7 +32,7 @@ export function scratchRepo() {
   for (const name of ['content', 'cases', 'workflows', 'evidence', 'governance', 'site.config.json']) {
     cpSync(join(ROOT, name), join(dir, name), { recursive: true });
   }
-  cpSync(join(ROOT, 'src', 'assets'), join(dir, 'src', 'assets'), { recursive: true });
+  cpSync(join(ROOT, 'src'), join(dir, 'src'), { recursive: true });
   const rewrite = (rel, change) => {
     const value = JSON.parse(readFileSync(join(dir, rel), 'utf8'));
     writeFileSync(join(dir, rel), `${JSON.stringify(change(value), null, 2)}\n`);

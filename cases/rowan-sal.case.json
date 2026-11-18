@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "id": "rowan-sal",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "title": "When a friend answers first",
   "fictional": true,
   "intro": "One resident, one supervisor, about ten minutes. Speak the next line aloud before you look at the alternatives.",
@@ -406,7 +406,8 @@
       "choices": [
         {
           "label": "Debrief together",
-          "next": "debrief"
+          "next": "debriefBoundary",
+          "origin": "supervision-review-2026-11-18"
         }
       ]
     },
@@ -423,7 +424,8 @@
       "choices": [
         {
           "label": "Debrief how the pause was handled",
-          "next": "debrief"
+          "next": "debriefPause",
+          "origin": "supervision-review-2026-11-18"
         }
       ]
     },
@@ -531,8 +533,9 @@
       ],
       "choices": [
         {
-          "label": "Retry the original moment",
-          "next": "exchange"
+          "label": "Retry this moment · Whose turn comes next?",
+          "next": "heard",
+          "origin": "supervision-review-2026-11-18"
         },
         {
           "label": "Try the private variation",
@@ -685,7 +688,8 @@
       "choices": [
         {
           "label": "Debrief together",
-          "next": "debrief"
+          "next": "debriefBoundary",
+          "origin": "supervision-review-2026-11-18"
         },
         {
           "label": "Retry Sal’s question",
@@ -693,6 +697,79 @@
         }
       ],
       "origin": "review-build-addition"
+    },
+    "debriefBoundary": {
+      "title": "Debrief the medication question",
+      "joint": false,
+      "debrief": true,
+      "origin": "supervision-review-2026-11-18",
+      "lines": [
+        {
+          "kind": "narration",
+          "text": "Did the resident stay within the topic Rowan chose?"
+        },
+        {
+          "kind": "narration",
+          "text": "Quote the resident’s actual line."
+        }
+      ],
+      "choices": [
+        {
+          "label": "Retry this moment · Sal asks about medication",
+          "next": "boundary"
+        },
+        {
+          "label": "Restart the rehearsal",
+          "next": "start"
+        }
+      ]
+    },
+    "debriefPause": {
+      "title": "How was the stop honored?",
+      "joint": false,
+      "debrief": true,
+      "origin": "supervision-review-2026-11-18",
+      "lines": [
+        {
+          "kind": "narration",
+          "text": "If participation stops, observe how the resident responds."
+        },
+        {
+          "kind": "narration",
+          "text": "Quote the line that honored the decision. The joint exercise can end here."
+        }
+      ],
+      "choices": [
+        {
+          "label": "Restart the rehearsal",
+          "next": "start"
+        }
+      ]
     }
+  },
+  "supervision": {
+    "origin": "supervision-review-2026-11-18",
+    "moments": {
+      "exchange": "Does the resident invite the listener to say what they heard, then give the speaker room to correct it?",
+      "heard": "Who got to check or correct the meaning?",
+      "boundary": "Did the resident stay within the topic Rowan chose?",
+      "risk": "What did the resident do to protect Rowan’s disclosure? Did Rowan have a say in the next contact? The supervisor quotes one line and offers one specific change.",
+      "solo": "What did the resident say that left the decision with Rowan? Did Rowan choose what Sal would be told? The supervisor quotes one line and offers one specific change."
+    },
+    "shortcuts": [
+      "heard",
+      "boundary",
+      "risk"
+    ],
+    "promptHere": [
+      "rule",
+      "direct",
+      "relay",
+      "early",
+      "rethink",
+      "soloPress",
+      "slip"
+    ],
+    "handoff": "Quote the resident’s actual line. Give one specific observation, then pass the screen back."
   }
 }
