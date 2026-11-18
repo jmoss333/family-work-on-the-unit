@@ -751,3 +751,185 @@ a.ev-ref:hover { border-color: var(--rc-accent); text-decoration: none; }
 .studio__moments { display: grid; gap: var(--rc-space-2xs); }
 .studio__moments a { display: inline-flex; align-items: center; min-height: 2.75rem; }
 .studio__scene .rc-btn { min-height: 2.75rem; white-space: normal; }
+
+/* ─── The margin (design pass, 2026-11-18) ───
+ * The margin says who; the column says what. A speaker's name hangs beside their line, a
+ * section's name beside its contents, and a page's review status sits beside the page as a
+ * note rather than on it as a card. Terracotta (--rc-primary-dark) marks a voice; teal
+ * (--rc-accent-dark) marks links and the unit's system.
+ *
+ * Screen only: every print layout above is untouched. Every colour is a token, and no rule
+ * here adds a word to a page; tests/margin.test.mjs holds both, and holds the list of
+ * rehearsal positions below to the case file.
+ */
+@media screen {
+  /* Labels in sentence case, untracked. */
+  .rc-eyebrow, .say figcaption, .move-nav__dir {
+    text-transform: none;
+    letter-spacing: 0;
+    font-size: var(--rc-type-small);
+  }
+  .rc-eyebrow { font-weight: var(--rc-font-weight-normal); }
+
+  /* A title that leads its page, and a lead line short enough to read at a glance. */
+  .page__title { font-size: 2.25rem; letter-spacing: -0.015em; line-height: 1.12; margin-bottom: var(--rc-space-sm); }
+  .prose--card > p:first-child { max-width: 52ch; }
+
+  /* Provenance: a note in the margin, in the colour of its state. */
+  .status-banner {
+    background: none;
+    border: 0;
+    border-left: 2px solid currentColor;
+    border-radius: 0;
+    box-shadow: none;
+    padding: 0 0 0 var(--rc-space-sm);
+    max-width: 60ch;
+  }
+
+  /* The card kit retires where nothing is printed or carried. */
+  .door, .page-item, .say, .studio__scene, .status-strip, .move-nav a, .move-item {
+    background: none;
+    box-shadow: none;
+    border-radius: 0;
+  }
+
+  /* Home: the doors as a plain index, two by two. */
+  .doors { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 var(--rc-space-xl); }
+  .door {
+    border: 0;
+    border-top: 1px solid var(--rc-border-strong);
+    padding: var(--rc-space-md) 0 var(--rc-space-lg);
+    transition: none;
+  }
+  .door:hover { box-shadow: none; transform: none; }
+  .door__label { color: var(--rc-accent-dark); }
+  .door:hover .door__label { text-decoration: underline; text-underline-offset: 4px; }
+  .door__go { display: none; }
+  .status-strip { border: 0; padding: 0; }
+
+  /* Home: the directory as a contents page, each section's name in the margin. */
+  .lib-section {
+    display: grid;
+    grid-template-columns: 13rem minmax(0, 1fr);
+    grid-template-rows: auto 1fr;
+    column-gap: var(--rc-space-xl);
+    align-content: start;
+    padding-top: var(--rc-space-md);
+    border-top: 1px solid var(--rc-border-strong);
+  }
+  .lib-section > h2 { grid-column: 1; font-size: var(--rc-type-h4); }
+  .lib-section__blurb { grid-column: 1; align-self: start; font-size: var(--rc-type-small); }
+  .lib-section > .page-list { grid-column: 2; grid-row: 1 / span 2; }
+  .page-list { display: block; }
+  .page-item {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    column-gap: var(--rc-space-md);
+    row-gap: var(--rc-space-2xs);
+    border: 0;
+    padding: 0 0 var(--rc-space-md);
+  }
+  .page-item__head { grid-column: 1; justify-content: flex-start; }
+  .page-item > p { grid-column: 1; max-width: 62ch; }
+  .page-item > .page-item__meta { grid-column: 2; grid-row: 1; margin: 0; padding: 0; white-space: nowrap; }
+
+  /* A move card's "Try saying": the line hangs beside its label. */
+  .say {
+    display: grid;
+    grid-template-columns: 7.5rem minmax(0, 1fr);
+    column-gap: var(--rc-space-lg);
+    align-items: baseline;
+    border: 0;
+    border-top: 1px solid var(--rc-border);
+    border-bottom: 1px solid var(--rc-border);
+    padding: var(--rc-space-md) 0;
+  }
+  .say figcaption { grid-column: 1; margin: 0; font-weight: var(--rc-font-weight-semibold); color: var(--rc-primary-dark); }
+  .say blockquote { grid-column: 2; font-size: 1.3125rem; max-width: 34em; }
+  .move-nav a { border: 0; border-top: 1px solid var(--rc-border); }
+  .move-item { border: 0; border-top: 1px solid var(--rc-border); padding-left: 0; padding-right: 0; }
+
+  /* The rehearsal set as a script. */
+  .studio__scene { border: 0; border-top: 1px solid var(--rc-border); padding: var(--rc-space-lg) 0 0; }
+  .speech, .speech--learner {
+    display: grid;
+    grid-template-columns: 7.5rem minmax(0, 34em);
+    column-gap: var(--rc-space-lg);
+    align-items: baseline;
+    margin: 0 0 var(--rc-space-md);
+    padding: 0;
+    background: none;
+    border: 0;
+    border-radius: 0;
+    font-family: var(--rc-font-display);
+    font-size: 1.3125rem;
+    line-height: 1.45;
+  }
+  .speech__who {
+    grid-column: 1;
+    font-family: var(--rc-font);
+    font-size: var(--rc-type-small);
+    font-weight: var(--rc-font-weight-semibold);
+    line-height: var(--rc-line-height-normal);
+    color: var(--rc-primary-dark);
+  }
+
+  /* The empty turn. Where the closing instruction asks the resident to speak, the margin is
+   * left blank and a rule waits in the column above the instruction. The list is held to the
+   * case file by tests/margin.test.mjs. */
+  [data-studio]:is([data-position="exchange"], [data-position="rule"], [data-position="direct"],
+    [data-position="relay"], [data-position="heard"], [data-position="early"],
+    [data-position="boundary"], [data-position="risk"], [data-position="rethink"],
+    [data-position="solo"], [data-position="soloPress"], [data-position="slip"])
+    #studio-body > .narration:last-child {
+    padding-left: calc(7.5rem + var(--rc-space-lg));
+    margin-top: var(--rc-space-lg);
+    font-size: var(--rc-type-small);
+    color: var(--rc-text-mid);
+  }
+  [data-studio]:is([data-position="exchange"], [data-position="rule"], [data-position="direct"],
+    [data-position="relay"], [data-position="heard"], [data-position="early"],
+    [data-position="boundary"], [data-position="risk"], [data-position="rethink"],
+    [data-position="solo"], [data-position="soloPress"], [data-position="slip"])
+    #studio-body > .narration:last-child::before {
+    content: "";
+    display: block;
+    width: min(100%, 34em);
+    height: 2px;
+    margin-bottom: var(--rc-space-sm);
+    background: var(--rc-primary-dark);
+    transform-origin: left center;
+  }
+
+  /* The board: a line joins the steps one role owns in a row, so a break is a handoff.
+   * It draws only what the marks already say; in the map's self-test it is hidden with them. */
+  .map-board tbody td { position: relative; }
+  .map-board .map-mark { position: relative; z-index: 1; }
+  .map-row--role td:has(.map-mark--owns) + td:has(.map-mark--owns)::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    right: 50%;
+    width: 100%;
+    height: 3px;
+    transform: translateY(-50%);
+    background: var(--rc-primary-dark);
+  }
+  .map[data-recall="true"] .map-board td::before { display: none; }
+}
+/* The one motion on the site: the rule draws in when the turn passes to the reader. */
+@media screen and (prefers-reduced-motion: no-preference) {
+  [data-studio][data-position] #studio-body > .narration:last-child::before { animation: margin-turn 520ms var(--rc-ease-out) both; }
+  @keyframes margin-turn { from { transform: scaleX(0); } }
+}
+@media screen and (max-width: 760px) {
+  .doors { grid-template-columns: minmax(0, 1fr); }
+  .lib-section { grid-template-columns: minmax(0, 1fr); grid-template-rows: none; }
+  .lib-section > .page-list { grid-column: 1; grid-row: auto; margin-top: var(--rc-space-sm); }
+  .page-item { grid-template-columns: minmax(0, 1fr); }
+  .page-item > .page-item__meta { grid-column: 1; grid-row: auto; }
+  .say, .speech, .speech--learner { grid-template-columns: minmax(0, 1fr); row-gap: var(--rc-space-2xs); }
+  .say figcaption, .say blockquote, .speech__who { grid-column: 1; }
+  [data-studio][data-position] #studio-body > .narration:last-child { padding-left: 0; }
+  .page__title { font-size: var(--rc-type-h1); }
+}

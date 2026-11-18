@@ -49,17 +49,22 @@ const BOTH = [
   ['primary-dark', 'accent-light>surface', 'number on the open map step'], ['text', 'accent-bg>surface', 'open column on the map'], ['text-mid', 'accent-bg>surface', 'open column on the map, secondary text'],
   // The adaptation page's board: the heading of a step nobody owns.
   ['text', 'warning-light>surface', 'step nobody owns'], ['primary-dark', 'warning-light>surface', 'number of a step nobody owns'],
+  // The margin (2026-11-18): speaker names and "Try saying" in terracotta on the page, door titles in teal.
+  ['primary-dark', 'bg', 'speaker names and the "Try saying" label'],
 ];
 const LIGHT_ONLY = [
   ['success-strong', 'success-light>surface', 'attested badge and banner'], ['success-strong', 'success-light>bg', 'attested banner'],
   ['warning-strong', 'warning-light>surface', 'in-review badge'], ['warning-strong', 'warning-light>bg', 'in-review banner, review ribbon'],
   ['info-strong', 'info-light>surface', 'upstream badge'], ['info-strong', 'info-light>bg', 'upstream banner'],
+  // The margin (2026-11-18): the status note sits on the page, without its tint.
+  ['success-strong', 'bg', 'attested note'], ['warning-strong', 'bg', 'in-review note'], ['info-strong', 'bg', 'upstream note'],
 ];
 // The dark overrides in site.css: the system's "-strong" texts fail on dark tints.
 const DARK_ONLY = [
   ['success-soft', 'success-light>surface', 'attested badge'], ['success-soft', 'success-light>bg', 'attested banner'],
   ['warning-soft', 'warning-light>surface', 'in-review badge'], ['warning-soft', 'warning-light>bg', 'in-review banner, review ribbon'],
   ['text', 'info-light>surface', 'upstream badge'], ['text', 'info-light>bg', 'upstream banner'],
+  ['success-soft', 'bg', 'attested note'], ['warning-soft', 'bg', 'in-review note'],
 ];
 
 for (const [mode, pairs] of [['light', [...BOTH, ...LIGHT_ONLY]], ['dark', [...BOTH, ...DARK_ONLY]]]) {

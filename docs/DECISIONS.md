@@ -79,6 +79,29 @@ Two parts: the architecture decision that shaped this build, and the decisions t
 
 **Consequences.** The map is under the release gate, because it prints the unit's procedure. Editing the workflow, the map file or "Two kinds of conversation, one spine" reopens it. The home page has a third door and the navigation a seventh entry (D19).
 
+## ADR-005 · A design pass that changes how pages look and nothing they say (2026-11-18)
+
+**Context.** A design review against the frontend-design guidance found that most of what made the site look generic came from the design system's components: one card with one shadow on everything, gradient fills, all-caps labels above every title. The most useful line on a move card ("Try saying") carried the same weight as its review banner. The palette and the type stack are pinned (A12), and the reviewer's time is the constraint, so a pass that changed wording would cost review minutes.
+
+**Options.**
+
+| Option | For | Against |
+|---|---|---|
+| A. Fix the components in the design system | One fix for this site and the Clerkship Library | Not this repository's to change (AGENTS rule 6), and slower |
+| B. Rewrite the home page and the move cards | The strongest result | Every changed sentence reopens a page |
+| **C. One section of `site.css`, screen only, that changes no words** | Reopens nothing: no page's hash moves, every built page's HTML is byte-identical, and one revert undoes it | Bound by what the markup already gives it |
+
+**Decision.** C. The organising idea is "the margin says who; the column says what".
+
+1. **A script.** In the rehearsal and in "Try saying", the speaker's name hangs in a margin column in terracotta beside their line, which is set in Georgia.
+2. **The empty turn.** Where a position's closing line asks the resident to speak, the margin is left blank and a rule waits in the column above the instruction. It is drawn, not typed into. A test holds the list of positions to the case file: a position that is not a debrief, whose closing line says "aloud", "say" or "repair the moment". The rule draws in once; with reduced motion it does not move.
+3. **Provenance in the margin.** The status banner keeps its words and its colour, and loses its card: it becomes a note with a rule on its left.
+4. **Lines on the board.** On the map and the adaptation board, a line joins the steps one role owns in a row, so a break is a handoff. It draws only what the marks already say and is not a flag (D23, rule 15). On every thirteenth version, the breaks equal the handoff sentence. In the map's self-test the lines are hidden with the marks.
+5. **The card kit retires** on the home doors, the directory, "Try saying", the status banner and strip, the studio scene, the move navigation and the guide index. The workflow, the formats, the evidence records and the map's parts keep their cards, because they are sheets that print.
+6. **The home directory is a contents page**, with each section's name in the margin. Labels are in sentence case. Page titles are 36 px.
+
+**Consequences.** Terracotta now marks a voice on these pages (D24). `studio.js` is a source of the rehearsal page, so the empty turn is keyed in CSS on the position, not on a class the script adds. Print is untouched: the section is inside `@media screen`, and the printed page counts of the workflow, the adaptation sheet, the observer card, a move card, the pocket card, the rehearsal, the home page and the map are the same as before (A24).
+
 ## Open decisions
 
 | # | Decision | Default in effect | Why it is yours | To change it |
@@ -104,6 +127,9 @@ Two parts: the architecture decision that shaped this build, and the decisions t
 | D20 | **Who counts as "also involved".** The board marks a role at a step when the step's words name it. So whoever leads the meeting is marked at booking (the meeting goes on the lead's calendar) and when the family is brought up (the lead is told), the psychiatrist only at rounds, and nursing only where it is notified or may join | As the words have it | A reader will take the board as your account of who does what, and nursing owns no step on it | Change the step's wording in the workflow file; the marks follow the words, and a test fails if they do not |
 | D22 | **What a role card carries.** One printed card for each role: the steps it owns and the steps that also involve it, the guardrails, the exceptions, the line on where the workflow comes from and the closing line. It leaves out the other roles' steps, the three formats and the measures | As built | A card is read on its own, away from the sheet. Whether the guardrails belong on every card, and whether a lead's card needs the formats, is yours to say | The `cards` function in `src/assets/adapt.js`; a test holds every sentence on a card to the sheet |
 | D23 | **What counts as a handoff.** Under the board the adaptation page says how often the work changes hands in the reader's version, and after which steps. It counts a handoff where no one who owns a step also owns the next; so a step two roles share takes no handoff from either, and the team owning rounds always makes two. As written the count is five | As built | The workflow's own principle is that each step removes a handoff, and this puts a number on a unit's version. Whether that is the right way to count is yours to say | The `handoffs` function in `src/assets/adapt.js` and the sentence `board.handoffs` in the rules file |
+| D24 | **Terracotta means a voice.** Since the design pass, speaker names, "Try saying" and the empty turn are terracotta, and door titles are teal. The navigation underline, the map's step numbers and the board's marks are still terracotta | As built | It is the site's look, and its sister site shares the palette | The section "The margin" at the end of `src/assets/site.css` |
+| D25 | **Where the component fixes live.** The design pass overrides the design system's eyebrow and card styles in this site's `site.css`. The same fixes could go upstream, so the Clerkship Library inherits them | Here, in `site.css` | The design system is yours, and so is the Clerkship Library | Move the rules to the design system and delete them here |
+| D26 | **Which positions get the empty turn.** Those whose closing line asks the resident to speak: twelve of the case's 27, by the rule in ADR-005 | As built | It is a reading of your rehearsal: where the turn passes to the resident | The list in `site.css`; the test says which positions the rule would add or remove |
 
 ## Decided
 
