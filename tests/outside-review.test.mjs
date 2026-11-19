@@ -48,7 +48,7 @@ test('A23 · the packet holds every page of the review build, in order, and says
     const body = pages[index].split('\n').slice(4).join('\n');
     assert.equal(body.trim(), pageText(read(built('review').dir, page.file)), `page ${index + 1}: its text is not the built page's`);
   });
-  assert.match(text, /^# Family Work on the Unit: review packet\n\nThe words of every page in the review build, at commit abc1234, made on 2026-11-17\. 22 pages\.\n/);
+  assert.match(text, /^# Family Work on the Unit: review packet\n\nThe words of every page in the review build, at commit abc1234, made on 2026-11-17\. 23 pages\.\n/);
   assert.ok(!/<[a-z/][^>]*>/i.test(text), 'markup reached the packet');
   assert.ok(!text.includes('"schema"') && !text.includes('{"workflow"'), 'a data block reached the packet');
 
@@ -108,9 +108,9 @@ test('A23 · the two commands: a packet to hand out, and a check that exits 1 on
   const out = join(dir, 'packet.md');
   let run = spawnSync(process.execPath, [join(ROOT, 'tools/review_packet.mjs'), '--base', 'https://example.test', '--out', out], { encoding: 'utf8' });
   assert.equal(run.status, 0, run.stderr);
-  assert.match(run.stdout, /^22 pages, \d+ words, written to /);
+  assert.match(run.stdout, /^23 pages, \d+ words, written to /);
   const text = readFileSync(out, 'utf8');
-  assert.equal(packetPages(text).length, 22);
+  assert.equal(packetPages(text).length, 23);
   const page = packetPages(text).findIndex((item) => item.startsWith('The unit workflow\n')) + 1;
   const finding = (id, quote) => ({ id, reader: 'resident', page, quote, kind: 'unclear', severity: 'low', what: 'A sentence saying what is wrong and for whom.', confidence: 'low' });
   const save = (findings) => { writeFileSync(join(dir, 'findings.json'), JSON.stringify({ reviewer: 'A model', lens: 'five cold readers', findings })); return join(dir, 'findings.json'); };

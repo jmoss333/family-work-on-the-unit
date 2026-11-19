@@ -29,7 +29,7 @@ export function built(channel) {
  */
 export function scratchRepo() {
   const dir = mkdtempSync(join(tmpdir(), 'fwu-scratch-'));
-  for (const name of ['content', 'cases', 'workflows', 'evidence', 'governance', 'site.config.json']) {
+  for (const name of ['content', 'cases', 'workflows', 'evidence', 'governance', 'voice', 'site.config.json']) {
     cpSync(join(ROOT, name), join(dir, name), { recursive: true });
   }
   cpSync(join(ROOT, 'src'), join(dir, 'src'), { recursive: true });

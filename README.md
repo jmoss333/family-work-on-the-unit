@@ -3,7 +3,7 @@
 A companion for residents and attending physicians doing family work on adult inpatient psychiatry units.
 Joshua Moss, MD · started 2026-11-15
 
-It is a small static site: short cards to read before a meeting, one fictional rehearsal to practice with a supervisor, a workflow that puts family meetings on a unit's calendar, a page that rewrites that workflow for another unit, a map that shows how all of it fits together, the evidence behind them, and a ledger that says who reviewed what. It is modelled on the [Psychiatry Clerkship Library](https://github.com/jmoss333/psychiatry-clerkship) and reuses that library's review rule: an attestation is bound to the exact text it covers.
+It is a small static site: short cards to read before a meeting, one fictional rehearsal to practice with a supervisor and a fresh scene for each move, a workflow that puts family meetings on a unit's calendar, a page that rewrites that workflow for another unit, a map that shows how all of it fits together, the evidence behind them, and a ledger that says who reviewed what. It is modelled on the [Psychiatry Clerkship Library](https://github.com/jmoss333/psychiatry-clerkship) and reuses that library's review rule: an attestation is bound to the exact text it covers.
 
 **Status: no page has been attested for this site yet.** The repository is public, and two sites are built from it. The published site, <https://family-work-on-the-unit.netlify.app>, comes from `main` and shows nothing but its shell and the governance page until a page is attested. The review site, <https://review--family-work-on-the-unit.netlify.app>, comes from `review` and shows every page, each one marked. `docs/DEPLOY.md` explains the two and how they are set up.
 
@@ -14,7 +14,7 @@ Node 20 or later. There is nothing to install.
 ```bash
 npm run build          # review build into dist/ : every page, each one marked
 open dist/index.html   # works straight from the file system
-npm test               # 120 checks, about sixteen seconds
+npm test               # 159 checks, about sixteen seconds
 npm run queue          # what is waiting for faculty review, highest risk first
 npm run build:public   # what the public would get: attested pages only
 ```
@@ -39,7 +39,7 @@ With nothing attested, the public build is the empty shell and the governance pa
 | `content/pages/` | Other pages written for this site |
 | `content/maps/` | The map's own few sentences. Everything else on the map is copied by the build from the workflow, one table and the list of pages |
 | `content/upstream/` | Files copied byte for byte from the Psychiatry Clerkship Library. **Never edited here** |
-| `cases/` | Rehearsals as versioned JSON. Position ids are stable |
+| `cases/` | Rehearsals as versioned JSON. Position ids are stable. Beside them, the deck of fresh scenes |
 | `workflows/` | The unit workflow as data: steps, owners, records, completion tests, measures. Beside it, the rules that rewrite it for another unit |
 | `evidence/register.json` | Every study and guideline cited, with identifiers and a dated source check |
 | `governance/ledger.json` | The review ledger |
@@ -48,19 +48,20 @@ With nothing attested, the public build is the empty shell and the governance pa
 | `site.config.json` | Title, sections, the front-door links, and the owner's switches |
 | `src/` | The build (`build.mjs`), its library, and the stylesheets and scripts that ship |
 | `tests/` | The acceptance tests. `docs/ACCEPTANCE.md` maps each to a criterion |
-| `tools/` | `attest`, `queue`, `protect-term`, `compare_workflow_source` (the unit workflow against its procedure, which is kept outside this repository), `review_packet` and `check_findings` (a review from outside: `docs/OUTSIDE_REVIEW.md`), and the one-time intake scripts that produced the Astra-derived files |
+| `voice/` | What may be offered as the author's line: the voice in prose, the rules a machine checks, lines of his own, and the instructions a model is given. Nothing in it ships (`voice/README.md`) |
+| `tools/` | `attest`, `queue`, `protect-term`, `compare_workflow_source` (the unit workflow against its procedure, which is kept outside this repository), `review_packet` and `check_findings` (a review from outside: `docs/OUTSIDE_REVIEW.md`), `voice/lint` and `voice/draft` (hold a line to the voice rules; draft with a model at the owner's terminal), and the one-time intake scripts that produced the Astra-derived files |
 | `vendor/marked/` | The Markdown parser, pinned and committed, so a build installs nothing |
 | `docs/` | Where the unit workflow's sentences came from, open decisions, acceptance map, deploy steps |
 
 ## Review status today
 
-22 teaching pages.
+23 teaching pages.
 
 | State | Pages | What it means |
 |---|---|---|
 | Attested for this site | 0 | Nobody has run `attest` yet |
 | Attested upstream | 2 | The playbook and the modalities guide: byte-identical to text reviewed in the Clerkship Library on 2026-09-26 |
-| In review | 20 | Six cards, the rehearsal, the boundaries page, the evidence register, the pocket card, the unit workflow with its setup page and its adaptation page, the map, the formats page, and five pages written for this build |
+| In review | 21 | Six cards, the rehearsal, the fresh scenes, the boundaries page, the evidence register, the pocket card, the unit workflow with its setup page and its adaptation page, the map, the formats page, and five pages written for this build |
 
 `npm run queue` prints the list with the reason for each.
 
@@ -80,6 +81,10 @@ With nothing attested, the public build is the empty shell and the governance pa
 
 **Add a rehearsal.** Add a case file and a `studio` page. The build refuses a case that lacks any of the five exits (withdrawal, restricted topic, fear, declined meeting, privacy miss), has a dead end, or carries any score.
 
+**Add a scene.** Add it to `cases/fresh-scenes.scenes.json` with an `origin`. A scene is one to three invented people, an opening of at most three lines, and a model line of one or two turns. The build refuses a model line that breaks a rule in `voice/rules.json`, and a scene that touches what a short scene cannot hold. `node tools/voice/lint.mjs --say "..." --reply` checks a line before you add it.
+
+**Draft in the author's voice.** `node tools/voice/draft.mjs scenes --brief <file> --dry-run` shows the request; with `ANTHROPIC_API_KEY` in your shell, the same command without `--dry-run` sends it and writes a draft under `voice/drafts/`. A draft changes nothing on the site. `voice/README.md` has the gates.
+
 **Change the unit workflow.** Edit `workflows/unit-family-meeting.workflow.json`. The build refuses a step nobody owns, a role with no step, and a measure that checks no step. A sentence that is not in the source procedure goes under `additions`, so a reviewer can find it.
 
 **Change what a unit may adapt.** Edit `workflows/unit-family-meeting.adapt.json`: the roles offered for each job, the intervals, and the rules that write them into the workflow. The build refuses a rule that no longer matches the workflow's words. Editing that file, the workflow or `src/assets/adapt.js` reopens the adaptation page's review.
@@ -95,6 +100,8 @@ The unit the workflow comes from, its institution and affiliates, and the produc
 ## What the site never does
 
 No login, no analytics, no fonts or scripts from another host, no form, no storage, no network request after the page loads, no microphone, no AI endpoint. One page has menus, each a fixed list; nothing can be typed into them and nothing chosen is kept. The map opens one step at a time and can cover its answers for self-testing; it keeps no score and remembers nothing. The Content-Security-Policy in `netlify.toml` forbids all of it and `tests/csp.test.mjs` and `tests/no-capture.test.mjs` check the built files against that policy.
+
+The drafting tool in `tools/voice/` is not the site. It runs at the owner's terminal with his key, it refuses to run on a build server, and what it writes is a draft that ships only if a person copies it into a deck and the page is attested. `tests/voice.test.mjs` checks that nothing the build or a page loads reaches it.
 
 ## Design
 

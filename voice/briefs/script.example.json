@@ -1,0 +1,13 @@
+{
+  "task": "script",
+  "fictional": true,
+  "note": "An example brief for one meeting. Every person is invented. The tool refuses a script brief unless the patient was asked privately first and a scope is written down: on this site, a meeting nobody was asked about is not planned.",
+  "format": 30,
+  "people": [
+    { "name": "Nell", "role": "An adult receiving inpatient care" },
+    { "name": "Gus", "role": "Nell’s husband" }
+  ],
+  "askedPrivately": true,
+  "scope": "Nell agreed to talk about the first week at home: who is in the house during the day, and how she asks for time on her own. Her treatment and the reason she came in are not for this meeting.",
+  "purpose": "One plan for the first week at home that each of them chose."
+}

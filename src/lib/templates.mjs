@@ -3,6 +3,7 @@
 // forbids all three, and tests/csp.test.mjs checks the output).
 import { STALE_REASON, reviewQueue } from './model.mjs';
 import { studioContent } from './studio.mjs';
+import { scenesContent } from './scenes.mjs';
 import { adaptCore, payload } from './adapt.mjs';
 import { board } from './map.mjs';
 import { coverage } from './workflow.mjs';
@@ -25,6 +26,7 @@ const ORIGIN_NOTE = {
   'author-materials': 'Assembled by Claude (November 16, 2026) from Dr. Moss’s own teaching materials; the wording is largely his.',
   'adaptation-tool': 'Built by Claude (November 17, 2026). The sheet is the unit workflow’s own text; the questions, the roles offered for each job and the line between what can change and what stays fixed are Claude’s.',
   'site-map': 'Built by Claude (November 17, 2026) from text other pages already carry: the unit workflow, the five parts and their move cards, and the list of pages. The introduction, the headings and the layout are Claude’s.',
+  'voice-kit': 'Drafted by Claude (November 18, 2026) in Dr. Moss’s reported voice and held to written rules for it. The scenes and the people are invented, and the wording is not yet his.',
 };
 
 const ORIGIN_SHORT = {
@@ -37,6 +39,7 @@ const ORIGIN_SHORT = {
   'author-materials': 'Author’s teaching materials, assembled by Claude',
   'adaptation-tool': 'Claude; the sheet is the unit workflow’s text',
   'site-map': 'Claude; drawn from text other pages carry',
+  'voice-kit': 'Claude, in the author’s reported voice',
 };
 
 export const stateBadge = (state) => `<span class="rc-badge ${STATE[state].badge}">${STATE[state].label}</span>`;
@@ -211,6 +214,13 @@ ${moveLink(next, 'Next move', 'move-nav__next')}
 export function studioPage(page, ctx) {
   const header = pageHeader(page, ctx, { eyebrow: 'Practice studio · Fictional rehearsal', meta: `About ${page.minutes} minutes · Case version ${page.caseFile.version}` });
   return studioContent(page, ctx, header);
+}
+
+// ── Fresh scenes ──────────────────────────────────────────────────────────────────────
+export function scenesPage(page, ctx) {
+  const deck = page.scenesFile;
+  const header = pageHeader(page, ctx, { eyebrow: 'Practice studio · Fictional scenes', meta: `${deck.scenes.length} scenes · about ${page.minutes} minutes · Deck version ${deck.version}` });
+  return scenesContent(page, ctx, header);
 }
 
 // ── Unit workflow ─────────────────────────────────────────────────────────────────────
@@ -617,7 +627,7 @@ function counts(pages) {
 
 function pageItem(page, ctx) {
   const find = `${page.title} ${page.summary} ${ctx.site.sectionById.get(page.section).title} ${page.phase || ''}`.toLowerCase();
-  const meta = page.kind === 'card' ? `Move ${page.order} of ${ctx.site.cards.length} · ${page.minutes} min` : page.kind === 'studio' ? `Rehearsal · about ${page.minutes} min` : page.kind === 'workflow' ? `Workflow · ${page.workflowFile.steps.length} steps · ${page.minutes} min` : page.kind === 'adapt' ? `Tool · ${page.adaptFile.slots.length + page.adaptFile.timings.length} choices · prints as your version` : page.kind === 'map' ? `Map · ${page.workflowFile.steps.length} steps · ${page.minutes} min` : `${page.minutes} min`;
+  const meta = page.kind === 'card' ? `Move ${page.order} of ${ctx.site.cards.length} · ${page.minutes} min` : page.kind === 'studio' ? `Rehearsal · about ${page.minutes} min` : page.kind === 'scenes' ? `Practice · ${page.scenesFile.scenes.length} scenes · about ${page.minutes} min` : page.kind === 'workflow' ? `Workflow · ${page.workflowFile.steps.length} steps · ${page.minutes} min` : page.kind === 'adapt' ? `Tool · ${page.adaptFile.slots.length + page.adaptFile.timings.length} choices · prints as your version` : page.kind === 'map' ? `Map · ${page.workflowFile.steps.length} steps · ${page.minutes} min` : `${page.minutes} min`;
   return `<li class="page-item rc-card" data-find="${escAttr(find)}">
 <div class="page-item__head"><a class="page-item__title" href="${escAttr(ctx.href(page.file))}">${esc(page.title)}</a>${stateBadge(page.state)}</div>
 <p>${esc(page.summary)}</p>
@@ -790,6 +800,7 @@ ${surfaces.map((item) => `<li><a href="${escAttr(item.url)}" rel="noopener noref
 <li>The build refuses to write a page that prints a name on the protected list: the unit the workflow comes from, its institution and its products. The list is kept as hashes, so this repository does not spell those names out.</li>
 <li>One page computes what it shows: it rewrites the unit workflow with a reader’s own owners and intervals. Its review covers the rules, the workflow and the script that applies them. An attestation is of the workflow as written, so a changed version says it is a local adaptation and does not carry the attestation in print.</li>
 <li>One page is a map: the build draws it from the workflow and from text other pages already carry. Its review covers the files it is drawn from, and its script only shows and hides what the build wrote.</li>
+<li>One page holds short scenes, each with one possible line for the clinician. The build refuses such a line when it breaks a written rule for what may be offered as the author’s: for example a question that asks why, or a turn that runs long. A rule can only refuse. Whether a line is right is still the faculty review.</li>
 </ol>
 </section>
 

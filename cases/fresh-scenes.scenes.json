@@ -1,0 +1,251 @@
+{
+  "schema": 1,
+  "id": "fresh-scenes",
+  "version": "0.1.0",
+  "fictional": true,
+  "intro": "A new scene for each move. One resident, one supervisor, about a minute a scene. Speak the next line aloud before you open the comparison. The line shown is one possible line; agreement with it earns no credit.",
+  "learnerRole": "Resident",
+  "ask": "What would you say next? Give your own line aloud.",
+  "pause": "Then pause.",
+  "scenes": [
+    {
+      "id": "invite",
+      "title": "Before anyone is called",
+      "move": "before/prepare-a-meeting",
+      "origin": "voice-kit-2026-11-18",
+      "people": [
+        {
+          "name": "Dee",
+          "role": "An adult receiving inpatient care"
+        }
+      ],
+      "lines": [
+        {
+          "kind": "narration",
+          "text": "A private conversation. No one has been invited yet."
+        },
+        {
+          "kind": "speech",
+          "speaker": "Dee",
+          "text": "You can call my sister. Just don’t make it a big thing."
+        }
+      ],
+      "reply": [
+        {
+          "kind": "speech",
+          "speaker": "Resident",
+          "text": "Thank you for telling me. What would you want her to understand? Is there anything you’d want me to keep out of it?"
+        }
+      ]
+    },
+    {
+      "id": "help",
+      "title": "One word, two meanings",
+      "move": "room/hear-what-each-person-means",
+      "origin": "voice-kit-2026-11-18",
+      "people": [
+        {
+          "name": "June",
+          "role": "An adult receiving inpatient care"
+        },
+        {
+          "name": "Paz",
+          "role": "June’s daughter"
+        }
+      ],
+      "lines": [
+        {
+          "kind": "speech",
+          "speaker": "June",
+          "text": "I don’t want help. I want my kitchen back."
+        },
+        {
+          "kind": "speech",
+          "speaker": "Paz",
+          "text": "Help is the whole reason I’m coming."
+        }
+      ],
+      "reply": [
+        {
+          "kind": "speech",
+          "speaker": "Resident",
+          "text": "You’re both saying help, and I’m not sure it means the same thing. June, what happens when Paz helps?"
+        },
+        {
+          "kind": "narration",
+          "text": "Then pause."
+        },
+        {
+          "kind": "speech",
+          "speaker": "Resident",
+          "text": "Paz, what do you hope June feels when you help?"
+        }
+      ]
+    },
+    {
+      "id": "asked",
+      "title": "Asked three times",
+      "move": "room/identify-an-interaction-pattern",
+      "origin": "voice-kit-2026-11-18",
+      "people": [
+        {
+          "name": "Tam",
+          "role": "An adult receiving inpatient care"
+        },
+        {
+          "name": "Odell",
+          "role": "Tam’s father"
+        }
+      ],
+      "lines": [
+        {
+          "kind": "narration",
+          "text": "Three times now, Odell has asked whether Tam is okay. Each time Tam has said “I’m fine” and looked at the door."
+        },
+        {
+          "kind": "speech",
+          "speaker": "Odell",
+          "text": "Are you sure you’re okay?"
+        }
+      ],
+      "reply": [
+        {
+          "kind": "speech",
+          "speaker": "Resident",
+          "text": "Odell, you ask if Tam’s okay. Tam, you say you’re fine, and Odell asks again. Is that how it goes, or am I missing something?"
+        }
+      ]
+    },
+    {
+      "id": "told",
+      "title": "What gets told at home",
+      "move": "room/shift-one-exchange",
+      "origin": "voice-kit-2026-11-18",
+      "people": [
+        {
+          "name": "Ari",
+          "role": "An adult receiving inpatient care"
+        },
+        {
+          "name": "Devon",
+          "role": "Ari’s older brother"
+        }
+      ],
+      "lines": [
+        {
+          "kind": "speech",
+          "speaker": "Ari",
+          "text": "When I get home, I want to tell people myself. In my own time."
+        },
+        {
+          "kind": "speech",
+          "speaker": "Devon",
+          "text": "They’re already asking. I can’t just say nothing."
+        }
+      ],
+      "reply": [
+        {
+          "kind": "speech",
+          "speaker": "Resident",
+          "text": "Devon, before you answer that, what did you hear Ari asking for?"
+        },
+        {
+          "kind": "narration",
+          "text": "Then pause."
+        },
+        {
+          "kind": "speech",
+          "speaker": "Resident",
+          "text": "Ari, did Devon get it, or is there something you’d change?"
+        }
+      ]
+    },
+    {
+      "id": "settled",
+      "title": "A plan arrives finished",
+      "move": "room/make-a-plan-both-people-can-own",
+      "origin": "voice-kit-2026-11-18",
+      "people": [
+        {
+          "name": "Ines",
+          "role": "An adult receiving inpatient care"
+        },
+        {
+          "name": "Bea",
+          "role": "Ines’s sister"
+        }
+      ],
+      "lines": [
+        {
+          "kind": "speech",
+          "speaker": "Bea",
+          "text": "It’s settled. I’ll drive her to every appointment and sit in."
+        },
+        {
+          "kind": "speech",
+          "speaker": "Ines",
+          "text": "Every one?"
+        }
+      ],
+      "reply": [
+        {
+          "kind": "speech",
+          "speaker": "Resident",
+          "text": "Bea, I can hear how much you want to help. Ines, what part of that would you want, if any?"
+        },
+        {
+          "kind": "narration",
+          "text": "Then pause."
+        },
+        {
+          "kind": "speech",
+          "speaker": "Resident",
+          "text": "Bea, is that something you can do?"
+        }
+      ]
+    },
+    {
+      "id": "standing",
+      "title": "Already standing",
+      "move": "room/close-with-follow-through",
+      "origin": "voice-kit-2026-11-18",
+      "people": [
+        {
+          "name": "Cal",
+          "role": "An adult receiving inpatient care"
+        },
+        {
+          "name": "Rosa",
+          "role": "Cal’s aunt"
+        }
+      ],
+      "lines": [
+        {
+          "kind": "narration",
+          "text": "A few minutes are left. Cal and Rosa have agreed on one phone call a week. Rosa is on her feet."
+        },
+        {
+          "kind": "speech",
+          "speaker": "Rosa",
+          "text": "Good. So we’re all set."
+        }
+      ],
+      "reply": [
+        {
+          "kind": "speech",
+          "speaker": "Resident",
+          "text": "Rosa, before we stop, is there anything either of you still needs to say?"
+        },
+        {
+          "kind": "narration",
+          "text": "Then pause."
+        },
+        {
+          "kind": "speech",
+          "speaker": "Resident",
+          "text": "Who makes the first call, and when?"
+        }
+      ]
+    }
+  ]
+}

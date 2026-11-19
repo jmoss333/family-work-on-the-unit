@@ -1,0 +1,84 @@
+{
+  "schema": 1,
+  "note": "What a line must and must not do to be offered as the author's. Read by src/lib/voice.mjs, which the build, the tests and the drafting tool all use. A rule that refuses stops a line; a rule that advises is printed beside it. Phrases are matched whole, in lower case, with straight apostrophes; a trailing * matches any ending. No rule here puts a word on a page, so this file is not a source of any page.",
+  "limits": {
+    "turnWords": 40,
+    "turnSentences": 3,
+    "sentenceWords": 24,
+    "sceneSetupLines": 3,
+    "sceneSetupWords": 60,
+    "sceneReplyTurns": 2,
+    "partLines": 4
+  },
+  "advice": {
+    "turnWords": 28,
+    "sentenceWords": 20
+  },
+  "rules": [
+    { "id": "turn-length", "level": "refuse", "on": "say", "says": "A turn runs to at most {turnWords} words and {turnSentences} sentences. The long turns belong to the family." },
+    { "id": "sentence-length", "level": "refuse", "on": "say", "says": "A sentence runs to at most {sentenceWords} words." },
+    { "id": "no-why", "level": "refuse", "on": "say", "says": "No question asks a person why. Ask what or how." },
+    { "id": "no-verdict", "level": "refuse", "on": "say", "says": "No verdict on who is right, who is to blame or how someone ought to feel." },
+    { "id": "no-label", "level": "refuse", "on": "say", "says": "No label for a person. Describe what was said or done." },
+    { "id": "no-promise", "level": "refuse", "on": "say", "says": "No guarantee of how things will turn out." },
+    { "id": "no-pressure", "level": "refuse", "on": "say", "says": "No pressing for an apology, forgiveness, touch, eye contact or an answer. Every ask leaves a way out." },
+    { "id": "no-jargon", "level": "refuse", "on": "say", "says": "No clinical term a family would have to ask about." },
+    { "id": "no-figures", "level": "refuse", "on": "say", "says": "No digit, dose or percentage in a spoken line." },
+    { "id": "hands-back", "level": "refuse", "on": "reply", "says": "The line a learner compares with ends by handing the floor back: its last sentence is a question." },
+    { "id": "names-someone", "level": "refuse", "on": "reply", "says": "With more than one person in the room, the line says whose turn it is: it names one of them." },
+    { "id": "out-of-scope", "level": "refuse", "on": "scene", "says": "A short scene has no exits, so it stays away from what needs them: risk to life, violence or fear of a person, medication and diagnosis. Those belong in a full rehearsal or in a private conversation." },
+    { "id": "one-frame", "level": "refuse", "on": "script", "says": "A script teaches at most {frames} idea(s) for its length, and never two in one part." },
+    { "id": "asks-in-every-part", "level": "refuse", "on": "script", "says": "Every part of a script holds at least one question." },
+    { "id": "long-turn", "level": "advise", "on": "say", "says": "Longer than most of his turns ({turnWords} words, or a sentence over {sentenceWords})." },
+    { "id": "written-not-spoken", "level": "advise", "on": "say", "says": "Reads as written. He contracts when he speaks." },
+    { "id": "clinic-words", "level": "advise", "on": "say", "says": "A clinic word. He usually says the plain thing it stands for." },
+    { "id": "yes-but", "level": "advise", "on": "say", "says": "Understanding followed by “but” takes the understanding back." }
+  ],
+  "phrases": {
+    "verdict": [
+      "you always", "you never", "your fault", "to blame", "calm down", "overreact*", "you're being", "you are being",
+      "you should have", "you shouldn't have", "you should not have", "that's not true", "that is not true", "you're wrong", "you are wrong",
+      "the real problem", "you shouldn't feel", "you should not feel", "no reason to feel"
+    ],
+    "label": [
+      "codependen*", "narcissis*", "borderline", "manipulat*", "enabler*", "enabling", "toxic", "abuser*", "addict", "addicts", "alcoholic*",
+      "crazy", "psychotic", "noncomplian*", "non-complian*", "attention-seeking", "attention seeking", "drug-seeking", "drug seeking",
+      "dysfunctional", "enmesh*"
+    ],
+    "promise": [
+      "i promise", "guarantee*", "everything will be", "it will all", "it'll all", "never happen again", "nothing to worry", "don't worry",
+      "you'll be fine", "you will be fine", "going to be okay", "going to be fine", "this will fix"
+    ],
+    "pressure": [
+      "you have to", "you must", "you need to tell", "you need to forgive", "say you're sorry", "say you are sorry", "say sorry",
+      "apologize to", "apologise to", "you forgive", "forgive him", "forgive her", "forgive them", "give him a hug", "give her a hug",
+      "give them a hug", "look at him", "look at her", "look at them", "look him in", "look her in", "look them in", "for the sake of"
+    ],
+    "jargon": [
+      "triangulat*", "parentif*", "adultif*", "enactment*", "psychoeducat*", "mentaliz*", "mentalis*", "dysregulat*", "affect regulation",
+      "attachment injur*", "attachment style*", "expressed emotion", "subsystem*", "maladaptive", "comorbid*", "decompensat*", "collateral",
+      "disposition", "psychosocial", "ideation", "anhedoni*", "dissociat*", "homeostasis", "identified patient", "pursue-withdraw",
+      "pursuer", "distancer", "cognitive distortion*", "reframe", "reframing", "coping mechanism*", "trauma-informed", "boundary violation*",
+      "baseline", "acuity", "milieu"
+    ],
+    "clinicWords": [
+      "validate", "validating", "validation", "process your", "coping", "triggered", "regulate", "unpack", "hold space", "safe space"
+    ],
+    "uncontracted": [
+      "do not", "does not", "did not", "is not", "are not", "was not", "cannot", "will not", "would not", "should not", "could not",
+      "i am", "you are", "we are", "it is", "that is", "i will", "we will"
+    ],
+    "outOfScope": [
+      "suicid*", "kill myself", "kill himself", "kill herself", "kill themselves", "end my life", "end it all", "better off without",
+      "not be here", "hurt myself", "hurt himself", "hurt herself", "self-harm", "self harm", "overdos*", "cut myself", "gun", "guns",
+      "firearm*", "weapon*", "pills", "lock box", "lockbox", "hit me", "hits me", "hit her", "hit him", "hurts me", "afraid of him",
+      "afraid of her", "afraid of them", "scared of him", "scared of her", "scared of them", "threaten*", "restraining order", "police",
+      "abus*", "assault*", "rape", "raped", "molest*", "medication*", "dose", "doses", "diagnos*"
+    ]
+  },
+  "script": {
+    "parts": ["join", "hear", "exchange", "agree", "close"],
+    "kinds": ["ask", "reflect", "frame", "limit", "plan", "thanks"],
+    "frames": { "30": 1, "60": 2, "90": 3 }
+  }
+}

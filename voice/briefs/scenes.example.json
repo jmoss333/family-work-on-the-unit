@@ -1,0 +1,25 @@
+{
+  "task": "scenes",
+  "fictional": true,
+  "note": "An example brief. Every person is invented. Describe a moment in a sentence or two; the tool refuses a brief that carries a date, a number that could identify someone, a contact detail or a name on the protected list, and one that asks for a conversation a short scene cannot hold.",
+  "scenes": [
+    {
+      "id": "month",
+      "move": "room/make-a-plan-both-people-can-own",
+      "people": [
+        { "name": "Nell", "role": "An adult receiving inpatient care" },
+        { "name": "Gus", "role": "Nell’s husband" }
+      ],
+      "moment": "Gus has decided to take a month off work so that he can be home every day. He announces it as good news. Nell has not been asked."
+    },
+    {
+      "id": "quiet",
+      "move": "room/hear-what-each-person-means",
+      "people": [
+        { "name": "Hollis", "role": "An adult receiving inpatient care" },
+        { "name": "Bram", "role": "Hollis’s grandfather" }
+      ],
+      "moment": "Bram says Hollis has been “quiet” at home, and means it as praise. Hollis hears it as not being noticed."
+    }
+  ]
+}

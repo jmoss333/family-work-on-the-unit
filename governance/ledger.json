@@ -139,6 +139,16 @@
     "at": "2026-11-15",
     "by": "Pending faculty review"
   },
+  "studio/fresh-scenes": {
+    "status": "pending",
+    "risk": {
+      "kind": "clinical",
+      "level": "moderate"
+    },
+    "reason": "Six invented scenes drafted by Claude (2026-11-18) in the author's reported voice, held to voice/rules.json. The wording is not his until he edits it. Needs faculty review and a patient or support-person advisor's read.",
+    "at": "2026-11-18",
+    "by": "Pending faculty review"
+  },
   "studio/check-a-draft": {
     "status": "pending",
     "risk": {

@@ -10,7 +10,8 @@
     "unit-procedure": "De-identified by Claude (2026-11-16) from the author's own one-page unit procedure, version 2.0 (November 2026). The unit, its institution and the products it uses are not named; docs/WORKFLOW_INTAKE.md lists every other change.",
     "author-materials": "Assembled by Claude (2026-11-16) from Dr. Moss's own teaching materials: his November 2026 resident reference and slides, and his July 2026 handbook for attending psychiatrists. The sentences are his unless docs/WORKFLOW_INTAKE.md says otherwise.",
     "adaptation-tool": "Built by Claude (2026-11-17). The sheet is the unit workflow's own text. The questions, the roles offered for each job, the intervals offered, and the line between what can change and what stays fixed are Claude's.",
-    "site-map": "Built by Claude (2026-11-17) from text other pages already carry: the unit workflow, the table of the five parts and their move cards, and the list of pages. Its introduction, its headings and its layout are Claude's."
+    "site-map": "Built by Claude (2026-11-17) from text other pages already carry: the unit workflow, the table of the five parts and their move cards, and the list of pages. Its introduction, its headings and its layout are Claude's.",
+    "voice-kit": "Drafted by Claude (2026-11-18) in the author's reported voice, with the kit in voice/, and held to voice/rules.json by the build. Every scene and person is invented. The wording is not yet his."
   },
   "pages": [
     {
@@ -236,6 +237,20 @@
       "minutes": 10,
       "origin": "astra-prototype",
       "originNote": "Dialogue from the original fictional case. Six positions were added in the first review build. The November 18 supervision revision adds two debriefs, paired practice and exact-moment retries."
+    },
+    {
+      "slug": "studio/fresh-scenes",
+      "title": "Fresh scenes, one turn each",
+      "section": "studio",
+      "kind": "scenes",
+      "sources": [
+        "cases/fresh-scenes.scenes.json",
+        "src/lib/scenes.mjs"
+      ],
+      "scenes": "cases/fresh-scenes.scenes.json",
+      "summary": "A short fictional scene for each move: say the next line aloud, then compare one possible line.",
+      "minutes": 6,
+      "origin": "voice-kit"
     },
     {
       "slug": "studio/check-a-draft",

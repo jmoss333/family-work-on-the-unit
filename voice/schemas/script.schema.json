@@ -1,0 +1,33 @@
+{
+  "type": "object",
+  "properties": {
+    "title": { "type": "string" },
+    "parts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "part": { "type": "string", "enum": ["join", "hear", "exchange", "agree", "close"] },
+          "lines": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "to": { "type": "string" },
+                "kind": { "type": "string", "enum": ["ask", "reflect", "frame", "limit", "plan", "thanks"] },
+                "say": { "type": "string" }
+              },
+              "required": ["to", "kind", "say"],
+              "additionalProperties": false
+            }
+          }
+        },
+        "required": ["part", "lines"],
+        "additionalProperties": false
+      }
+    },
+    "concerns": { "type": "array", "items": { "type": "string" } }
+  },
+  "required": ["title", "parts", "concerns"],
+  "additionalProperties": false
+}

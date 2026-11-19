@@ -114,6 +114,9 @@ export function build({ root, outDir, channel = 'review', buildId = '' }) {
     if (page.kind === 'studio') {
       body = T.studioPage(page, ctx);
       scripts = ['assets/site.js', 'assets/studio.js'];
+    } else if (page.kind === 'scenes') {
+      // No script of its own: each comparison is a <details> element.
+      body = T.scenesPage(page, ctx);
     } else if (page.kind === 'observer') {
       body = renderObserver(page, ctx, T.pageHeader);
       scripts = ['assets/site.js', 'assets/observer.js'];

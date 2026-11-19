@@ -8,8 +8,10 @@ import { validateCase } from './casegraph.mjs';
 import { validateWorkflow } from './workflow.mjs';
 import { ADAPT_SCRIPT, validateAdaptation } from './adapt.mjs';
 import { checkParts, readParts, validateMap } from './map.mjs';
+import { SCENES_LIB, validateScenes } from './scenes.mjs';
+import { loadRules } from './voice.mjs';
 
-export const KINDS = new Set(['page', 'card', 'studio', 'register', 'workflow', 'adapt', 'map', 'observer']);
+export const KINDS = new Set(['page', 'card', 'studio', 'scenes', 'register', 'workflow', 'adapt', 'map', 'observer']);
 // A page that describes how a real unit works needs more than a clinical read before it is
 // public. The attest command asks the reviewer to confirm each line below, and a reviewed
 // row without that record is refused.
@@ -135,6 +137,31 @@ export function loadSite(root) {
         for (const error of validateCase(caseFile)) problems.push(`${page.case}: ${error}`);
         cases.set(page.slug, caseFile);
         page.caseFile = caseFile;
+      }
+    }
+    if (page.kind === 'scenes') {
+      // The page prints its deck, and one label its renderer writes; so the review covers the
+      // deck and the renderer. The voice rules only refuse, and write nothing: they are not a
+      // source, and a deck they refuse does not build.
+      const complete = page.scenes && page.sources.length === 2 && page.sources[0] === page.scenes && page.sources[1] === SCENES_LIB;
+      if (!complete) problems.push(`${at}: a scenes page's sources are its deck and ${SCENES_LIB}`);
+      else if (existsSync(join(root, page.scenes))) {
+        const deck = readJson(root, page.scenes);
+        let rules = null;
+        try {
+          rules = loadRules(root);
+        } catch (error) {
+          problems.push(error.message);
+        }
+        if (rules) {
+          const cards = manifest.pages.filter((other) => other.kind === 'card');
+          // A fresh scene has its own people: no name a rehearsal already uses.
+          const taken = manifest.pages
+            .filter((other) => other.kind === 'studio' && other.case && existsSync(join(root, other.case)))
+            .flatMap((other) => (readJson(root, other.case).people || []).map((person) => person.name));
+          for (const error of validateScenes(deck, { rules, cards, taken })) problems.push(`${page.scenes}: ${error}`);
+        }
+        page.scenesFile = deck;
       }
     }
     if (page.kind === 'observer') {

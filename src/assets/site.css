@@ -755,6 +755,32 @@ a.ev-ref:hover { border-color: var(--rc-accent); text-decoration: none; }
 /* The rehearsal's room diagram needs the script: without it, and on paper, it is not shown. */
 .room { display: none; }
 
+/* Fresh scenes: one exchange, the turn after it, and one possible line behind a disclosure.
+ * The page has no script of its own; <details> opens and closes the comparison. */
+.turns { display: grid; gap: var(--rc-space-xl); margin: var(--rc-space-lg) 0; max-width: var(--rc-layout-reading-max); }
+.turn { padding-top: var(--rc-space-lg); border-top: 1px solid var(--rc-border); }
+.turn > h2 { font-size: var(--rc-type-h3); margin-bottom: var(--rc-space-2xs); }
+.turn__move { font-size: var(--rc-type-small); margin: 0 0 var(--rc-space-sm); }
+.turn__people { display: grid; grid-template-columns: auto 1fr; gap: 0 var(--rc-space-sm); margin: 0 0 var(--rc-space-md); font-size: var(--rc-type-small); color: var(--rc-text-mid); }
+.turn__people dt { font-weight: var(--rc-font-weight-semibold); color: var(--rc-text); }
+.turn__people dd { margin: 0; }
+.turn > .narration { max-width: var(--rc-measure); }
+.turn__ask { font-size: var(--rc-type-small); color: var(--rc-text-mid); }
+.turn__compare { margin-top: var(--rc-space-sm); }
+.turn__compare > summary { padding: var(--rc-space-sm) 0; color: var(--rc-link); }
+@media print {
+  /* On paper the page is a worksheet: the turn is a ruled line to write on. A comparison
+   * that was open when the page was printed is printed with it; a closed one is not. */
+  .turn { break-inside: avoid; }
+  .turn:has(details[open]) { break-inside: auto; }
+  .turn__compare { break-inside: avoid; }
+  .turns { gap: var(--rc-space-md); margin: var(--rc-space-sm) 0; }
+  .turn { padding-top: var(--rc-space-sm); }
+  .turn > .narration { max-width: none; }
+  .turn__ask { padding-bottom: 2.2rem; border-bottom: 1px solid var(--rc-border-strong); }
+  .turn__compare > summary { display: none; }
+}
+
 /* ─── The margin (design pass, 2026-11-18) ───
  * The margin says who; the column says what. A speaker's name hangs beside their line, a
  * section's name beside its contents, and a page's review status sits beside the page as a
@@ -1031,4 +1057,29 @@ a.ev-ref:hover { border-color: var(--rc-accent); text-decoration: none; }
 }
 @media screen and (prefers-reduced-motion: no-preference) {
   .room__seat::before { transition: background-color var(--rc-ease), border-color var(--rc-ease); }
+}
+
+/* ─── Fresh scenes (2026-11-18) ───
+ * The rehearsal's script setting, and its empty turn: where a scene asks the resident to
+ * speak, the margin is left blank and a rule waits above the instruction. Screen only, as
+ * above; on paper the same place is a ruled line.
+ */
+@media screen {
+  .turn { border-top: 1px solid var(--rc-border-strong); }
+  .turn__ask {
+    padding-left: calc(7.5rem + var(--rc-space-lg));
+    margin-top: var(--rc-space-lg);
+  }
+  .turn__ask::before {
+    content: "";
+    display: block;
+    width: min(100%, 34em);
+    height: 2px;
+    margin-bottom: var(--rc-space-sm);
+    background: var(--rc-primary-dark);
+  }
+  .turn__compare > summary, .turn__compare > .narration { padding-left: calc(7.5rem + var(--rc-space-lg)); }
+}
+@media screen and (max-width: 760px) {
+  .turn__ask, .turn__compare > summary, .turn__compare > .narration { padding-left: 0; }
 }

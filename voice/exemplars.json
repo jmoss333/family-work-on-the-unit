@@ -1,0 +1,21 @@
+{
+  "schema": 1,
+  "note": "Lines of the author's own, grouped by what they do. Each is a general-purpose line: none states a fact about a family, and nothing a patient or family member said is here. \"fidelity\" says how close a line is to speech: \"close\" kept its contractions and small words in his notes; \"summarized\" is his notes' wording and has likely been tidied. \"confirmed\" is false until the author himself has read the line and changed it to true; an AI assistant never does.",
+  "lines": [
+    { "does": "join", "say": "I do a lot of family work. Family work is often avoided in psychiatry, but I think it can be really helpful. I appreciate you being willing to come in.", "fidelity": "close", "confirmed": false },
+    { "does": "join", "say": "Usually, I like to get to know you a little bit. You can share whatever you’d like.", "fidelity": "close", "confirmed": false },
+    { "does": "join", "say": "Is there anything anyone wants to make sure we address?", "fidelity": "summarized", "confirmed": false },
+    { "does": "hear", "say": "What has made it hard for the two of you to talk about it?", "fidelity": "close", "confirmed": false },
+    { "does": "hinge", "say": "What are you feeling as you hear all of this?", "fidelity": "close", "confirmed": false },
+    { "does": "hinge", "say": "How do you feel hearing it directly from her?", "fidelity": "close", "confirmed": false },
+    { "does": "hold a part", "say": "You still make your own decisions.", "fidelity": "close", "confirmed": false },
+    { "does": "out of the middle", "say": "It really shouldn’t fall on her lap.", "fidelity": "close", "confirmed": false },
+    { "does": "one idea", "say": "The two biggest things are time and consistency.", "fidelity": "close", "confirmed": false },
+    { "does": "one idea", "say": "Trust is lost, and it’s hard to trust yourself to decide who you can trust.", "fidelity": "close", "confirmed": false },
+    { "does": "one idea", "say": "When you feel like you can’t express the anger to that person, someone else is going to get that anger.", "fidelity": "close", "confirmed": false },
+    { "does": "hope", "say": "Repairing the relationship will make that relationship even stronger.", "fidelity": "close", "confirmed": false },
+    { "does": "agree what to try", "say": "What is one activity the family could do together that is not focused on a crisis or solving a problem?", "fidelity": "summarized", "confirmed": false },
+    { "does": "close", "say": "Before we stop, is there anything else either of you needs to say?", "fidelity": "close", "confirmed": false },
+    { "does": "close", "say": "You can continue spending time together after the meeting if you would like.", "fidelity": "summarized", "confirmed": false }
+  ]
+}
