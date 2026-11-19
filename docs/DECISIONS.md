@@ -102,6 +102,21 @@ Two parts: the architecture decision that shaped this build, and the decisions t
 
 **Consequences.** Terracotta now marks a voice on these pages (D24). `studio.js` is a source of the rehearsal page, so the empty turn is keyed in CSS on the position, not on a class the script adds. Print is untouched: the section is inside `@media screen`, and the printed page counts of the workflow, the adaptation sheet, the observer card, a move card, the pocket card, the rehearsal, the home page and the map are the same as before (A24).
 
+## ADR-006 · Who's in the room, and the turn strip: two pictures drawn from the case (2026-11-18)
+
+**Context.** After the design pass (ADR-005), the owner asked how the design could go further. The proposal was to let the pictures teach what the six moves teach: whose room it is, and whose floor. Neither page is attested yet. Both pictures touch a review source (`src/lib/studio.mjs` and `src/assets/studio.js` for the rehearsal, `src/lib/observer.mjs` for the observer page), so they cost no attestation now and would reopen a page later.
+
+**Decision.**
+
+1. **Who's in the room.** The rehearsal shows four seats under the title: one for each person in the case, one for the learner, and the supervisor's, outside the room. The case's own flags decide who is present. In a position marked joint, both people and the learner are present. In any other position, the patient (the case's first person) and the learner are. In a debrief, at the supervisor's hand-back and at the end, the learner and the supervisor are. An absent seat is drawn empty and hidden from assistive technology, so the picture and the spoken list are the same list. The rule travels in the page's data block; `studio.js` applies it and composes no text. Without the script, and on paper, the room is not shown.
+2. **The turn strip.** On the observer page, each turn button carries whose turn it is and how long it runs: one step for every three words, up to eight. The patient's mark is solid terracotta, the support person's an outline, the resident's ink. In "Make a plan" Rowan speaks once, briefly and last ("That’s not quite it."). In "Invite a correction" Rowan speaks twice, with the longest turn in the exchange, and Sal answers Rowan rather than for Rowan.
+
+**Words.** No sentence is added. The room's list is labelled with the aside's own heading, "Who’s in the room?". The seats carry the case's names, the case's learner role and "Supervisor".
+
+**What the case had to agree to.** Before drawing it, every position was checked: Sal speaks in no position the case marks as private, and no family member speaks in a debrief. A test keeps it so (A25).
+
+**Consequences.** The rehearsal and the observer page change hash; both were pending. To change a seat, edit `roomRule` in `src/lib/studio.mjs`, which is a source of the rehearsal page. To change how a turn's length is measured, edit `turnLength` in `src/lib/observer.mjs`, a source of the observer page (D27, D28).
+
 ## Open decisions
 
 | # | Decision | Default in effect | Why it is yours | To change it |
@@ -130,6 +145,8 @@ Two parts: the architecture decision that shaped this build, and the decisions t
 | D24 | **Terracotta means a voice.** Since the design pass, speaker names, "Try saying" and the empty turn are terracotta, and door titles are teal. The navigation underline, the map's step numbers and the board's marks are still terracotta | As built | It is the site's look, and its sister site shares the palette | The section "The margin" at the end of `src/assets/site.css` |
 | D25 | **Where the component fixes live.** The design pass overrides the design system's eyebrow and card styles in this site's `site.css`. The same fixes could go upstream, so the Clerkship Library inherits them | Here, in `site.css` | The design system is yours, and so is the Clerkship Library | Move the rules to the design system and delete them here |
 | D26 | **Which positions get the empty turn.** Those whose closing line asks the resident to speak: twelve of the case's 27, by the rule in ADR-005 | As built | It is a reading of your rehearsal: where the turn passes to the resident | The list in `site.css`; the test says which positions the rule would add or remove |
+| D27 | **Who the room seats.** A private position seats the patient and the learner; a debrief seats the learner and the supervisor; the supervisor watches the fiction from outside the room. The rule follows the case's `joint` and `debrief` flags | As built | It is a reading of your rehearsal and of the supervisor's place in it | `roomRule` in `src/lib/studio.mjs`; a test fails if the room ever shows a speaker away |
+| D28 | **What the turn strip measures.** A turn's mark grows by one step for every three words, up to eight; no caption says so | As built, uncaptioned | Words are a proxy for holding the floor, not a measure of it. A caption would be new text to review | `turnLength` in `src/lib/observer.mjs` |
 
 ## Decided
 

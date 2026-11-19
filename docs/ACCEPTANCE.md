@@ -2,7 +2,7 @@
 
 Every criterion has an id, the test that checks it, and what a test cannot settle. The first table is the design brief's own four-owner acceptance test, line by line. The second lists the criteria this build adds.
 
-`npm test` runs every automated check (128 on 2026-11-18) in about sixteen seconds; most of that is one test that tries every way to fill the adaptation page's six jobs. The browser checks were run by hand against the review build on 2026-11-15, on 2026-11-16 for the new and changed pages (Chromium 1280 and 390 px wide, light and dark, and the workflow's print layout), and on 2026-11-17 for the adaptation page, its board, its role cards and the map (listed under A18, A19, A20 and A22); they are not yet part of `npm test`.
+`npm test` runs every automated check (133 on 2026-11-18) in about sixteen seconds; most of that is one test that tries every way to fill the adaptation page's six jobs. The browser checks were run by hand against the review build on 2026-11-15, on 2026-11-16 for the new and changed pages (Chromium 1280 and 390 px wide, light and dark, and the workflow's print layout), and on 2026-11-17 for the adaptation page, its board, its role cards and the map (listed under A18, A19, A20 and A22); they are not yet part of `npm test`.
 
 The deploy runs the tests before it builds, so the tests have to pass in every state the owner may put the repository in, and not only in today's. On 2026-11-17 the whole suite was run against copies of the repository with one page attested, with every page attested, with a mixed set attested, with upstream attestations honoured, with both, with indexing switched on and with the licences confirmed. It passed in each. Before that day's changes it failed as soon as one page was attested (see `docs/DECISIONS.md`, ADR-004).
 
@@ -54,6 +54,7 @@ The deploy runs the tests before it builds, so the tests have to pass in every s
 | A22 | **A role's card says only what the sheet says.** There is one card for each row of the board, in its order. A card holds exactly the steps the board marks for that role, each the sheet's step tag for tag with one line added that says whether the role owns it; around them, the version line, the role's name, where the workflow comes from, the guardrails, the exceptions and the closing line, and nothing else. On every thirteenth of the 70,560 versions the cards match the board's rows and marks. A version with a step nobody owns has no cards and its buttons are off. As the page is built every card button is off, and the cards as written are in the page. Cards escape everything they print | `adapt.test.mjs` |
 | A23 | **A review from outside is given the site's own words, and its findings are checked against them.** The review packet holds every page of the review build, in the site's order, each page's text exactly as the built page has it, with its address and the state of its review; it carries no markup and no data block, and the unit workflow is in it whole. A finding that comes back must quote words that are on the page it names; typography is forgiven and a changed word is not. The check exits 1 on a finding the site does not bear out | `outside-review.test.mjs` |
 | A24 | **The design pass changes how pages look and nothing they say.** No stylesheet puts a letter or digit on a page through `content`. The pass sits entirely inside `@media screen`. The empty turn is listed for exactly the case positions whose closing line asks the resident to speak. On the map, the breaks in the board's lines are the handoffs of the workflow as written; on every thirteenth adaptation version they are the handoffs the page states, and in a version with a step nobody owns, every other break touches that step | `margin.test.mjs`; also `contrast.test.mjs` (the note and speaker pairings) |
+| A25 | **The room and the turn strip are drawn from the case.** The room lists one seat for each person, the learner and the supervisor, under the aside's own heading. The rule for who is present travels in the data block, and the room never shows a speaker away; a position not marked joint does not seat the person invited to the joint meeting. The script sets the room at every position, at the hand-back and at the end. Without the script the room is not shown. Each mark on the observer's strip carries its turn's speaker and length, in the transcript's order | `room.test.mjs`; also `contrast.test.mjs` |
 | A19 | **The map is a faithful copy.** A role is marked at a step exactly when that step's own words name it. The board as built says what the workflow file says: when each step starts, who owns it, who is also involved, whether anything is written, whether a measure checks it, whether there is more to read. Each step opens to the same words as the workflow page, plus its measure. The formats, the two rules and the parts with their move cards are printed as their sources have them, and every move card is placed once. Every page that ships is one press from the map, and a page that does not ship is neither linked nor, in the map's own lists, named. The page is whole without its script, and the script has no way to put a word on the page. The review covers the map's file, the workflow and the page the parts come from; and the page is under the release gate | `map.test.mjs`; also `no-capture.test.mjs`, `deidentify.test.mjs`, `contrast.test.mjs` |
 
 ### A18 in a browser (2026-11-17, Chromium, by hand)
@@ -125,6 +126,20 @@ The procedure names the unit, so it is kept outside the repository and this chec
 | The map's lines | Two segments as written (steps 6 to 8); none while "Test yourself" hides the marks |
 | The suite against a copy with the 18 pages that need no release record attested (rule 12) | 128 of 128 pass; the commit before the pass, signed the same way, 123 of 123 |
 | A screen reader on the script layout; a real phone; the "In review" note as a faculty reviewer sees it | **Needs a person.** The DOM order is unchanged, so the reading order should be too |
+
+### A25 in a browser (2026-11-18, Chromium, by hand)
+
+| Checked | Result |
+|---|---|
+| Every position of the rehearsal, reached by pressing its choices (25) and the pause tool (2), plus the supervisor's hand-back and the end | All 27 positions and both screens seat exactly the people the rule gives. An absent family seat is drawn dashed |
+| What assistive technology is told, at the pause's debrief | The list "Who’s in the room?" with two items: Resident, Supervisor |
+| With the script off | The room is not shown |
+| The observer strip | "Make a plan": Sal 3, Resident 2, Rowan 2 steps. "Invite a correction": Sal 3, Resident 4, Rowan 4, Sal 4, Rowan 5 |
+| Overflow at 390 and 320 px on both pages | None |
+| Dark mode; reduced motion | Legible; the seats change without transition |
+| Print page counts before and after (the rehearsal, the observer card) | Identical (2, 1) |
+| The suite against a copy with 18 pages attested (rule 12) | 133 of 133 |
+| Whether the room helps a resident see that a disclosure is private, and whether the strip prompts the observation the card asks for | **Needs a person** |
 
 ## What no test here establishes
 

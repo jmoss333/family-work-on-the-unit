@@ -13,7 +13,15 @@
   const body = document.getElementById('studio-body');
   const choices = document.getElementById('studio-choices');
   const tools = document.getElementById('studio-tools');
+  const seats = root.querySelectorAll('[data-seat]');
   let moment = null;
+
+  // Who is in the room: an absent seat is hidden from assistive technology and drawn empty,
+  // so the picture and what a screen reader announces are the same list.
+  function room(state) {
+    root.dataset.room = state;
+    for (const seat of seats) seat.setAttribute('aria-hidden', String(!data.room[state].includes(seat.dataset.seat)));
+  }
 
   function el(tag, className, text) {
     const element = document.createElement(tag);
@@ -47,6 +55,7 @@
   function finish() {
     const next = moment === 'risk' || moment === 'solo' ? 'boundary' : 'risk';
     reset('finished', 'Debrief together', 'Practice complete');
+    room('debrief');
     body.append(el('p', 'narration', 'Choose a moment to revisit at your next supervision.'));
     const link = el('a', 'rc-btn rc-btn--calm', 'Next supervision · ' + data.nodes[next].title);
     link.href = '#practice-' + next;
@@ -64,6 +73,7 @@
     const stopped = endOfParticipation(id);
     const retry = session.promptHere.includes(id) ? id : moment;
     reset('supervisor', 'Supervisor seat', stopped ? 'How was the stop honored?' : 'Give one observation.');
+    room('debrief');
     if (stopped) {
       body.append(el('p', 'narration', data.nodes.debriefPause.lines[0].text));
     } else {
@@ -82,6 +92,7 @@
     if (id === data.start) moment = null;
     if (session && Object.hasOwn(session.moments, id)) moment = id;
     reset(id, node.debrief ? 'Debrief together' : 'Resident seat', node.title);
+    room(node.debrief ? 'debrief' : node.joint ? 'joint' : 'private');
     for (const line of node.lines) {
       if (line.kind === 'speech') {
         const p = el('p', line.speaker === data.learnerRole ? 'speech speech--learner' : 'speech', '');

@@ -142,7 +142,8 @@ export function loadSite(root) {
         problems.push(`${at}: the observer page must cover its paper card, rehearsal case, text renderer and controls`);
       } else if (sources.length === observerSources.length) {
         try {
-          page.observerVersions = observerVersions(JSON.parse(sources[1].bytes));
+          page.observerCase = JSON.parse(sources[1].bytes);
+          page.observerVersions = observerVersions(page.observerCase);
         } catch (error) {
           problems.push(`${at}: ${error.message}`);
         }

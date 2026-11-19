@@ -51,6 +51,8 @@ const BOTH = [
   ['text', 'warning-light>surface', 'step nobody owns'], ['primary-dark', 'warning-light>surface', 'number of a step nobody owns'],
   // The margin (2026-11-18): speaker names and "Try saying" in terracotta on the page, door titles in teal.
   ['primary-dark', 'bg', 'speaker names and the "Try saying" label'],
+  // Who's in the room, and the turn strip (2026-11-18).
+  ['text', 'accent-light>bg', 'the selected turn on the observer strip'],
 ];
 const LIGHT_ONLY = [
   ['success-strong', 'success-light>surface', 'attested badge and banner'], ['success-strong', 'success-light>bg', 'attested banner'],

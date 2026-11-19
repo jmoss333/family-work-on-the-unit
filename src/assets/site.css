@@ -752,6 +752,9 @@ a.ev-ref:hover { border-color: var(--rc-accent); text-decoration: none; }
 .studio__moments a { display: inline-flex; align-items: center; min-height: 2.75rem; }
 .studio__scene .rc-btn { min-height: 2.75rem; white-space: normal; }
 
+/* The rehearsal's room diagram needs the script: without it, and on paper, it is not shown. */
+.room { display: none; }
+
 /* ─── The margin (design pass, 2026-11-18) ───
  * The margin says who; the column says what. A speaker's name hangs beside their line, a
  * section's name beside its contents, and a page's review status sits beside the page as a
@@ -932,4 +935,100 @@ a.ev-ref:hover { border-color: var(--rc-accent); text-decoration: none; }
   .say figcaption, .say blockquote, .speech__who { grid-column: 1; }
   [data-studio][data-position] #studio-body > .narration:last-child { padding-left: 0; }
   .page__title { font-size: var(--rc-type-h1); }
+}
+
+/* ─── Who's in the room, and the turn strip (2026-11-18) ───
+ * The rehearsal shows who is in the conversation at each position: the people and the
+ * resident inside the room, the supervisor outside it. A seat the script marks absent is drawn
+ * empty and hidden from assistive technology, so the picture and the spoken list agree.
+ * On the observer page each turn is a mark whose length grows with its words; the patient's
+ * mark is solid, the support person's an outline, the resident's ink. Screen only, as above.
+ */
+@media screen {
+  [data-studio][data-room] .room {
+    display: flex;
+    align-items: stretch;
+    width: max-content;
+    max-width: 100%;
+    margin: 0 0 var(--rc-space-lg);
+    padding: 0;
+    list-style: none;
+    font-size: var(--rc-type-small);
+  }
+  .room__seat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--rc-space-2xs);
+    min-width: 4.5rem;
+    padding: var(--rc-space-sm) var(--rc-space-xs);
+    font-weight: var(--rc-font-weight-semibold);
+    color: var(--rc-text);
+  }
+  .room__seat:not([data-seat="supervisor"]) {
+    background: var(--rc-surface);
+    border-top: 1px solid var(--rc-border-strong);
+    border-bottom: 1px solid var(--rc-border-strong);
+  }
+  .room__seat:first-child { border-left: 1px solid var(--rc-border-strong); border-radius: var(--rc-radius-sm) 0 0 var(--rc-radius-sm); }
+  .room__seat[data-seat="learner"] { border-right: 1px solid var(--rc-border-strong); border-radius: 0 var(--rc-radius-sm) var(--rc-radius-sm) 0; }
+  .room__seat[data-seat="supervisor"] { margin-left: var(--rc-space-md); }
+  .room__seat::before {
+    content: "";
+    box-sizing: border-box;
+    width: 1.25rem;
+    height: 1.25rem;
+    border-radius: var(--rc-radius-pill);
+    border: 2px solid var(--rc-primary-dark);
+    background: var(--rc-primary-dark);
+  }
+  .room__seat[aria-hidden="true"] { color: var(--rc-text-mid); font-weight: var(--rc-font-weight-normal); }
+  .room__seat[aria-hidden="true"]::before { background: none; border: 2px dashed var(--rc-text-mid); }
+  .room__seat[data-seat="supervisor"][aria-hidden="true"]::before { border-style: solid; }
+
+  .observer-turns {
+    align-items: flex-end;
+    gap: var(--rc-space-2xs);
+    padding-bottom: var(--rc-space-2xs);
+    border-bottom: 2px solid var(--rc-border);
+  }
+  .observer-turn {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-end;
+    gap: var(--rc-space-2xs);
+    padding: var(--rc-space-2xs) var(--rc-space-xs);
+    border: 0;
+    border-radius: var(--rc-radius-sm);
+    background: none;
+    color: var(--rc-text);
+  }
+  .observer-turn::after {
+    content: "";
+    box-sizing: border-box;
+    display: block;
+    height: 0.625rem;
+    border-radius: 2px;
+    border: 2px solid var(--rc-primary-dark);
+    background: var(--rc-primary-dark);
+  }
+  .observer-turn[data-person="2"]::after { background: none; }
+  .observer-turn[data-person="learner"]::after { border-color: var(--rc-text); background: var(--rc-text); }
+  .observer-turn[data-length="1"]::after { width: 1rem; }
+  .observer-turn[data-length="2"]::after { width: 2rem; }
+  .observer-turn[data-length="3"]::after { width: 3rem; }
+  .observer-turn[data-length="4"]::after { width: 4rem; }
+  .observer-turn[data-length="5"]::after { width: 5rem; }
+  .observer-turn[data-length="6"]::after { width: 6rem; }
+  .observer-turn[data-length="7"]::after { width: 7rem; }
+  .observer-turn[data-length="8"]::after { width: 8rem; }
+  .observer-lab .observer-turn[aria-pressed="true"] {
+    background: var(--rc-accent-light);
+    color: var(--rc-text);
+    box-shadow: inset 0 -3px 0 var(--rc-accent-dark);
+  }
+}
+@media screen and (prefers-reduced-motion: no-preference) {
+  .room__seat::before { transition: background-color var(--rc-ease), border-color var(--rc-ease); }
 }

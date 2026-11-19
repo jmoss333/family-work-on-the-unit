@@ -25,11 +25,19 @@ export function observerVersions(caseFile) {
   });
 }
 
-function versionPanel({ id, label, turns }) {
+/** Words in a turn, in steps of three up to eight steps: the length of its mark on the turn strip. */
+export const turnLength = (text) => Math.min(8, Math.ceil(text.trim().split(/\s+/).length / 3));
+/** Whose turn: the case's first or second person by order, or the learner. */
+export const turnPerson = (speaker, caseFile) => {
+  const index = caseFile.people.findIndex((person) => person.name === speaker);
+  return index >= 0 ? String(index + 1) : 'learner';
+};
+
+function versionPanel({ id, label, turns }, caseFile) {
   return `<section data-version="${id}" id="version-${id}" aria-labelledby="title-${id}">
 <h3 id="title-${id}" class="observer-static-title">${esc(label)}</h3>
 <div class="observer-turns" role="group" aria-label="Conversation turns · ${escAttr(label)}" data-turns hidden>
-${turns.map(({ speaker }, index) => `<button class="observer-turn" type="button" data-turn="${index}" aria-label="Turn ${index + 1}, ${escAttr(speaker)}" aria-pressed="false">${esc(speaker)}</button>`).join('\n')}
+${turns.map(({ speaker, text }, index) => `<button class="observer-turn" type="button" data-turn="${index}" data-person="${turnPerson(speaker, caseFile)}" data-length="${turnLength(text)}" aria-label="Turn ${index + 1}, ${escAttr(speaker)}" aria-pressed="false">${esc(speaker)}</button>`).join('\n')}
 </div>
 <ol class="observer-transcript">
 ${turns.map(({ speaker, text }, index) => `<li><strong>${esc(speaker)} · Turn ${index + 1}</strong><p>“${esc(text)}”</p></li>`).join('\n')}
@@ -53,7 +61,7 @@ ${pageHeader(page, ctx, { eyebrow: 'Observer seat · Fictional rehearsal', meta:
 ${versions.map(({ id, label }) => `<button class="rc-btn rc-btn--ghost" type="button" data-ending="${id}" aria-controls="version-${id}" aria-pressed="false">${esc(label)}</button>`).join('\n')}
 </div>
 <p class="observer-instructions" data-instructions hidden>Follow the turns. Select a speaker to read the line.</p>
-${versions.map(versionPanel).join('\n')}
+${versions.map((version) => versionPanel(version, page.observerCase)).join('\n')}
 <div class="observer-line" data-turn-line aria-live="polite" aria-atomic="true" hidden></div>
 </section>
 <aside class="studio__aside" aria-labelledby="give-observation">

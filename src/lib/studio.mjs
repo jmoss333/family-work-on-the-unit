@@ -7,6 +7,27 @@ function scriptLine(line, learnerRole) {
     : `<p class="narration">${esc(line.text)}</p>`;
 }
 
+/**
+ * Who is in the room. One seat for each person in the case, one for the learner and one for
+ * the supervisor. A position the case marks as joint seats the people and the learner; a
+ * private one seats the first person (the patient) and the learner; a debrief, and the
+ * supervisor's hand-back, seat the learner and the supervisor. The diagram adds no sentence:
+ * its labels are the case's names, and its list is labelled with the aside's own heading.
+ */
+export const ROOM_LABEL = 'Who’s in the room?';
+export function roomSeats(c) {
+  return [
+    ...c.people.map((person, index) => ({ seat: `person-${index + 1}`, name: person.name })),
+    { seat: 'learner', name: c.learnerRole },
+    { seat: 'supervisor', name: 'Supervisor' },
+  ];
+}
+export function roomRule(c) {
+  const people = c.people.map((_, index) => `person-${index + 1}`);
+  return { joint: [...people, 'learner'], private: [people[0], 'learner'], debrief: ['learner', 'supervisor'] };
+}
+export const roomState = (node) => (node.debrief ? 'debrief' : node.joint ? 'joint' : 'private');
+
 export function studioContent(page, ctx, header) {
   const c = page.caseFile;
   const order = reviewOrder(c);
@@ -45,6 +66,7 @@ ${pause}${debrief}
     learnerRole: c.learnerRole,
     supervision: c.supervision,
     exits: c.exits,
+    room: roomRule(c),
     nodes: Object.fromEntries(
       Object.entries(c.nodes).map(([id, node]) => [id, { title: node.title, joint: node.joint, debrief: Boolean(node.debrief), lines: node.lines, choices: node.choices.map(({ label, next }) => ({ label, next })) }]),
     ),
@@ -57,6 +79,9 @@ ${header}
 <section class="studio__scene rc-card" aria-label="Practice scene">
 <p class="rc-eyebrow" id="studio-seat">Resident seat</p>
 <h2 id="studio-heading" class="studio__title" tabindex="-1">${esc(c.nodes[c.start].title)}</h2>
+<ul class="room" aria-label="${escAttr(ROOM_LABEL)}">
+${roomSeats(c).map(({ seat, name }) => `<li class="room__seat" data-seat="${escAttr(seat)}">${esc(name)}</li>`).join('\n')}
+</ul>
 <div id="studio-body">
 ${c.nodes[c.start].lines.map((line) => scriptLine(line, c.learnerRole)).join('\n')}
 <p class="narration"><em>The rehearsal runs in your browser and needs JavaScript. Without it, every branch can still be read in the reviewer’s script below.</em></p>
