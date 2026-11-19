@@ -49,7 +49,7 @@
       "owner": [
         "social-work"
       ],
-      "action": "Make the collateral call. In the same call, invite the support person to a meeting and record their availability. One call, not two. Listening is always permitted; disclose only within the documented scope.",
+      "action": "Before dialing, check whether contact with this person by this route is safe and within the patient’s current permission. Suspected partner violence stops the joint invitation. If the call can go ahead, receive collateral. Invite the support person and record availability in the same call only if a joint meeting is safe and the patient has agreed to it. Listening is always permitted; disclose only within the documented scope.",
       "record": "Collateral note with availability",
       "doneWhen": "Family reached; availability recorded (or attempts documented)",
       "links": [
@@ -108,7 +108,7 @@
       "support": [
         "psy-app-res"
       ],
-      "action": "Meet the support person at the entrance and bring them to the unit; set up the room; let the meeting lead know they have arrived.",
+      "action": "Check the current handoff before escorting the visitor. If the escort is on hold, report the arrival, hand off the hold and stop here. The on-time arrival goal below applies only to a permitted visit. Meet the support person at the entrance and bring them to the unit; set up the room; let the meeting lead know they have arrived.",
       "record": null,
       "doneWhen": "Family in the room on time"
     },
@@ -216,8 +216,8 @@
       "then": "Document; receive collateral if offered (no disclosure); revisit at 72 h and before discharge."
     },
     {
-      "when": "Private check positive, or coercion suspected.",
-      "then": "No conjoint meeting. Separate contacts or none; attending informed; safety frame, not cycle frame."
+      "when": "Suspected partner violence, a positive private check, or suspected coercion.",
+      "then": "No conjoint meeting. Notify the covering attending, who owns reassessment. The hold stays in effect until the covering attending reassesses safety and privately confirms the patient’s current wishes. Only the covering attending may clear the hold, and only for contact that is safe and wanted. The joint meeting stays off while a stopping condition applies. Hand off the decision and its scope to the next shift. Use a safety frame."
     },
     {
       "when": "Support person cannot come in.",

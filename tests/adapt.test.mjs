@@ -365,6 +365,9 @@ test('A22 · a card for one role holds its steps as the sheet prints them, the g
     const mark = result.changed ? `${spec.messages.markChanged.replace('{version}', workflow.version).replace('{code}', result.code)} ${spec.messages.local}` : spec.messages.markSame.replace('{version}', workflow.version);
     for (const [n, card] of made.entries()) {
       const row = picture.rows[n];
+      const safetyAction = /<dt>Suspected partner violence[^<]*<\/dt><dd>([^<]*)<\/dd>/.exec(card.inner)?.[1] || '';
+      assert.match(safetyAction, /until the covering attending reassesses safety and privately confirms the patient’s current wishes/, row.label);
+      assert.match(safetyAction, /Only the covering attending may clear the hold, and only for contact that is safe and wanted/, row.label);
       const marked = row.cells.map((cell, index) => (cell ? index : -1)).filter((index) => index >= 0);
       const steps = [...card.inner.matchAll(STEP)].map(([, inner]) => inner);
       assert.equal(steps.length, marked.length, `${label}, ${row.label}: it holds the steps the board marks for it, and no others`);
@@ -392,6 +395,10 @@ test('A22 · a card for one role holds its steps as the sheet prints them, the g
   assert.ok(cardsOf(core.cards(adapt({}), given.spec)).find((card) => card.id === 'psy-app-res').inner.includes(supervision));
   assert.ok(!core.cards(adapt({ lead: 'app' }), given.spec).includes(supervision));
   assert.ok(!cardsOf(core.cards(adapt({}), given.spec)).find((card) => card.id === 'social-work').inner.includes(supervision), 'step 7 is not social work’s');
+
+  const nursingCard = cardsOf(core.cards(adapt({ partner: 'nursing' }), given.spec)).find((card) => card.id === 'nursing');
+  assert.match(nursingCard.inner, /Suspected partner violence stops the joint invitation/);
+  assert.match(nursingCard.inner, /Suspected partner violence[^<]*<\/dt><dd>No conjoint meeting/);
 
   // A version with a step nobody owns has no cards, and its buttons are off.
   const refused = adapt({ scheduler: 'none' });
